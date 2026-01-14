@@ -9,9 +9,26 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Discovery preferences -->
     <preference for="Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile" />
+
+    <!-- Idempotency preferences -->
     <preference for="Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface" type="Magebit\UniversalCommerce\Model\IdempotencyKey\Model" />
     <preference for="Magebit\UniversalCommerce\Api\IdempotencyKeyRepositoryInterface" type="Magebit\UniversalCommerce\Model\IdempotencyKey\Repository" />
+
+    <!-- Response preferences -->
+    <preference for="Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Response\ErrorResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Response\MessageInterface" type="Magebit\UniversalCommerce\Model\Data\Response\Message" />
+
+    <!-- Spec data preferences -->
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\BuyerInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Buyer" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\CheckoutCreateRequest" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\ItemCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\ItemCreateRequest" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\LineItemCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\LineItemCreateRequest" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\PaymentClassInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\PaymentClass" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\PaymentCredentialInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\PaymentCredential" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\PaymentInstrumentInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\PaymentInstrument" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\PostalAddressInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\PostalAddress" />
 
     <type name="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile">
         <arguments>
