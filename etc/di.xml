@@ -10,6 +10,8 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface" type="Magebit\UniversalCommerce\Model\IdempotencyKey\Model" />
+    <preference for="Magebit\UniversalCommerce\Api\IdempotencyKeyRepositoryInterface" type="Magebit\UniversalCommerce\Model\IdempotencyKey\Repository" />
 
     <type name="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile">
         <arguments>

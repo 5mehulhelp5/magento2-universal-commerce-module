@@ -45,4 +45,9 @@ interface UcpDiscoveryProfileInterface extends JsonSerializable
      * @return array<mixed>
      */
     public function getPaymentHandlers(): array;
+
+    /**
+     * @return array<mixed>
+     */
+    public function jsonSerialize(): array;
 }
