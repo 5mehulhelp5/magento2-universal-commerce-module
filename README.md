@@ -2,6 +2,8 @@
 
 This module makes your store compatible with AI-powered shopping experiences using the [Universal Commerce Protocol (UCP)](https://developers.google.com/merchant/ucp).
 
+**Currently under development**. More details will be provided soon!
+
 ## Features
 
 - [ ] UCP Product Feed Export
