@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * This file is part of the Magebit_UniversalCommerce package.
+ *
+ * @copyright Copyright (c) 2026 Magebit, Ltd. (https://magebit.com/)
+ * @author    Magebit <info@magebit.com>
+ * @license   MIT
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile" />
+
+    <type name="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile">
+        <arguments>
+            <argument name="capabilities" xsi:type="array">
+                <item name="checkout" xsi:type="object">Magebit\UniversalCommerce\Model\Discovery\CheckoutCapability</item>
+            </argument>
+
+            <argument name="services" xsi:type="array">
+                <item name="shopping" xsi:type="object">Magebit\UniversalCommerce\Model\Discovery\ShoppingService</item>
+            </argument>
+
+            <argument name="paymentHandlers" xsi:type="array">
+                <!-- TODO: Remove mock -->
+                <item name="mock" xsi:type="object">Magebit\UniversalCommerce\Model\Discovery\Payment\MockPaymentHandler</item>
+            </argument>
+        </arguments>
+    </type>
+</config>
