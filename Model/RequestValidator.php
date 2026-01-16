@@ -60,7 +60,7 @@ class RequestValidator
 
         if ($errors->count() > 0) {
             $errorResponse = $this->errorResponseFactory->create();
-            $errorResponse->setStatus(ErrorResponseInterface::STATUS_REQUIRES_ESCALATION);
+            $errorResponse->setStatus(ErrorResponseInterface::STATUS_INVALID_REQUEST);
 
             foreach ($errors as $error) {
                 $message = $this->validationErrorToMessage($error);
@@ -84,7 +84,7 @@ class RequestValidator
         $message = $this->messageFactory->create();
         $message->setType(MessageInterface::TYPE_ERROR);
         $message->setCode($this->getErrorCode($error));
-        $message->setSeverity($this->getErrorSeverity($error));
+        $message->setSeverity(MessageInterface::SEVERITY_RECOVERABLE);
         $message->setContent((string) $error->getMessage());
 
         return $message;
@@ -105,29 +105,6 @@ class RequestValidator
         $path = ltrim((string) $path, '._');
 
         return 'invalid_' . str_replace('.', '_', $path);
-    }
-
-    /**
-     * Get error severity based on validation error
-     *
-     * @param ConstraintViolationInterface $error
-     * @return string
-     */
-    protected function getErrorSeverity(ConstraintViolationInterface $error): string
-    {
-        $constraintClass = get_class($error->getConstraint());
-
-        // Map constraint types to severity levels
-        if (str_contains($constraintClass, 'NotBlank') || str_contains($constraintClass, 'NotNull')) {
-            return MessageInterface::SEVERITY_REQUIRES_BUYER_INPUT;
-        }
-
-        if (str_contains($constraintClass, 'Type') || str_contains($constraintClass, 'Format')) {
-            return MessageInterface::SEVERITY_RECOVERABLE;
-        }
-
-        // Default to requires_buyer_review for business rules
-        return MessageInterface::SEVERITY_REQUIRES_BUYER_REVIEW;
     }
 
     /**

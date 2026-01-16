@@ -15,6 +15,8 @@ namespace Magebit\UniversalCommerce\Controller;
 use InvalidArgumentException;
 use Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterface;
 use Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterfaceFactory;
+use Magebit\UniversalCommerce\Api\Data\Response\MessageInterface;
+use Magebit\UniversalCommerce\Api\Data\Response\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Model\RequestValidator;
 use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\CsrfAwareActionInterface;
@@ -32,12 +34,14 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
      * @param RequestInterface $request
      * @param RequestValidator $requestValidator
      * @param ErrorResponseInterfaceFactory $errorResponseFactory
+     * @param MessageInterfaceFactory $messageFactory
      */
     public function __construct(
         protected readonly JsonFactory $resultJsonFactory,
         protected readonly RequestInterface $request,
         protected readonly RequestValidator $requestValidator,
         protected readonly ErrorResponseInterfaceFactory $errorResponseFactory,
+        protected readonly MessageInterfaceFactory $messageFactory,
     ) {
     }
 
@@ -59,7 +63,7 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
 
         if (!is_array($rawData)) {
             return $this->errorResponseFactory->create(['data' => [
-                ErrorResponseInterface::STATUS => ErrorResponseInterface::STATUS_REQUIRES_ESCALATION,
+                ErrorResponseInterface::STATUS => ErrorResponseInterface::STATUS_INVALID_REQUEST,
                 ErrorResponseInterface::MESSAGES => [[
                     'type' => 'error',
                     'code' => 'invalid_json',
@@ -76,6 +80,88 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         }
 
         return $requestObject;
+    }
+
+    /**
+     * Create error message
+     *
+     * @param string $code
+     * @param string $content
+     * @param string $severity
+     * @param string $type
+     * @return MessageInterface
+     */
+    protected function createErrorMessage(
+        string $code,
+        string $content,
+        string $severity = MessageInterface::SEVERITY_RECOVERABLE,
+        string $type = MessageInterface::TYPE_ERROR
+    ): MessageInterface {
+        $message = $this->messageFactory->create();
+        $message->setType($type);
+        $message->setCode($code);
+        $message->setSeverity($severity);
+        $message->setContent($content);
+
+        return $message;
+    }
+
+    /**
+     * Create error response from exception
+     *
+     * @param \Exception $exception
+     * @param string $code
+     * @param string $severity
+     * @param int $statusCode
+     * @return ResultJson
+     */
+    protected function createErrorResponseFromException(
+        \Exception $exception,
+        string $code = 'server_error',
+        string $severity = MessageInterface::SEVERITY_RECOVERABLE,
+        int $statusCode = 500
+    ): ResultJson {
+        $message = $this->createErrorMessage($code, $exception->getMessage(), $severity);
+        return $this->createErrorResponseWithMessages([$message], $statusCode);
+    }
+
+    /**
+     * Create error response with messages
+     *
+     * @param MessageInterface[] $messages
+     * @param int $statusCode
+     * @param string $status
+     * @return ResultJson
+     */
+    protected function createErrorResponseWithMessages(
+        array $messages,
+        int $statusCode = 400,
+        string $status = ErrorResponseInterface::STATUS_REQUIRES_ESCALATION
+    ): ResultJson {
+        $errorResponse = $this->errorResponseFactory->create();
+        $errorResponse->setStatus($status);
+        $errorResponse->setMessages($messages);
+
+        return $this->makeErrorResponse($errorResponse, $statusCode);
+    }
+
+    /**
+     * Create simple error response
+     *
+     * @param string $code
+     * @param string $content
+     * @param string $severity
+     * @param int $statusCode
+     * @return ResultJson
+     */
+    protected function createSimpleErrorResponse(
+        string $code,
+        string $content,
+        string $severity = MessageInterface::SEVERITY_RECOVERABLE,
+        int $statusCode = 400
+    ): ResultJson {
+        $message = $this->createErrorMessage($code, $content, $severity);
+        return $this->createErrorResponseWithMessages([$message], $statusCode);
     }
 
     /**

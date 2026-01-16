@@ -20,7 +20,7 @@
     <preference for="Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Response\ErrorResponse" />
     <preference for="Magebit\UniversalCommerce\Api\Data\Response\MessageInterface" type="Magebit\UniversalCommerce\Model\Data\Response\Message" />
 
-    <!-- Spec data preferences -->
+    <!-- Spec data preferences (Request) -->
     <preference for="Magebit\UniversalCommerce\Api\Data\Spec\BuyerInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Buyer" />
     <preference for="Magebit\UniversalCommerce\Api\Data\Spec\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\CheckoutCreateRequest" />
     <preference for="Magebit\UniversalCommerce\Api\Data\Spec\ItemCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\ItemCreateRequest" />
@@ -29,6 +29,37 @@
     <preference for="Magebit\UniversalCommerce\Api\Data\Spec\PaymentCredentialInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\PaymentCredential" />
     <preference for="Magebit\UniversalCommerce\Api\Data\Spec\PaymentInstrumentInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\PaymentInstrument" />
     <preference for="Magebit\UniversalCommerce\Api\Data\Spec\PostalAddressInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\PostalAddress" />
+
+    <!-- Spec Response preferences -->
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\CheckoutResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\LinkInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\Link" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\ItemResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\ItemResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\TotalResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\CapabilityResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\CapabilityResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentHandlerResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\PaymentHandlerResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\LineItemResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\LineItemResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\PaymentResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\PlatformConfigInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\PlatformConfig" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\UcpCheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\UcpCheckoutResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\FulfillmentResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\FulfillmentResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\FulfillmentOptionResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\FulfillmentOptionResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\FulfillmentGroupResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\FulfillmentGroupResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\FulfillmentDestinationResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\FulfillmentDestinationResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\FulfillmentAvailableMethodResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\FulfillmentAvailableMethodResponse" />
+    <preference for="Magebit\UniversalCommerce\Api\Data\Spec\Response\FulfillmentMethodResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Response\FulfillmentMethodResponse" />
+
+    <!-- Quote to Totals Response Converter Configuration -->
+    <type name="Magebit\UniversalCommerce\Model\Convert\QuoteToTotalsResponse">
+        <arguments>
+            <argument name="typeMapping" xsi:type="array">
+                <item name="subtotal" xsi:type="const">Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseTypeInterface::TYPE_SUBTOTAL</item>
+                <item name="discount" xsi:type="const">Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseTypeInterface::TYPE_DISCOUNT</item>
+                <item name="shipping" xsi:type="const">Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseTypeInterface::TYPE_FULFILLMENT</item>
+                <item name="tax" xsi:type="const">Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseTypeInterface::TYPE_TAX</item>
+                <item name="grand_total" xsi:type="const">Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseTypeInterface::TYPE_TOTAL</item>
+            </argument>
+        </arguments>
+    </type>
 
     <type name="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile">
         <arguments>

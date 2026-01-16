@@ -23,6 +23,7 @@ interface ErrorResponseInterface
 
     // Status constants
     public const STATUS_REQUIRES_ESCALATION = 'requires_escalation';
+    public const STATUS_INVALID_REQUEST = 'invalid_request';
 
     /**
      * Get status
