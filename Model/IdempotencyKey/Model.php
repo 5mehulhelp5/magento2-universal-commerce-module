@@ -44,8 +44,7 @@ class Model extends AbstractModel implements IdempotencyKeyInterface
      */
     public function getKey(): ?string
     {
-        $value = $this->getData(self::KEY);
-        return $value !== null ? (string) $value : null;
+        return $this->getData(self::KEY);
     }
 
     /**
@@ -61,8 +60,7 @@ class Model extends AbstractModel implements IdempotencyKeyInterface
      */
     public function getRequestHash(): ?string
     {
-        $value = $this->getData(self::REQUEST_HASH);
-        return $value !== null ? (string) $value : null;
+        return $this->getData(self::REQUEST_HASH);
     }
 
     /**
@@ -76,16 +74,16 @@ class Model extends AbstractModel implements IdempotencyKeyInterface
     /**
      * @inheritDoc
      */
-    public function getResponseStatus(): ?string
+    public function getResponseStatus(): ?int
     {
         $value = $this->getData(self::RESPONSE_STATUS);
-        return $value !== null ? (string) $value : null;
+        return $value !== null && $value !== '' ? (int) $value : null;
     }
 
     /**
      * @inheritDoc
      */
-    public function setResponseStatus(string $responseStatus): IdempotencyKeyInterface
+    public function setResponseStatus(int $responseStatus): IdempotencyKeyInterface
     {
         return $this->setData(self::RESPONSE_STATUS, $responseStatus);
     }
@@ -95,8 +93,7 @@ class Model extends AbstractModel implements IdempotencyKeyInterface
      */
     public function getResponseBody(): ?string
     {
-        $value = $this->getData(self::RESPONSE_BODY);
-        return $value !== null ? (string) $value : null;
+        return $this->getData(self::RESPONSE_BODY);
     }
 
     /**
@@ -112,8 +109,7 @@ class Model extends AbstractModel implements IdempotencyKeyInterface
      */
     public function getCreatedAt(): ?string
     {
-        $value = $this->getData(self::CREATED_AT);
-        return $value !== null ? (string) $value : null;
+        return $this->getData(self::CREATED_AT);
     }
 
     /**
@@ -129,8 +125,7 @@ class Model extends AbstractModel implements IdempotencyKeyInterface
      */
     public function getUpdatedAt(): ?string
     {
-        $value = $this->getData(self::UPDATED_AT);
-        return $value !== null ? (string) $value : null;
+        return $this->getData(self::UPDATED_AT);
     }
 
     /**

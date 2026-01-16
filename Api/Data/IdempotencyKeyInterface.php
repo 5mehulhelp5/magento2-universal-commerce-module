@@ -66,17 +66,17 @@ interface IdempotencyKeyInterface
     /**
      * Get response status
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getResponseStatus(): ?string;
+    public function getResponseStatus(): ?int;
 
     /**
      * Set response status
      *
-     * @param string $responseStatus
+     * @param int $responseStatus
      * @return $this
      */
-    public function setResponseStatus(string $responseStatus): self;
+    public function setResponseStatus(int $responseStatus): self;
 
     /**
      * Get response body

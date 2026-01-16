@@ -72,8 +72,7 @@
             </argument>
 
             <argument name="paymentHandlers" xsi:type="array">
-                <!-- TODO: Remove mock -->
-                <item name="mock" xsi:type="object">Magebit\UniversalCommerce\Model\Discovery\Payment\MockPaymentHandler</item>
+                <item name="mock" xsi:type="object">Magebit\UniversalCommerce\Model\Payment\MockPaymentHandler</item>
             </argument>
         </arguments>
     </type>

@@ -24,6 +24,7 @@ use Magebit\UniversalCommerce\Api\Data\Spec\CheckoutCreateRequestInterfaceFactor
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magebit\UniversalCommerce\Model\AgentProfileParser;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
+use Magebit\UniversalCommerce\Model\Data\Spec\Response\CheckoutResponse;
 use Magebit\UniversalCommerce\Model\RequestValidator;
 use Magento\Framework\App\RequestInterface;
 use Magebit\UniversalCommerce\Service\CheckoutService;
@@ -94,10 +95,11 @@ class Index extends ApiController implements HttpPostActionInterface
             }
 
             $agentProfile = $this->agentProfileParser->parse((string) $ucpAgentHeader);
-            $response = $this->checkoutService->createCheckout($requestObject, $agentProfile);
-            $responseData = $response->toArray();
 
-            return $this->makeJsonResponse($responseData);
+            $response = $this->checkoutService->createCheckout($requestObject, $agentProfile);
+            /** @var CheckoutResponse $response */
+            $this->idempotencyHandler->storeResponse($request, $response, 201);
+            return $this->makeJsonResponse($response->toArray());
         } catch (LocalizedException $e) {
             return $this->createSimpleErrorResponse(
                 'invalid_request',

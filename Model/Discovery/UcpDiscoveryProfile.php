@@ -15,7 +15,7 @@ namespace Magebit\UniversalCommerce\Model\Discovery;
 use Magebit\UniversalCommerce\Api\Discovery\CapabilityInterface;
 use Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface;
 use Magebit\UniversalCommerce\Api\Discovery\ServiceInterface;
-use Magebit\UniversalCommerce\Api\Discovery\PaymentHandlerInterface;
+use Magebit\UniversalCommerce\Api\Payment\PaymentHandlerInterface;
 
 class UcpDiscoveryProfile implements UcpDiscoveryProfileInterface
 {

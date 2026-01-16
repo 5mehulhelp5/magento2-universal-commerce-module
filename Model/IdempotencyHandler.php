@@ -17,12 +17,16 @@ use Magebit\UniversalCommerce\Api\IdempotencyKeyRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\Result\Json as ResultJson;
+use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface;
+use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterfaceFactory;
+use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 class IdempotencyHandler
 {
     public function __construct(
-        private readonly IdempotencyKeyRepositoryInterface $idempotencyRepository,
-        private readonly JsonFactory $resultJsonFactory
+        protected readonly IdempotencyKeyRepositoryInterface $idempotencyRepository,
+        protected readonly IdempotencyKeyInterfaceFactory $idempotencyKeyFactory,
+        protected readonly JsonFactory $resultJsonFactory
     ) {
     }
 
@@ -43,8 +47,8 @@ class IdempotencyHandler
 
             if ($idempotency->getRequestHash() === $this->hashRequest($request)) {
                 $resultJson = $this->resultJsonFactory->create();
-                $resultJson->setData($idempotency->getResponseBody());
-                $resultJson->setHttpResponseCode(201);
+                $resultJson->setJsonData($idempotency->getResponseBody() ?? '');
+                $resultJson->setHttpResponseCode($idempotency->getResponseStatus() ?? 200);
                 return $resultJson;
             }
         } catch (NoSuchEntityException $e) {
@@ -52,6 +56,34 @@ class IdempotencyHandler
         }
 
         return null;
+    }
+
+    /**
+     * @param Http $request
+     * @param DataTransferObject $response
+     * @param int $status
+     * @return IdempotencyKeyInterface|null
+     */
+    public function storeResponse(Http $request, DataTransferObject $response, int $status): ?IdempotencyKeyInterface
+    {
+        $idempotencyKey = $request->getHeader('Idempotency-Key');
+
+        if (!$idempotencyKey) {
+            return null;
+        }
+
+        $responseBody = json_encode($response->toArray());
+
+        /** @var IdempotencyKeyInterface $idempotency */
+        $idempotency = $this->idempotencyKeyFactory->create();
+        $idempotency->setKey((string) $idempotencyKey);
+        $idempotency->setRequestHash($this->hashRequest($request));
+        $idempotency->setResponseBody($responseBody);
+        $idempotency->setResponseStatus($status);
+
+        $this->idempotencyRepository->save($idempotency);
+
+        return $idempotency;
     }
 
     /**

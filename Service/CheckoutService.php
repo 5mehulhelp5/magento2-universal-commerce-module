@@ -19,6 +19,9 @@ use Magebit\UniversalCommerce\Api\Data\Spec\Response\CheckoutResponseInterface;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\CheckoutResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\CheckoutResponseStatusInterface;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\CapabilityResponseInterfaceFactory;
+use Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentHandlerResponseInterfaceFactory;
+use Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentResponseInterface;
+use Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\PlatformConfigInterface;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\LineItemResponseInterface;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\UcpCheckoutResponseInterface;
@@ -47,6 +50,8 @@ class CheckoutService
         protected readonly UcpDiscoveryProfile $ucpDiscoveryProfile,
         protected readonly UcpCheckoutResponseInterfaceFactory $ucpCheckoutResponseFactory,
         protected readonly CapabilityResponseInterfaceFactory $capabilityFactory,
+        protected readonly PaymentResponseInterfaceFactory $paymentResponseFactory,
+        protected readonly PaymentHandlerResponseInterfaceFactory $paymentHandlerResponseFactory,
     ) {
     }
 
@@ -73,7 +78,12 @@ class CheckoutService
 
         $response->setCurrency($currency);
         $response->setLinks([]);
-        $response->setPlatform($platformConfig);
+
+        if ($platformConfig && $platformConfig->getWebhookUrl()) {
+            $response->setPlatform($platformConfig);
+        }
+
+        $response->setPayment($this->buildPaymentResponse());
 
         $this->addItemsToCart($cart, $request->getLineItems());
 
@@ -145,5 +155,27 @@ class CheckoutService
         $ucpResponse->setVersion($this->ucpDiscoveryProfile->getVersion());
 
         return $ucpResponse;
+    }
+
+    /**
+     * Build payment response
+     *
+     * @return PaymentResponseInterface
+     */
+    public function buildPaymentResponse(): PaymentResponseInterface
+    {
+        $paymentResponse = $this->paymentResponseFactory->create();
+
+        $handlers = array_map(function ($handler) {
+            $handlerResponse = $this->paymentHandlerResponseFactory->create([
+                'data'=> $handler
+            ]);
+
+            return $handlerResponse;
+        }, $this->ucpDiscoveryProfile->getPaymentHandlers());
+
+        $paymentResponse->setHandlers($handlers);
+
+        return $paymentResponse;
     }
 }

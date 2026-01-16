@@ -10,9 +10,9 @@
 
 declare(strict_types=1);
 
-namespace Magebit\UniversalCommerce\Model\Discovery\Payment;
+namespace Magebit\UniversalCommerce\Model\Payment;
 
-use Magebit\UniversalCommerce\Api\Discovery\PaymentHandlerInterface;
+use Magebit\UniversalCommerce\Api\Payment\PaymentHandlerInterface;
 
 class MockPaymentHandler implements PaymentHandlerInterface
 {

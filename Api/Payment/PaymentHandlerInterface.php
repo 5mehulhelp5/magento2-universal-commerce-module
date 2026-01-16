@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Magebit\UniversalCommerce\Api\Discovery;
+namespace Magebit\UniversalCommerce\Api\Payment;
 
 interface PaymentHandlerInterface
 {
