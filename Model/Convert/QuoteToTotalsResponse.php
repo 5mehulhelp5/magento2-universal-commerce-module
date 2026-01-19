@@ -14,6 +14,7 @@ namespace Magebit\UniversalCommerce\Model\Convert;
 
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterface;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterfaceFactory;
+use Magebit\UniversalCommerce\Helper\PriceConverter;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 
@@ -24,10 +25,12 @@ class QuoteToTotalsResponse
 {
     /**
      * @param TotalResponseInterfaceFactory $totalResponseFactory
+     * @param PriceConverter $priceConverter
      * @param array<string, string> $typeMapping
      */
     public function __construct(
         private readonly TotalResponseInterfaceFactory $totalResponseFactory,
+        private readonly PriceConverter $priceConverter,
         private readonly array $typeMapping = [],
     ) {
     }
@@ -49,7 +52,7 @@ class QuoteToTotalsResponse
 
             $total->setType($this->getType($cartTotal->getCode()));
             $total->setDisplayText((string) $cartTotal->getTitle());
-            $total->setAmount((float) $cartTotal->getValue());
+            $total->setAmount($this->priceConverter->toCents((float) $cartTotal->getValue()));
 
             $totals[] = $total;
         }

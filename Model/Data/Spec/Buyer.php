@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Data\Spec;
 
-use Magebit\UniversalCommerce\Api\Data\Spec\BuyerInterface;
+use Magebit\UcpSpec\Schemas\Shopping\Types\Buyer as BuyerInterface;
 use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 /**

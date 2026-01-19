@@ -19,6 +19,7 @@ use Magebit\UniversalCommerce\Api\Data\Spec\Response\LineItemResponseInterfaceFa
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterface;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseTypeInterface;
+use Magebit\UniversalCommerce\Helper\PriceConverter;
 use Magento\Catalog\Helper\Image as ImageHelper;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 
@@ -32,12 +33,14 @@ class QuoteItemToLineItemResponse
      * @param ItemResponseInterfaceFactory $itemResponseFactory
      * @param TotalResponseInterfaceFactory $totalResponseFactory
      * @param ImageHelper $imageHelper
+     * @param PriceConverter $priceConverter
      */
     public function __construct(
         protected readonly LineItemResponseInterfaceFactory $lineItemResponseFactory,
         protected readonly ItemResponseInterfaceFactory $itemResponseFactory,
         protected readonly TotalResponseInterfaceFactory $totalResponseFactory,
         protected readonly ImageHelper $imageHelper,
+        protected readonly PriceConverter $priceConverter,
     ) {
     }
 
@@ -71,7 +74,7 @@ class QuoteItemToLineItemResponse
         $item = $this->itemResponseFactory->create();
         $item->setId($product->getSku());
         $item->setTitle($product->getName());
-        $item->setPrice((float) $quoteItem->getPrice());
+        $item->setPrice($this->priceConverter->toCents((float) $quoteItem->getPrice()));
 
         // Get proper product image URL
         $imageUrl = $this->getProductImageUrl($quoteItem);
@@ -97,7 +100,7 @@ class QuoteItemToLineItemResponse
         if ($subtotal > 0) {
             $total = $this->totalResponseFactory->create();
             $total->setType(TotalResponseTypeInterface::TYPE_SUBTOTAL);
-            $total->setAmount($subtotal);
+            $total->setAmount($this->priceConverter->toCents($subtotal));
             $total->setDisplayText('Subtotal');
             $totals[] = $total;
         }
@@ -106,7 +109,7 @@ class QuoteItemToLineItemResponse
         $rowTotal = (float) $quoteItem->getRowTotalInclTax();
         $total = $this->totalResponseFactory->create();
         $total->setType(TotalResponseTypeInterface::TYPE_TOTAL);
-        $total->setAmount($rowTotal);
+        $total->setAmount($this->priceConverter->toCents($rowTotal));
         $total->setDisplayText('Total');
         $totals[] = $total;
 
