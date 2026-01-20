@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentBaseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentCredentialInterface;
@@ -22,7 +22,7 @@ use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 /**
  * Payment Instrument Model
  */
-class PaymentInstrument extends DataTransferObject implements PaymentInstrumentBaseInterface
+class PaymentInstrument extends DataTransferObject implements PaymentInstrumentInterface
 {
     /**
      * @param PostalAddressInterfaceFactory $addressFactory
@@ -48,7 +48,7 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentB
     /**
      * @inheritDoc
      */
-    public function setBillingAddress(?PostalAddressInterface $billingAddress): PaymentInstrumentBaseInterface
+    public function setBillingAddress(?PostalAddressInterface $billingAddress): PaymentInstrumentInterface
     {
         return $this->setData(self::KEY_BILLING_ADDRESS, $billingAddress);
     }
@@ -64,7 +64,7 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentB
     /**
      * @inheritDoc
      */
-    public function setCredential(?PaymentCredentialInterface $credential): PaymentInstrumentBaseInterface
+    public function setCredential(?PaymentCredentialInterface $credential): PaymentInstrumentInterface
     {
         return $this->setData(self::KEY_CREDENTIAL, $credential);
     }
@@ -80,7 +80,7 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentB
     /**
      * @inheritDoc
      */
-    public function setHandlerId(string $handlerId): PaymentInstrumentBaseInterface
+    public function setHandlerId(string $handlerId): PaymentInstrumentInterface
     {
         return $this->setData(self::KEY_HANDLER_ID, $handlerId);
     }
@@ -96,7 +96,7 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentB
     /**
      * @inheritDoc
      */
-    public function setId(string $id): PaymentInstrumentBaseInterface
+    public function setId(string $id): PaymentInstrumentInterface
     {
         return $this->setData(self::KEY_ID, $id);
     }
@@ -112,7 +112,7 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentB
     /**
      * @inheritDoc
      */
-    public function setType(string $type): PaymentInstrumentBaseInterface
+    public function setType(string $type): PaymentInstrumentInterface
     {
         return $this->setData(self::KEY_TYPE, $type);
     }

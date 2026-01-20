@@ -23,7 +23,7 @@
     <preference for="Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Response\ErrorResponse" />
     <preference for="Magebit\UniversalCommerce\Api\Data\Response\MessageInterface" type="Magebit\UniversalCommerce\Model\Data\Response\Message" />
 
-    <!-- Spec data preferences (Request) -->
+    <!-- Spec data preferences-->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\Buyer" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutCreateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutUpdateRequest" />
@@ -33,13 +33,11 @@
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\LineItemUpdateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\PaymentCreateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\PaymentUpdateRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\PaymentData" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentCredentialInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\PaymentCredential" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\CardCredentialInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\PaymentCredential" />
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentBaseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\PaymentInstrument" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\PaymentInstrument" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\PostalAddress" />
-
-    <!-- Spec Response preferences -->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\Link" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\Message" />
@@ -132,6 +130,12 @@
                     <item name="method" xsi:type="string">POST</item>
                     <item name="controller" xsi:type="string">checkout_sessions</item>
                     <item name="action" xsi:type="string">cancel</item>
+                </item>
+                <item name="complete_checkout_session" xsi:type="array">
+                    <item name="path" xsi:type="string">ucp/checkout-sessions/{id}/complete</item>
+                    <item name="method" xsi:type="string">POST</item>
+                    <item name="controller" xsi:type="string">checkout_sessions</item>
+                    <item name="action" xsi:type="string">complete</item>
                 </item>
             </argument>
         </arguments>

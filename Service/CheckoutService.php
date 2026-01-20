@@ -12,6 +12,7 @@ namespace Magebit\UniversalCommerce\Service;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
@@ -26,6 +27,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterfaceFactory;
 use Magebit\UniversalCommerce\Api\ConfigInterface;
@@ -39,6 +41,8 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Api\Data\PaymentInterfaceFactory;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
@@ -68,6 +72,8 @@ class CheckoutService
      * @param StoreManagerInterface $storeManager
      * @param QuoteValidatorInterface $quoteValidator
      * @param CheckoutMessageBuilder $messageBuilder
+     * @param PaymentInterfaceFactory $paymentFactory
+     * @param MessageInterfaceFactory $messageFactory
      */
     public function __construct(
         protected readonly GuestCartManagementInterface $guestCartManagement,
@@ -89,6 +95,8 @@ class CheckoutService
         protected readonly StoreManagerInterface $storeManager,
         protected readonly QuoteValidatorInterface $quoteValidator,
         protected readonly CheckoutMessageBuilder $messageBuilder,
+        protected readonly PaymentInterfaceFactory $paymentFactory,
+        protected readonly MessageInterfaceFactory $messageFactory,
     ) {
     }
 
@@ -182,6 +190,70 @@ class CheckoutService
         $this->cartRepository->save($cart);
 
         return $this->buildCheckoutResponse($cart, $sessionId);
+    }
+
+    /**
+     * Complete checkout session and place order
+     *
+     * @param string $sessionId
+     * @param PaymentDataInterface $paymentData
+     * @return CheckoutResponseInterface
+     */
+    public function completeCheckout(string $sessionId, PaymentDataInterface $paymentData): CheckoutResponseInterface
+    {
+        $cart = $this->guestCartRepository->get($sessionId);
+
+        /** @var Quote $cart */
+        if (!$cart->getIsActive()) {
+            if ($cart->getReservedOrderId() !== null) {
+                throw new LocalizedException(__('Order is already placed'));
+            }
+            throw new LocalizedException(__('Cart is not active. Please create a new checkout session'));
+        }
+
+        $paymentInstrument = $paymentData->getPaymentData();
+        $handlerId = $paymentInstrument->getHandlerId();
+        if (!$handlerId) {
+            throw new LocalizedException(__('Payment method is required'));
+        }
+
+        if (!$cart->getCustomerEmail()) {
+            throw new LocalizedException(__('Customer email is required'));
+        }
+
+        if (!$cart->getShippingAddress()->getEmail()) {
+            $cart->getShippingAddress()->setEmail($cart->getCustomerEmail());
+        }
+
+        $billingAddress = $cart->getBillingAddress();
+        if (!$billingAddress || !$billingAddress->getFirstname()) {
+            $shippingAddress = $cart->getShippingAddress();
+            $cart->getBillingAddress()->addData($shippingAddress->getData());
+        }
+
+        $payment = $this->paymentFactory->create();
+        $payment->setMethod($handlerId);
+
+        $this->cartRepository->save($cart);
+
+        $orderId = $this->guestCartManagement->placeOrder($sessionId, $payment);
+
+        $response = $this->buildCheckoutResponse($cart, $sessionId);
+        $response->setStatus(CheckoutResponseInterface::STATUS_COMPLETED);
+
+        // Add success message with order ID.
+        $message = $this->messageFactory->create();
+        $message->setType(MessageInterface::TYPE_INFO);
+        $message->setCode('order_placed');
+        $message->setContent(sprintf('Order placed successfully. Order ID: %s', $orderId));
+        $message->setSeverity(MessageInterface::SEVERITY_RECOVERABLE);
+        $message->setContentType(MessageInterface::CONTENT_TYPE_PLAIN);
+
+        $existingMessages = $response->getMessages() ?? [];
+        $existingMessages[] = $message;
+        $response->setMessages($existingMessages);
+
+        return $response;
     }
 
     /**

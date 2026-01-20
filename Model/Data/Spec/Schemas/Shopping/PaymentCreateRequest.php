@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentBaseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentBaseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterfaceFactory;
 use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 /**
@@ -23,11 +23,11 @@ use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 class PaymentClass extends DataTransferObject implements PaymentCreateRequestInterface
 {
     /**
-     * @param PaymentInstrumentBaseInterfaceFactory $instrumentFactory
+     * @param PaymentInstrumentInterfaceFactory $instrumentFactory
      * @param array<mixed> $data
      */
     public function __construct(
-        private readonly PaymentInstrumentBaseInterfaceFactory $instrumentFactory,
+        private readonly PaymentInstrumentInterfaceFactory $instrumentFactory,
         array $data = []
     ) {
         parent::__construct($data);
@@ -43,7 +43,7 @@ class PaymentClass extends DataTransferObject implements PaymentCreateRequestInt
             return null;
         }
 
-        return $this->getDataInstanceArray(self::KEY_INSTRUMENTS, PaymentInstrumentBaseInterface::class, $this->instrumentFactory->create(...));
+        return $this->getDataInstanceArray(self::KEY_INSTRUMENTS, PaymentInstrumentInterface::class, $this->instrumentFactory->create(...));
     }
 
     /**
