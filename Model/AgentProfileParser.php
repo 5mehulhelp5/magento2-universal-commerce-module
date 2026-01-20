@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model;
 
-use Magebit\UcpSpec\Api\Schemas\Shopping\PlatformConfigInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\PlatformConfigInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterfaceFactory;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use Psr\Log\LoggerInterface;

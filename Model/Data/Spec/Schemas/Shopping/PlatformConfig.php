@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping;
 
-use Magebit\UcpSpec\Api\Schemas\Shopping\PlatformConfigInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterface;
 use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 /**

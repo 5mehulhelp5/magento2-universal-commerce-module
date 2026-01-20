@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types;
 
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\ItemCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemCreateRequestInterface;
 use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 /**

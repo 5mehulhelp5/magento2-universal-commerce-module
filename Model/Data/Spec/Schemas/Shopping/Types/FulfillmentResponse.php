@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types;
 
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\FulfillmentResponseInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\FulfillmentAvailableMethodResponseInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\FulfillmentAvailableMethodResponseInterfaceFactory;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\FulfillmentMethodResponseInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\FulfillmentMethodResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentAvailableMethodResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentAvailableMethodResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 /**

@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types;
 
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PostalAddressInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PostalAddressInterfaceFactory;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\FulfillmentDestinationResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationResponseInterface;
 use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 /**

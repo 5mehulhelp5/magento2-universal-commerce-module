@@ -20,7 +20,7 @@ use Magento\Framework\App\Request\Http;
 use Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Data\Response\MessageInterface;
 use Magebit\UniversalCommerce\Api\Data\Response\MessageInterfaceFactory;
-use Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutCreateRequestInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magebit\UniversalCommerce\Model\AgentProfileParser;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
