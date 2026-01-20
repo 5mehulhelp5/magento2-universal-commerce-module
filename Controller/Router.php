@@ -1,11 +1,9 @@
 <?php
 
 /**
- * This file is part of the Magebit_UniversalCommerce package.
- *
- * @copyright Copyright (c) 2026 Magebit, Ltd. (https://magebit.com/)
- * @author    Magebit <info@magebit.com>
- * @license   MIT
+ * @author Magebit <info@magebit.com>
+ * @copyright Copyright (c) Magebit, Ltd. (https://magebit.com)
+ * @license https://magebit.com/code-license
  */
 
 declare(strict_types=1);
@@ -15,22 +13,28 @@ namespace Magebit\UniversalCommerce\Controller;
 use Magento\Framework\App\Action\Forward;
 use Magento\Framework\App\ActionFactory;
 use Magento\Framework\App\ActionInterface;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\RouterInterface;
-use Magento\Framework\App\Request\Http;
 
+/**
+ * Extensible Router for UCP Endpoints
+ * Routes are configured via di.xml for flexibility
+ */
 class Router implements RouterInterface
 {
     /**
      * @param ActionFactory $actionFactory
+     * @param array<string, array{path: string, method: string, controller: string, action: string}> $routes
      */
     public function __construct(
         private readonly ActionFactory $actionFactory,
+        private readonly array $routes = []
     ) {
     }
 
     /**
-     * Match request to UCP endpoints
+     * Match request to configured routes
      *
      * @param RequestInterface $request
      * @return ActionInterface|null
@@ -38,54 +42,37 @@ class Router implements RouterInterface
     public function match(RequestInterface $request): ?ActionInterface
     {
         /** @var Http $request */
-        $identifier = trim($request->getPathInfo(), '/');
-
-        // Handle .well-known/ucp discovery endpoint
-        if ($identifier === '.well-known/ucp' && !$this->alreadyProcessed($request)) {
-            $request->setModuleName('ucp');
-            $request->setControllerName('discovery');
-            $request->setActionName('index');
-
-            // @phpstan-ignore arguments.count
-            return $this->actionFactory->create(Forward::class, ['request' => $request]);
+        if ($this->alreadyProcessed($request)) {
+            return null;
         }
 
-        // Handle /ucp/* endpoints dynamically
-        if (str_starts_with($identifier, 'ucp/') && !$this->alreadyProcessed($request)) {
-            $parts = explode('/', $identifier);
-            array_shift($parts); // Remove 'ucp'
+        $path = trim($request->getPathInfo(), '/');
+        $method = $request->getMethod();
 
-            if (empty($parts)) {
-                return null;
+        // Iterate through configured routes
+        foreach ($this->routes as $route) {
+            // Validate route configuration
+            if (!$this->isValidRoute($route)) {
+                continue;
             }
 
-            // Convert hyphenated endpoint to controller path
-            // e.g., 'checkout-sessions' -> 'checkout/sessions'
-            $endpoint = array_shift($parts);
-            $controllerPath = $this->convertHyphenatedToPath($endpoint);
-
-            // Determine action and parameters
-            $action = 'index';
-            $params = [];
-
-            if (!empty($parts)) {
-                // First part after endpoint could be ID or action
-                $firstPart = $parts[0];
-
-                if (count($parts) === 1) {
-                    // /ucp/checkout-sessions/abc123 -> ID
-                    $params['id'] = $firstPart;
-                } elseif (count($parts) >= 2) {
-                    // /ucp/checkout-sessions/abc123/complete -> ID + action
-                    $params['id'] = $firstPart;
-                    $action = $parts[1];
-                }
+            // Check if HTTP method matches
+            if (!$this->matchMethod($route['method'], $method)) {
+                continue;
             }
 
+            // Check if path matches and extract parameters
+            $params = $this->matchPath($route['path'], $path);
+            if ($params === false) {
+                continue;
+            }
+
+            // Route matched - set request attributes
             $request->setModuleName('ucp');
-            $request->setControllerName($controllerPath);
-            $request->setActionName($action);
+            $request->setControllerName($route['controller']);
+            $request->setActionName($route['action']);
 
+            // Set extracted parameters
             foreach ($params as $key => $value) {
                 $request->setParam($key, $value);
             }
@@ -98,15 +85,88 @@ class Router implements RouterInterface
     }
 
     /**
-     * Convert hyphenated endpoint to controller path
-     * e.g., 'checkout-sessions' -> 'checkout_sessions'
+     * Match path pattern against request path and extract parameters
      *
-     * @param string $endpoint
+     * @param string $pattern
+     * @param string $path
+     * @return array<string, string>|false
+     */
+    private function matchPath(string $pattern, string $path): array|false
+    {
+        // Convert pattern to regex with named groups
+        $regex = $this->patternToRegex($pattern);
+
+        if (!preg_match($regex, $path, $matches)) {
+            return false;
+        }
+
+        // Extract named parameters
+        $params = [];
+        foreach ($matches as $key => $value) {
+            if (is_string($key)) {
+                $params[$key] = $value;
+            }
+        }
+
+        return $params;
+    }
+
+    /**
+     * Convert path pattern to regex
+     *
+     * @param string $pattern
      * @return string
      */
-    protected function convertHyphenatedToPath(string $endpoint): string
+    private function patternToRegex(string $pattern): string
     {
-        return str_replace('-', '_', $endpoint);
+        // Escape special regex characters except {}
+        $regex = preg_quote($pattern, '#');
+
+        // Convert {param} to named capture groups
+        // \\\{ and \\\} are the escaped { } after preg_quote
+        $regex = preg_replace('/\\\{([a-zA-Z_][a-zA-Z0-9_]*)\\\}/', '(?P<$1>[^/]+)', $regex);
+
+        return '#^' . $regex . '$#';
+    }
+
+    /**
+     * Check if HTTP method matches
+     *
+     * @param string $routeMethod
+     * @param string $requestMethod
+     * @return bool
+     */
+    private function matchMethod(string $routeMethod, string $requestMethod): bool
+    {
+        // Wildcard matches any method
+        if ($routeMethod === '*') {
+            return true;
+        }
+
+        // Exact match (case-insensitive)
+        return strcasecmp($routeMethod, $requestMethod) === 0;
+    }
+
+    /**
+     * Validate route configuration
+     *
+     * @param mixed $route
+     * @return bool
+     */
+    private function isValidRoute(mixed $route): bool
+    {
+        if (!is_array($route)) {
+            return false;
+        }
+
+        $requiredKeys = ['path', 'method', 'controller', 'action'];
+        foreach ($requiredKeys as $key) {
+            if (!isset($route[$key]) || !is_string($route[$key])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -115,7 +175,7 @@ class Router implements RouterInterface
      * @param RequestInterface $request
      * @return bool
      */
-    protected function alreadyProcessed(RequestInterface $request): bool
+    private function alreadyProcessed(RequestInterface $request): bool
     {
         /** @var Http $request */
         return $request->getModuleName() === 'ucp';

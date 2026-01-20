@@ -113,9 +113,37 @@ class CheckoutService
         $cart->collectTotals();
         $this->cartRepository->save($cart);
 
+        return $this->buildCheckoutResponse($cart, $maskedCartId);
+    }
+
+    /**
+     * Get checkout session by ID
+     *
+     * @param string $sessionId
+     * @return CheckoutResponseInterface
+     */
+    public function getCheckout(string $sessionId): CheckoutResponseInterface
+    {
+        $cart = $this->guestCartRepository->get($sessionId);
+
+        /** @var Quote $cart */
+        $cart->collectTotals();
+
+        return $this->buildCheckoutResponse($cart, $sessionId);
+    }
+
+    /**
+     * Build checkout response from cart
+     *
+     * @param CartInterface $cart
+     * @param string $sessionId
+     * @return CheckoutResponseInterface
+     */
+    private function buildCheckoutResponse(CartInterface $cart, string $sessionId): CheckoutResponseInterface
+    {
         /** @var CheckoutResponseInterface $response */
         $response = $this->checkoutResponseFactory->create();
-        $response->setId($maskedCartId);
+        $response->setId($sessionId);
         $response->setUcp($this->buildUcpResponse());
 
         /** @var string $currency */
@@ -161,14 +189,14 @@ class CheckoutService
         // Set continue_url ONLY when status is requires_escalation (MUST per UCP spec)
         // or optionally for other non-terminal statuses
         if ($status === CheckoutResponseInterface::STATUS_REQUIRES_ESCALATION) {
-            $continueUrl = $this->buildContinueUrl($maskedCartId);
+            $continueUrl = $this->buildContinueUrl($sessionId);
             if ($continueUrl) {
                 $response->setContinueUrl($continueUrl);
             }
         } elseif ($status !== CheckoutResponseInterface::STATUS_COMPLETED &&
                   $status !== CheckoutResponseInterface::STATUS_CANCELED) {
             // Optionally provide continue_url for other non-terminal statuses
-            $continueUrl = $this->buildContinueUrl($maskedCartId);
+            $continueUrl = $this->buildContinueUrl($sessionId);
             if ($continueUrl) {
                 $response->setContinueUrl($continueUrl);
             }

@@ -94,4 +94,30 @@
             </argument>
         </arguments>
     </type>
+
+    <!-- Router Configuration -->
+    <type name="Magebit\UniversalCommerce\Controller\Router">
+        <arguments>
+            <argument name="routes" xsi:type="array">
+                <item name="discovery" xsi:type="array">
+                    <item name="path" xsi:type="string">.well-known/ucp</item>
+                    <item name="method" xsi:type="string">GET</item>
+                    <item name="controller" xsi:type="string">discovery</item>
+                    <item name="action" xsi:type="string">index</item>
+                </item>
+                <item name="create_checkout_session" xsi:type="array">
+                    <item name="path" xsi:type="string">ucp/checkout-sessions</item>
+                    <item name="method" xsi:type="string">POST</item>
+                    <item name="controller" xsi:type="string">checkout_sessions</item>
+                    <item name="action" xsi:type="string">index</item>
+                </item>
+                <item name="get_checkout_session" xsi:type="array">
+                    <item name="path" xsi:type="string">ucp/checkout-sessions/{id}</item>
+                    <item name="method" xsi:type="string">GET</item>
+                    <item name="controller" xsi:type="string">checkout_sessions</item>
+                    <item name="action" xsi:type="string">retrieve</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
 </config>
