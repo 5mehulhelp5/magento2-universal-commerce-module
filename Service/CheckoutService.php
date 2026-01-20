@@ -13,19 +13,18 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Service;
 
-use Magebit\UniversalCommerce\Api\Data\Spec\CheckoutCreateRequestInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\LineItemCreateRequestInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\CheckoutResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\CheckoutResponseInterfaceFactory;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\CheckoutResponseStatusInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\CapabilityResponseInterfaceFactory;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentHandlerResponseInterfaceFactory;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\PaymentResponseInterfaceFactory;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\PlatformConfigInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\LineItemResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\UcpCheckoutResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\UcpCheckoutResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentHandlerResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterfaceFactory;
 use Magebit\UniversalCommerce\Model\Convert\QuoteItemToLineItemResponse;
 use Magebit\UniversalCommerce\Model\Convert\QuoteToTotalsResponse;
 use Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile;
@@ -48,7 +47,7 @@ class CheckoutService
         protected readonly QuoteToTotalsResponse $totalsConverter,
         protected readonly CartRepositoryInterface $cartRepository,
         protected readonly UcpDiscoveryProfile $ucpDiscoveryProfile,
-        protected readonly UcpCheckoutResponseInterfaceFactory $ucpCheckoutResponseFactory,
+        protected readonly UcpResponseCheckoutInterfaceFactory $ucpResponseCheckoutFactory,
         protected readonly CapabilityResponseInterfaceFactory $capabilityFactory,
         protected readonly PaymentResponseInterfaceFactory $paymentResponseFactory,
         protected readonly PaymentHandlerResponseInterfaceFactory $paymentHandlerResponseFactory,
@@ -71,7 +70,7 @@ class CheckoutService
         $response = $this->checkoutResponseFactory->create();
         $response->setId($maskedCartId);
         $response->setUcp($this->buildUcpResponse());
-        $response->setStatus(CheckoutResponseStatusInterface::STATUS_INCOMPLETE);
+        $response->setStatus(CheckoutResponseInterface::STATUS_INCOMPLETE);
 
         /** @var string $currency */
         $currency = $cart->getCurrency()?->getStoreCurrencyCode();
@@ -139,11 +138,11 @@ class CheckoutService
     /**
      * Build UCP response
      *
-     * @return UcpCheckoutResponseInterface
+     * @return UcpResponseCheckoutInterface
      */
-    public function buildUcpResponse(): UcpCheckoutResponseInterface
+    public function buildUcpResponse(): UcpResponseCheckoutInterface
     {
-        $ucpResponse = $this->ucpCheckoutResponseFactory->create();
+        $ucpResponse = $this->ucpResponseCheckoutFactory->create();
 
         $capabilities = array_map(function (array $capability) {
             return $this->capabilityFactory->create([

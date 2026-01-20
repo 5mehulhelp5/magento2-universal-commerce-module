@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Convert;
 
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Schemas\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\Api\Schemas\Shopping\Types\TotalResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Helper\PriceConverter;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;

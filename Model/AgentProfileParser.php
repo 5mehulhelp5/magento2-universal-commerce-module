@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model;
 
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\PlatformConfigInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\PlatformConfigInterfaceFactory;
+use Magebit\UcpSpec\Api\Schemas\Shopping\PlatformConfigInterface;
+use Magebit\UcpSpec\Api\Schemas\Shopping\PlatformConfigInterfaceFactory;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use Psr\Log\LoggerInterface;
@@ -147,7 +147,7 @@ class AgentProfileParser
      */
     private function fetchHttpProfile(string $url): ?array
     {
-        $cacheKey = self::CACHE_PREFIX . md5($url);
+        $cacheKey = self::CACHE_PREFIX . sha1($url);
 
         // Check cache first
         $cachedData = $this->cache->load($cacheKey);
@@ -159,6 +159,7 @@ class AgentProfileParser
         // Fetch from URL
         $curl = $this->curlFactory->create();
         $curl->setTimeout(self::HTTP_TIMEOUT);
+        // @phpstan-ignore argument.type
         $curl->setOption(CURLOPT_FOLLOWLOCATION, true);
         $curl->get($url);
 

@@ -12,13 +12,12 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Convert;
 
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\ItemResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\ItemResponseInterfaceFactory;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\LineItemResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\LineItemResponseInterfaceFactory;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterface;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseInterfaceFactory;
-use Magebit\UniversalCommerce\Api\Data\Spec\Response\TotalResponseTypeInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Helper\PriceConverter;
 use Magento\Catalog\Helper\Image as ImageHelper;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
@@ -99,7 +98,7 @@ class QuoteItemToLineItemResponse
         $subtotal = (float) $quoteItem->getRowTotal();
         if ($subtotal > 0) {
             $total = $this->totalResponseFactory->create();
-            $total->setType(TotalResponseTypeInterface::TYPE_SUBTOTAL);
+            $total->setType(TotalResponseInterface::TYPE_SUBTOTAL);
             $total->setAmount($this->priceConverter->toCents($subtotal));
             $total->setDisplayText('Subtotal');
             $totals[] = $total;
@@ -108,7 +107,7 @@ class QuoteItemToLineItemResponse
         // Total (including tax)
         $rowTotal = (float) $quoteItem->getRowTotalInclTax();
         $total = $this->totalResponseFactory->create();
-        $total->setType(TotalResponseTypeInterface::TYPE_TOTAL);
+        $total->setType(TotalResponseInterface::TYPE_TOTAL);
         $total->setAmount($this->priceConverter->toCents($rowTotal));
         $total->setDisplayText('Total');
         $totals[] = $total;
