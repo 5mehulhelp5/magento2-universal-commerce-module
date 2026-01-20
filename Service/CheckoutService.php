@@ -1,12 +1,9 @@
 <?php
 
-
 /**
- * This file is part of the Magebit_UniversalCommerce package.
- *
- * @copyright Copyright (c) 2026 Magebit, Ltd. (https://magebit.com/)
- * @author    Magebit <info@magebit.com>
- * @license   MIT
+ * @author Magebit <info@magebit.com>
+ * @copyright Copyright (c) Magebit, Ltd. (https://magebit.com)
+ * @license https://magebit.com/code-license
  */
 
 declare(strict_types=1);
@@ -14,7 +11,10 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Service;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterfaceFactory;
@@ -23,27 +23,56 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterfaceFactory;
+use Magebit\UniversalCommerce\Api\ConfigInterface;
+use Magebit\UniversalCommerce\Api\QuoteValidatorInterface;
+use Magebit\UniversalCommerce\Model\CheckoutMessageBuilder;
 use Magebit\UniversalCommerce\Model\Convert\QuoteItemToLineItemResponse;
+use Magebit\UniversalCommerce\Model\Convert\QuoteToBuyer;
 use Magebit\UniversalCommerce\Model\Convert\QuoteToTotalsResponse;
 use Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class CheckoutService
 {
+    /**
+     * @param GuestCartManagementInterface $guestCartManagement
+     * @param CheckoutResponseInterfaceFactory $checkoutResponseFactory
+     * @param GuestCartRepositoryInterface $guestCartRepository
+     * @param ProductRepositoryInterface $productRepository
+     * @param QuoteItemToLineItemResponse $quoteItemConverter
+     * @param QuoteToBuyer $quoteToBuyerConverter
+     * @param QuoteToTotalsResponse $totalsConverter
+     * @param CartRepositoryInterface $cartRepository
+     * @param UcpDiscoveryProfile $ucpDiscoveryProfile
+     * @param UcpResponseCheckoutInterfaceFactory $ucpResponseCheckoutFactory
+     * @param CapabilityResponseInterfaceFactory $capabilityFactory
+     * @param PaymentResponseInterfaceFactory $paymentResponseFactory
+     * @param PaymentHandlerResponseInterfaceFactory $paymentHandlerResponseFactory
+     * @param ConfigInterface $config
+     * @param LinkInterfaceFactory $linkFactory
+     * @param DateTime $dateTime
+     * @param StoreManagerInterface $storeManager
+     * @param QuoteValidatorInterface $quoteValidator
+     * @param CheckoutMessageBuilder $messageBuilder
+     */
     public function __construct(
         protected readonly GuestCartManagementInterface $guestCartManagement,
         protected readonly CheckoutResponseInterfaceFactory $checkoutResponseFactory,
         protected readonly GuestCartRepositoryInterface $guestCartRepository,
         protected readonly ProductRepositoryInterface $productRepository,
         protected readonly QuoteItemToLineItemResponse $quoteItemConverter,
+        protected readonly QuoteToBuyer $quoteToBuyerConverter,
         protected readonly QuoteToTotalsResponse $totalsConverter,
         protected readonly CartRepositoryInterface $cartRepository,
         protected readonly UcpDiscoveryProfile $ucpDiscoveryProfile,
@@ -51,6 +80,12 @@ class CheckoutService
         protected readonly CapabilityResponseInterfaceFactory $capabilityFactory,
         protected readonly PaymentResponseInterfaceFactory $paymentResponseFactory,
         protected readonly PaymentHandlerResponseInterfaceFactory $paymentHandlerResponseFactory,
+        protected readonly ConfigInterface $config,
+        protected readonly LinkInterfaceFactory $linkFactory,
+        protected readonly DateTime $dateTime,
+        protected readonly StoreManagerInterface $storeManager,
+        protected readonly QuoteValidatorInterface $quoteValidator,
+        protected readonly CheckoutMessageBuilder $messageBuilder,
     ) {
     }
 
@@ -66,30 +101,78 @@ class CheckoutService
         $maskedCartId = $this->guestCartManagement->createEmptyCart();
         $cart = $this->guestCartRepository->get($maskedCartId);
 
+        // Process buyer information if provided
+        if ($request->getBuyer()) {
+            $this->addBuyerToCart($cart, $request->getBuyer());
+        }
+
+        // Add items to cart
+        $this->addItemsToCart($cart, $request->getLineItems());
+
+        /** @var Quote $cart */
+        $cart->collectTotals();
+        $this->cartRepository->save($cart);
+
         /** @var CheckoutResponseInterface $response */
         $response = $this->checkoutResponseFactory->create();
         $response->setId($maskedCartId);
         $response->setUcp($this->buildUcpResponse());
-        $response->setStatus(CheckoutResponseInterface::STATUS_INCOMPLETE);
 
         /** @var string $currency */
         $currency = $cart->getCurrency()?->getStoreCurrencyCode();
-
         $response->setCurrency($currency);
-        $response->setLinks([]);
 
-        if ($platformConfig && $platformConfig->getWebhookUrl()) {
-            $response->setPlatform($platformConfig);
+        // Set buyer information
+        $buyer = $this->quoteToBuyerConverter->convert($cart);
+        if ($buyer) {
+            $response->setBuyer($buyer);
         }
 
-        $response->setPayment($this->buildPaymentResponse());
-
-        $this->addItemsToCart($cart, $request->getLineItems());
-
-        $this->cartRepository->save($cart);
-
+        // Set line items and totals
         $response->setLineItems($this->buildLineItems($cart));
         $response->setTotals($this->totalsConverter->convert($cart));
+
+        // Set payment
+        $response->setPayment($this->buildPaymentResponse());
+
+        // Set links
+        $response->setLinks($this->buildLinks());
+
+        // Set expires_at
+        $response->setExpiresAt($this->calculateExpiryTime());
+
+        // Validate cart - validators now return messages directly
+        $messages = $this->quoteValidator->validate($cart);
+
+        // Add any additional messages from cart state
+        $additionalMessages = $this->messageBuilder->buildMessages($cart, []);
+        if (!empty($additionalMessages)) {
+            $messages = array_merge($messages, $additionalMessages);
+        }
+
+        if (!empty($messages)) {
+            $response->setMessages($messages);
+        }
+
+        // Set status based on validation messages
+        $status = $this->determineStatus($cart, $messages);
+        $response->setStatus($status);
+
+        // Set continue_url ONLY when status is requires_escalation (MUST per UCP spec)
+        // or optionally for other non-terminal statuses
+        if ($status === CheckoutResponseInterface::STATUS_REQUIRES_ESCALATION) {
+            $continueUrl = $this->buildContinueUrl($maskedCartId);
+            if ($continueUrl) {
+                $response->setContinueUrl($continueUrl);
+            }
+        } elseif ($status !== CheckoutResponseInterface::STATUS_COMPLETED &&
+                  $status !== CheckoutResponseInterface::STATUS_CANCELED) {
+            // Optionally provide continue_url for other non-terminal statuses
+            $continueUrl = $this->buildContinueUrl($maskedCartId);
+            if ($continueUrl) {
+                $response->setContinueUrl($continueUrl);
+            }
+        }
 
         return $response;
     }
@@ -126,8 +209,8 @@ class CheckoutService
      */
     public function buildLineItems(CartInterface $cart): array
     {
-        $lineItems = [];
         /** @var Quote $cart */
+        $lineItems = [];
         foreach ($cart->getAllItems() as $quoteItem) {
             $lineItems[] = $this->quoteItemConverter->convert($quoteItem);
         }
@@ -176,5 +259,123 @@ class CheckoutService
         $paymentResponse->setHandlers($handlers);
 
         return $paymentResponse;
+    }
+
+    /**
+     * Add buyer information to cart
+     *
+     * @param CartInterface $cart
+     * @param BuyerInterface $buyer
+     * @return void
+     */
+    protected function addBuyerToCart(CartInterface $cart, BuyerInterface $buyer): void
+    {
+        /** @var Quote $cart */
+        if ($firstName = $buyer->getFirstName()) {
+            $cart->setCustomerFirstname($firstName);
+        }
+
+        if ($lastName = $buyer->getLastName()) {
+            $cart->setCustomerLastname($lastName);
+        }
+
+        if ($email = $buyer->getEmail()) {
+            $cart->setCustomerEmail($email);
+            $cart->getShippingAddress()->setEmail($email);
+        }
+
+        if ($phoneNumber = $buyer->getPhoneNumber()) {
+            $cart->getShippingAddress()->setTelephone($phoneNumber);
+        }
+    }
+
+    /**
+     * Build links from configuration
+     *
+     * @return array<LinkInterface>
+     */
+    protected function buildLinks(): array
+    {
+        $linksConfig = $this->config->getCheckoutSessionLinks();
+
+        return array_map(function (array $link): LinkInterface {
+            $linkData = [
+                'type' => $link['type'],
+                'url' => $link['url']
+            ];
+
+            if (isset($link['title']) && !empty($link['title'])) {
+                $linkData['title'] = $link['title'];
+            }
+
+            return $this->linkFactory->create(['data' => $linkData]);
+        }, $linksConfig);
+    }
+
+    /**
+     * Calculate expiry time for checkout session
+     *
+     * @return string RFC 3339 timestamp
+     */
+    protected function calculateExpiryTime(): string
+    {
+        $ttl = $this->config->getCheckoutSessionTtl();
+        $expiryTimestamp = $this->dateTime->gmtTimestamp() + $ttl;
+
+        return date('c', $expiryTimestamp);
+    }
+
+    /**
+     * Build continue URL for checkout session
+     *
+     * @param string $sessionId
+     * @return string|null
+     */
+    protected function buildContinueUrl(string $sessionId): ?string
+    {
+        $baseUrl = $this->config->getContinueUrlBase();
+
+        if (empty($baseUrl)) {
+            return null;
+        }
+
+        // Append session ID to base URL
+        return rtrim($baseUrl, '/') . '/' . $sessionId;
+    }
+
+    /**
+     * Determine checkout status based on messages
+     *
+     * @param CartInterface $quote
+     * @param array<MessageInterface> $messages
+     * @return string
+     */
+    protected function determineStatus(CartInterface $quote, array $messages): string
+    {
+        /** @var Quote $quote */
+
+        if (!$quote->getIsActive()) {
+            if ($quote->getReservedOrderId() !== null) {
+                return CheckoutResponseInterface::STATUS_COMPLETED;
+            }
+
+            return CheckoutResponseInterface::STATUS_CANCELED;
+        }
+
+        if (!empty($messages)) {
+            // foreach ($messages as $message) {
+            //     $severity = $message->getSeverity();
+
+            //     if ($severity === MessageInterface::SEVERITY_REQUIRES_BUYER_INPUT ||
+            //         $severity === MessageInterface::SEVERITY_REQUIRES_BUYER_REVIEW) {
+            //         return CheckoutResponseInterface::STATUS_REQUIRES_ESCALATION;
+            //     }
+            // }
+
+            return CheckoutResponseInterface::STATUS_INCOMPLETE;
+        }
+
+        // No errors - ready for completion
+        return CheckoutResponseInterface::STATUS_READY_FOR_COMPLETE;
     }
 }

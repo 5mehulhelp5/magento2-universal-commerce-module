@@ -20,7 +20,7 @@ use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 /**
  * UCP Checkout Response Model
  */
-class UcpCheckoutResponse extends DataTransferObject implements UcpResponseCheckoutInterface
+class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheckoutInterface
 {
     /**
      * @param CapabilityResponseInterfaceFactory $capabilityFactory

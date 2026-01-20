@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * @author Magebit <info@magebit.com>
+ * @copyright Copyright (c) Magebit, Ltd. (https://magebit.com)
+ * @license https://magebit.com/code-license
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="universal_commerce" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+            <class>separator-top</class>
+            <label>Universal Commerce Protocol</label>
+            <tab>magebit</tab>
+            <resource>Magebit_UniversalCommerce::config</resource>
+            <group id="checkout" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                <label>Checkout Configuration</label>
+                <field id="session_links" type="text" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label comment">
+                    <label>Checkout Session Links</label>
+                    <comment>Legal links (Privacy Policy, Terms of Service, etc.) to be displayed during checkout. These are mandatory for legal compliance.</comment>
+                    <frontend_model>Magebit\UniversalCommerce\Block\Adminhtml\Form\Field\SessionLinks</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                </field>
+                <field id="session_ttl" type="text" sortOrder="20" showInWebsite="1" showInStore="1" showInDefault="1" translate="label comment">
+                    <label>Session TTL (seconds)</label>
+                    <comment>Time to live for checkout sessions in seconds. Default is 21600 (6 hours).</comment>
+                    <validate>required-entry validate-digits validate-zero-or-greater</validate>
+                </field>
+                <field id="continue_url_base" type="text" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label comment">
+                    <label>Continue URL Base</label>
+                    <comment>Base URL for checkout continuation when escalation is required. Session ID will be appended.</comment>
+                    <validate>required-entry</validate>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

@@ -9,6 +9,9 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Config preferences -->
+    <preference for="Magebit\UniversalCommerce\Api\ConfigInterface" type="Magebit\UniversalCommerce\Model\Config" />
+
     <!-- Discovery preferences -->
     <preference for="Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile" />
 
@@ -35,6 +38,7 @@
     <!-- Spec Response preferences -->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\Link" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\Message" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\ItemResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\TotalResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\CapabilityResponse" />
@@ -75,6 +79,18 @@
 
             <argument name="paymentHandlers" xsi:type="array">
                 <item name="mock" xsi:type="object">Magebit\UniversalCommerce\Model\Payment\MockPaymentHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Quote Validator Configuration -->
+    <preference for="Magebit\UniversalCommerce\Api\QuoteValidatorInterface" type="Magebit\UniversalCommerce\Model\Validation\QuoteValidatorComposite" />
+
+    <type name="Magebit\UniversalCommerce\Model\Validation\QuoteValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="buyer" xsi:type="object">Magebit\UniversalCommerce\Model\Validation\BuyerValidator</item>
+                <item name="line_items" xsi:type="object">Magebit\UniversalCommerce\Model\Validation\LineItemsValidator</item>
             </argument>
         </arguments>
     </type>
