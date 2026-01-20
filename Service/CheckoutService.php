@@ -241,18 +241,6 @@ class CheckoutService
         $response = $this->buildCheckoutResponse($cart, $sessionId);
         $response->setStatus(CheckoutResponseInterface::STATUS_COMPLETED);
 
-        // Add success message with order ID.
-        $message = $this->messageFactory->create();
-        $message->setType(MessageInterface::TYPE_INFO);
-        $message->setCode('order_placed');
-        $message->setContent(sprintf('Order placed successfully. Order ID: %s', $orderId));
-        $message->setSeverity(MessageInterface::SEVERITY_RECOVERABLE);
-        $message->setContentType(MessageInterface::CONTENT_TYPE_PLAIN);
-
-        $existingMessages = $response->getMessages() ?? [];
-        $existingMessages[] = $message;
-        $response->setMessages($existingMessages);
-
         return $response;
     }
 
