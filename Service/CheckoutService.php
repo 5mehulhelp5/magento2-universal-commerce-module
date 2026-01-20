@@ -11,8 +11,10 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Service;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
@@ -35,6 +37,7 @@ use Magebit\UniversalCommerce\Model\Convert\QuoteToTotalsResponse;
 use Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\GuestCartManagementInterface;
@@ -133,6 +136,55 @@ class CheckoutService
     }
 
     /**
+     * Update checkout session
+     *
+     * @param string $sessionId
+     * @param CheckoutUpdateRequestInterface $request
+     * @return CheckoutResponseInterface
+     */
+    public function updateCheckout(string $sessionId, CheckoutUpdateRequestInterface $request): CheckoutResponseInterface
+    {
+        $cart = $this->guestCartRepository->get($sessionId);
+
+        if ($request->getBuyer()) {
+            $this->addBuyerToCart($cart, $request->getBuyer());
+        }
+
+        $this->addItemsToCart($cart, $request->getLineItems());
+
+        /** @var Quote $cart */
+        $cart->collectTotals();
+        $this->cartRepository->save($cart);
+
+        return $this->buildCheckoutResponse($cart, $sessionId);
+    }
+
+    /**
+     * Cancel checkout session
+     *
+     * @param string $sessionId
+     * @return CheckoutResponseInterface
+     */
+    public function cancelCheckout(string $sessionId): CheckoutResponseInterface
+    {
+        $cart = $this->guestCartRepository->get($sessionId);
+
+        /** @var Quote $cart */
+        if (!$cart->getIsActive()) {
+            if ($cart->getReservedOrderId() !== null) {
+                throw new LocalizedException(__('Order is already placed. Please contact support to cancel the order'));
+            }
+
+            throw new LocalizedException(__('Cart is already canceled'));
+        }
+
+        $cart->setIsActive(false);
+        $this->cartRepository->save($cart);
+
+        return $this->buildCheckoutResponse($cart, $sessionId);
+    }
+
+    /**
      * Build checkout response from cart
      *
      * @param CartInterface $cart
@@ -152,6 +204,7 @@ class CheckoutService
 
         // Set buyer information
         $buyer = $this->quoteToBuyerConverter->convert($cart);
+
         if ($buyer) {
             $response->setBuyer($buyer);
         }
@@ -209,7 +262,7 @@ class CheckoutService
      * Add items to cart
      *
      * @param CartInterface $cart
-     * @param array<LineItemCreateRequestInterface> $lineItems
+     * @param array<LineItemCreateRequestInterface|LineItemUpdateRequestInterface> $lineItems
      * @return void
      */
     public function addItemsToCart(CartInterface $cart, array $lineItems): void

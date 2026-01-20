@@ -17,7 +17,7 @@ use Magebit\UniversalCommerce\Controller\ApiController;
 use Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutResponse;
 use Magebit\UniversalCommerce\Model\RequestValidator;
 use Magebit\UniversalCommerce\Service\CheckoutService;
-use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -26,9 +26,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
- * Get Checkout Session Controller
+ * Cancel Checkout Session Controller
  */
-class Retrieve extends ApiController implements HttpGetActionInterface
+class Cancel extends ApiController implements HttpPostActionInterface
 {
     /**
      * @param JsonFactory $jsonFactory
@@ -50,7 +50,7 @@ class Retrieve extends ApiController implements HttpGetActionInterface
     }
 
     /**
-     * Execute action to retrieve checkout session
+     * Execute action to cancel checkout session
      *
      * @return ResultInterface
      */
@@ -60,7 +60,6 @@ class Retrieve extends ApiController implements HttpGetActionInterface
         $request = $this->getRequest();
 
         $sessionId = $request->getParam('id');
-
         if (!$sessionId || !is_string($sessionId)) {
             return $this->createSimpleErrorResponse(
                 'invalid_request',
@@ -71,7 +70,8 @@ class Retrieve extends ApiController implements HttpGetActionInterface
         }
 
         try {
-            $response = $this->checkoutService->getCheckout($sessionId);
+            $response = $this->checkoutService->cancelCheckout($sessionId);
+
             /** @var CheckoutResponse $response */
             return $this->makeJsonResponse($response->toArray());
         } catch (NoSuchEntityException $e) {

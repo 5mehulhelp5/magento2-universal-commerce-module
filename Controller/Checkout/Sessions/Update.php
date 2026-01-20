@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller\Checkout\Sessions;
 
+use Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterface;
 use Magebit\UniversalCommerce\Api\Data\Response\ErrorResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Data\Response\MessageInterface;
 use Magebit\UniversalCommerce\Api\Data\Response\MessageInterfaceFactory;
@@ -17,7 +18,8 @@ use Magebit\UniversalCommerce\Controller\ApiController;
 use Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutResponse;
 use Magebit\UniversalCommerce\Model\RequestValidator;
 use Magebit\UniversalCommerce\Service\CheckoutService;
-use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterfaceFactory;
+use Magento\Framework\App\Action\HttpPutActionInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -26,9 +28,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
- * Get Checkout Session Controller
+ * Update Checkout Session Controller
  */
-class Retrieve extends ApiController implements HttpGetActionInterface
+class Update extends ApiController implements HttpPutActionInterface
 {
     /**
      * @param JsonFactory $jsonFactory
@@ -37,6 +39,7 @@ class Retrieve extends ApiController implements HttpGetActionInterface
      * @param ErrorResponseInterfaceFactory $errorResponseFactory
      * @param MessageInterfaceFactory $messageFactory
      * @param CheckoutService $checkoutService
+     * @param CheckoutUpdateRequestInterfaceFactory $checkoutUpdateRequestFactory
      */
     public function __construct(
         JsonFactory $jsonFactory,
@@ -45,12 +48,13 @@ class Retrieve extends ApiController implements HttpGetActionInterface
         ErrorResponseInterfaceFactory $errorResponseFactory,
         MessageInterfaceFactory $messageFactory,
         private readonly CheckoutService $checkoutService,
+        private readonly CheckoutUpdateRequestInterfaceFactory $checkoutUpdateRequestFactory,
     ) {
         parent::__construct($jsonFactory, $request, $requestValidator, $errorResponseFactory, $messageFactory);
     }
 
     /**
-     * Execute action to retrieve checkout session
+     * Execute action to update checkout session
      *
      * @return ResultInterface
      */
@@ -60,7 +64,6 @@ class Retrieve extends ApiController implements HttpGetActionInterface
         $request = $this->getRequest();
 
         $sessionId = $request->getParam('id');
-
         if (!$sessionId || !is_string($sessionId)) {
             return $this->createSimpleErrorResponse(
                 'invalid_request',
@@ -70,14 +73,25 @@ class Retrieve extends ApiController implements HttpGetActionInterface
             );
         }
 
+        // Validate and create request object
+        $requestObject = $this->createRequestObjectAndValidate(
+            fn($data) => $this->checkoutUpdateRequestFactory->create($data)
+        );
+
+        // Handle validation errors
+        if ($requestObject instanceof ErrorResponseInterface) {
+            return $this->makeErrorResponse($requestObject, 400);
+        }
+
         try {
-            $response = $this->checkoutService->getCheckout($sessionId);
+            $response = $this->checkoutService->updateCheckout($sessionId, $requestObject);
+
             /** @var CheckoutResponse $response */
             return $this->makeJsonResponse($response->toArray());
         } catch (NoSuchEntityException $e) {
             return $this->createSimpleErrorResponse(
                 'not_found',
-                'Checkout session not found',
+                $e->getMessage(),
                 MessageInterface::SEVERITY_RECOVERABLE,
                 404
             );

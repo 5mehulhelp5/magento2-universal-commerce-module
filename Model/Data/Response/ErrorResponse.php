@@ -74,7 +74,10 @@ class ErrorResponse extends DataObject implements ErrorResponseInterface
     {
         $messages = [];
         foreach ($this->getMessages() as $message) {
-            /** @var Message $message */
+            /** @var MessageInterface $message */
+            if (!($message instanceof MessageInterface)) {
+                continue;
+            }
             $messages[] = [
                 MessageInterface::TYPE => $message->getType(),
                 MessageInterface::CODE => $message->getCode(),

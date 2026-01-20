@@ -62,15 +62,15 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         $rawData = json_decode($content, true);
 
         if (!is_array($rawData)) {
-            return $this->errorResponseFactory->create(['data' => [
-                ErrorResponseInterface::STATUS => ErrorResponseInterface::STATUS_INVALID_REQUEST,
-                ErrorResponseInterface::MESSAGES => [[
-                    'type' => 'error',
-                    'code' => 'invalid_json',
-                    'severity' => 'recoverable',
-                    'content' => 'Invalid JSON in request body',
-                ]],
-            ]]);
+            $message = $this->createErrorMessage(
+                'invalid_json',
+                'Invalid JSON in request body',
+                MessageInterface::SEVERITY_RECOVERABLE
+            );
+            $errorResponse = $this->errorResponseFactory->create();
+            $errorResponse->setStatus(ErrorResponseInterface::STATUS_INVALID_REQUEST);
+            $errorResponse->setMessages([$message]);
+            return $errorResponse;
         }
 
         $requestObject = $factory(['data' => $rawData]);
