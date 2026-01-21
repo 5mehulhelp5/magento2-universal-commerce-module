@@ -29,6 +29,8 @@ use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterfaceFactory;
 use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 
 /**
@@ -43,6 +45,11 @@ class CheckoutResponse extends DataTransferObject implements CheckoutResponseInt
     public const KEY_ORDER_PERMALINK_URL = 'order_permalink_url';
 
     /**
+     * Discount capability extension field
+     */
+    public const KEY_DISCOUNTS = 'discounts';
+
+    /**
      * @param BuyerInterfaceFactory $buyerFactory
      * @param LineItemResponseInterfaceFactory $lineItemFactory
      * @param LinkInterfaceFactory $linkFactory
@@ -51,6 +58,7 @@ class CheckoutResponse extends DataTransferObject implements CheckoutResponseInt
      * @param TotalResponseInterfaceFactory $totalFactory
      * @param UcpResponseCheckoutInterfaceFactory $ucpFactory
      * @param OrderConfirmationInterfaceFactory $orderFactory
+     * @param DiscountDiscountsObjectInterfaceFactory $discountsFactory
      * @param array<mixed> $data
      */
     public function __construct(
@@ -62,6 +70,7 @@ class CheckoutResponse extends DataTransferObject implements CheckoutResponseInt
         private readonly TotalResponseInterfaceFactory $totalFactory,
         private readonly UcpResponseCheckoutInterfaceFactory $ucpFactory,
         private readonly OrderConfirmationInterfaceFactory $orderFactory,
+        private readonly DiscountDiscountsObjectInterfaceFactory $discountsFactory,
         array $data = []
     ) {
         parent::__construct($data);
@@ -336,5 +345,30 @@ class CheckoutResponse extends DataTransferObject implements CheckoutResponseInt
     public function setOrderPermalinkUrl(?string $url): self
     {
         return $this->setData(self::KEY_ORDER_PERMALINK_URL, $url);
+    }
+
+    /**
+     * Get discounts (discount capability extension)
+     *
+     * @return DiscountDiscountsObjectInterface|null
+     */
+    public function getDiscounts(): ?DiscountDiscountsObjectInterface
+    {
+        return $this->getDataInstance(
+            self::KEY_DISCOUNTS,
+            DiscountDiscountsObjectInterface::class,
+            $this->discountsFactory->create(...)
+        );
+    }
+
+    /**
+     * Set discounts (discount capability extension)
+     *
+     * @param DiscountDiscountsObjectInterface|null $discounts
+     * @return self
+     */
+    public function setDiscounts(?DiscountDiscountsObjectInterface $discounts): self
+    {
+        return $this->setData(self::KEY_DISCOUNTS, $discounts);
     }
 }

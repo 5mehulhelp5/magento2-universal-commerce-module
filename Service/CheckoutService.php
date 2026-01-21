@@ -21,6 +21,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityDiscoveryInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentHandlerResponseInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterfaceFactory;
@@ -53,6 +54,8 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\UrlInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Webhook\WebhookNotifierInterface;
+use Magebit\UniversalCommerce\Api\DiscountServiceInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterfaceFactory;
 use Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutResponse;
 
 class CheckoutService
@@ -83,6 +86,8 @@ class CheckoutService
      * @param UrlInterface $urlBuilder
      * @param OrderConfirmationInterfaceFactory $orderConfirmationFactory
      * @param WebhookNotifierInterface $webhookNotifier
+     * @param DiscountServiceInterface $discountService
+     * @param DiscountDiscountsObjectInterfaceFactory $discountsFactory
      */
     public function __construct(
         protected readonly GuestCartManagementInterface $guestCartManagement,
@@ -109,7 +114,9 @@ class CheckoutService
         protected readonly OrderRepositoryInterface $orderRepository,
         protected readonly UrlInterface $urlBuilder,
         protected readonly OrderConfirmationInterfaceFactory $orderConfirmationFactory,
-        protected readonly WebhookNotifierInterface $webhookNotifier
+        protected readonly WebhookNotifierInterface $webhookNotifier,
+        protected readonly DiscountServiceInterface $discountService,
+        protected readonly DiscountDiscountsObjectInterfaceFactory $discountsFactory
     ) {
     }
 
@@ -172,6 +179,13 @@ class CheckoutService
         }
 
         $this->addItemsToCart($cart, $request->getLineItems());
+
+        // Apply discount codes if present in request
+        if (method_exists($request, 'getDiscounts') && $request->getDiscounts()) {
+            $discounts = $request->getDiscounts();
+            $codes = $discounts->getCodes();
+            $this->discountService->applyDiscountCodes($cart, $codes);
+        }
 
         /** @var Quote $cart */
         $cart->collectTotals();
@@ -324,6 +338,21 @@ class CheckoutService
         $response->setLineItems($this->buildLineItems($cart));
         $response->setTotals($this->totalsConverter->convert($cart));
 
+        // Set discounts if any are applied
+        $appliedDiscounts = $this->discountService->getAppliedDiscounts($cart);
+        if (!empty($appliedDiscounts)) {
+            $discountsObject = $this->discountsFactory->create();
+            $discountsObject->setApplied($appliedDiscounts);
+
+            // Include submitted codes if available
+            /** @var Quote $cart */
+            if ($cart->getCouponCode()) {
+                $discountsObject->setCodes([$cart->getCouponCode()]);
+            }
+
+            $response->setDiscounts($discountsObject);
+        }
+
         // Set payment
         $response->setPayment($this->buildPaymentResponse($cart));
 
@@ -419,9 +448,16 @@ class CheckoutService
     {
         $ucpResponse = $this->ucpResponseCheckoutFactory->create();
 
-        $capabilities = array_map(function (array $capability) {
+        $capabilities = array_map(function (CapabilityDiscoveryInterface $capability) {
             return $this->capabilityFactory->create([
-                'data'=> $capability
+                'data' => [
+                    'name' => $capability->getName(),
+                    'version' => $capability->getVersion(),
+                    'spec' => $capability->getSpec(),
+                    'schema' => $capability->getSchema(),
+                    'extends' => $capability->getExtends(),
+                    'config' => $capability->getConfig(),
+                ]
             ]);
         }, $this->ucpDiscoveryProfile->getCapabilities());
 
@@ -444,7 +480,15 @@ class CheckoutService
         // Get handlers filtered by quote availability
         $handlers = array_map(function ($handler) {
             $handlerResponse = $this->paymentHandlerResponseFactory->create([
-                'data'=> $handler
+                'data' => [
+                    'id' => $handler->getId(),
+                    'name' => $handler->getName(),
+                    'version' => $handler->getVersion(),
+                    'spec' => $handler->getSpec(),
+                    'config_schema' => $handler->getConfigSchema(),
+                    'instrument_schemas' => $handler->getInstrumentSchemas(),
+                    'config' => $handler->getConfig(),
+                ]
             ]);
 
             return $handlerResponse;

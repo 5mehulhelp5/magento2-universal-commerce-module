@@ -15,6 +15,9 @@
     <!-- Webhook preferences -->
     <preference for="Magebit\UniversalCommerce\Api\Webhook\WebhookNotifierInterface" type="Magebit\UniversalCommerce\Model\Webhook\WebhookNotifier" />
 
+    <!-- Discount preferences -->
+    <preference for="Magebit\UniversalCommerce\Api\DiscountServiceInterface" type="Magebit\UniversalCommerce\Service\DiscountService" />
+
     <!-- Discovery preferences -->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile" />
 
@@ -45,6 +48,9 @@
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\Link" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\Message" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\OrderConfirmation" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\DiscountDiscountsObject" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountAppliedDiscountInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\DiscountAppliedDiscount" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountAllocationInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\DiscountAllocation" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\ItemResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\TotalResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\CapabilityResponse" />
@@ -87,6 +93,7 @@
         <arguments>
             <argument name="capabilities" xsi:type="array">
                 <item name="checkout" xsi:type="object">Magebit\UniversalCommerce\Model\Discovery\CheckoutCapability</item>
+                <item name="discount" xsi:type="object">Magebit\UniversalCommerce\Model\Discovery\DiscountCapability</item>
             </argument>
 
             <argument name="services" xsi:type="array">
