@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Api\Payment;
 
+use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentInstrumentInterface;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+
 interface PaymentHandlerInterface
 {
     /**
@@ -62,4 +66,30 @@ interface PaymentHandlerInterface
      * @return array<string, mixed>
      */
     public function getConfig(): array;
+
+    /**
+     * Get the Magento payment method code this handler maps to
+     *
+     * Returns null for standalone handlers (e.g., delegate_payment)
+     *
+     * @return string|null
+     */
+    public function getMagentoMethodCode(): ?string;
+
+    /**
+     * Check if payment handler is available
+     *
+     * @param CartInterface $cart
+     * @return bool
+     */
+    public function isAvailable(CartInterface $cart): bool;
+
+    /**
+     * Handle payment
+     *
+     * @param CartInterface $cart
+     * @param PaymentInstrumentInterface $paymentData
+     * @return PaymentInterface
+     */
+    public function handle(CartInterface $cart, PaymentInstrumentInterface $paymentData): PaymentInterface;
 }

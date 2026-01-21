@@ -23,16 +23,16 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
     /**
      * @inheritDoc
      */
-    public function getConfig(): ?object
+    public function getConfig(): ?array
     {
         $config = $this->getData(self::KEY_CONFIG);
-        return is_object($config) ? $config : (is_array($config) ? (object)$config : null);
+        return is_array($config) ? $config : null;
     }
 
     /**
      * @inheritDoc
      */
-    public function setConfig(?object $config): CapabilityResponseInterface
+    public function setConfig(?array $config): CapabilityResponseInterface
     {
         return $this->setData(self::KEY_CONFIG, $config);
     }

@@ -217,26 +217,23 @@ class CheckoutService
             throw new LocalizedException(__('Payment method is required'));
         }
 
-        if (!$cart->getCustomerEmail()) {
-            throw new LocalizedException(__('Customer email is required'));
-        }
+        // Validate cart before placing order
+        $validationMessages = $this->quoteValidator->validate($cart);
 
-        if (!$cart->getShippingAddress()->getEmail()) {
-            $cart->getShippingAddress()->setEmail($cart->getCustomerEmail());
-        }
-
-        $billingAddress = $cart->getBillingAddress();
-        if (!$billingAddress || !$billingAddress->getFirstname()) {
-            $shippingAddress = $cart->getShippingAddress();
-            $cart->getBillingAddress()->addData($shippingAddress->getData());
+        if (!empty($validationMessages)) {
+            $errorMessages = array_map(function ($message) {
+                return $message->getContent();
+            }, $validationMessages);
+            throw new LocalizedException(
+                __('Cannot complete checkout: %1', implode(', ', $errorMessages))
+            );
         }
 
         $payment = $this->paymentFactory->create();
         $payment->setMethod($handlerId);
 
         $this->cartRepository->save($cart);
-
-        $orderId = $this->guestCartManagement->placeOrder($sessionId, $payment);
+        $this->guestCartManagement->placeOrder($sessionId, $payment);
 
         $response = $this->buildCheckoutResponse($cart, $sessionId);
         $response->setStatus(CheckoutResponseInterface::STATUS_COMPLETED);
@@ -274,7 +271,7 @@ class CheckoutService
         $response->setTotals($this->totalsConverter->convert($cart));
 
         // Set payment
-        $response->setPayment($this->buildPaymentResponse());
+        $response->setPayment($this->buildPaymentResponse($cart));
 
         // Set links
         $response->setLinks($this->buildLinks());
@@ -383,19 +380,21 @@ class CheckoutService
     /**
      * Build payment response
      *
+     * @param CartInterface $cart
      * @return PaymentResponseInterface
      */
-    public function buildPaymentResponse(): PaymentResponseInterface
+    public function buildPaymentResponse(CartInterface $cart): PaymentResponseInterface
     {
         $paymentResponse = $this->paymentResponseFactory->create();
 
+        // Get handlers filtered by quote availability
         $handlers = array_map(function ($handler) {
             $handlerResponse = $this->paymentHandlerResponseFactory->create([
                 'data'=> $handler
             ]);
 
             return $handlerResponse;
-        }, $this->ucpDiscoveryProfile->getPaymentHandlers());
+        }, $this->ucpDiscoveryProfile->getPaymentHandlers($cart));
 
         $paymentResponse->setHandlers($handlers);
 

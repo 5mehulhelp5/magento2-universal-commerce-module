@@ -12,7 +12,11 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Payment;
 
+use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentInstrumentInterface;
 use Magebit\UniversalCommerce\Api\Payment\PaymentHandlerInterface;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Api\Data\PaymentInterfaceFactory;
 
 class MockPaymentHandler implements PaymentHandlerInterface
 {
@@ -21,6 +25,14 @@ class MockPaymentHandler implements PaymentHandlerInterface
     public const VERSION = '1.0';
     public const SPEC = 'https://ucp.dev/specs/mock';
     public const CONFIG_SCHEMA = 'https://ucp.dev/schemas/mock.json';
+
+    /**
+     * @param PaymentInterfaceFactory $paymentFactory
+     */
+    public function __construct(
+        protected readonly PaymentInterfaceFactory $paymentFactory
+    ) {
+    }
 
     /**
      * Get payment handler ID
@@ -94,5 +106,41 @@ class MockPaymentHandler implements PaymentHandlerInterface
         return [
             'supported_tokens' => ['success_token', 'fail_token'],
         ];
+    }
+
+    /**
+     * Get the Magento payment method code this handler maps to
+     *
+     * @return string|null
+     */
+    public function getMagentoMethodCode(): ?string
+    {
+        return null; // Standalone handler - not mapped to a Magento payment method
+    }
+
+    /**
+     * Check if payment handler is available
+     *
+     * @param CartInterface $cart
+     * @return bool
+     */
+    public function isAvailable(CartInterface $cart): bool
+    {
+        return true;
+    }
+
+    /**
+     * Handle payment
+     *
+     * @param CartInterface $cart
+     * @param PaymentInstrumentInterface $paymentData
+     * @return PaymentInterface
+     */
+    public function handle(CartInterface $cart, PaymentInstrumentInterface $paymentData): PaymentInterface
+    {
+        /** @var PaymentInterface $payment */
+        $payment = $this->paymentFactory->create();
+        $payment->setMethod(self::ID);
+        return $payment;
     }
 }

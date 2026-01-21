@@ -12,24 +12,27 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Discovery;
 
-use Magebit\UniversalCommerce\Api\Discovery\CapabilityInterface;
-use Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface;
-use Magebit\UniversalCommerce\Api\Discovery\ServiceInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpDiscoveryProfileInterface;
 use Magebit\UniversalCommerce\Api\Payment\PaymentHandlerInterface;
+use Magebit\UniversalCommerce\Model\Payment\PaymentHandlerPool;
+use Magento\Quote\Api\Data\CartInterface;
+use Magebit\UcpSpec\MutableApi\Services\UCPServiceInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityDiscoveryInterface;
+use JsonSerializable;
 
-class UcpDiscoveryProfile implements UcpDiscoveryProfileInterface
+class UcpDiscoveryProfile implements UcpDiscoveryProfileInterface, JsonSerializable
 {
     public const UCP_VERSION = '2026-01-11';
 
     /**
-     * @param array<CapabilityInterface> $capabilities
-     * @param array<ServiceInterface> $services
-     * @param array<PaymentHandlerInterface> $paymentHandlers
+     * @param PaymentHandlerPool $paymentHandlerPool
+     * @param array<string, CapabilityDiscoveryInterface> $capabilities
+     * @param array<string, UCPServiceInterface> $services
      */
     public function __construct(
+        private readonly PaymentHandlerPool $paymentHandlerPool,
         private readonly array $capabilities = [],
-        private readonly array $services = [],
-        private readonly array $paymentHandlers = [],
+        private readonly array $services = []
     ) {
     }
 
@@ -44,73 +47,128 @@ class UcpDiscoveryProfile implements UcpDiscoveryProfileInterface
     }
 
     /**
-     * Get services
+     * Set version
      *
-     * @return array<string, array{version: string, spec: string, rest: array{schema: string, endpoint: string}}>
+     * @param string $version
+     * @return self
      */
-    public function getServices(): array
+    public function setVersion(string $version): self
     {
-        $services = [];
-        foreach ($this->services as $key => $service) {
-            $services[$key] = [
-                'version' => $service->getVersion(),
-                'spec' => $service->getSpec(),
-                'rest' => [
-                    'schema' => $service->getRestSchema(),
-                    'endpoint' => $service->getRestEndpoint(),
-                ]
-            ];
-        }
-        return $services;
+        return $this;
     }
 
     /**
-     * @return array<array{name: string, version: string, spec: string, schema: string}>
+     * Set services
+     *
+     * @param array<string, UCPServiceInterface> $services
+     * @return self
+     */
+    public function setServices(array $services): self
+    {
+        return $this;
+    }
+
+    /**
+     * Get services
+     *
+     * @return array<string, UCPServiceInterface>
+     */
+    public function getServices(): array
+    {
+        return $this->services;
+    }
+
+    /**
+     * Set capabilities
+     *
+     * @param array<CapabilityDiscoveryInterface> $capabilities
+     * @return self
+     */
+    public function setCapabilities(array $capabilities): self
+    {
+        return $this;
+    }
+
+    /**
+     * Get capabilities
+     *
+     * @return array<CapabilityDiscoveryInterface>
      */
     public function getCapabilities(): array
     {
-        return array_map(function (CapabilityInterface $capability) {
-            return [
-                'name' => $capability->getName(),
-                'version' => $capability->getVersion(),
-                'spec' => $capability->getSpec(),
-                'schema' => $capability->getSchema(),
-            ];
-        }, array_values($this->capabilities));
+        return array_values($this->capabilities);
     }
 
     /**
      * Get payment handlers
      *
-     * @return array<mixed>
+     * @param CartInterface|null $cart Optional quote for quote-specific filtering
+     * @return array<PaymentHandlerInterface>
      */
-    public function getPaymentHandlers(): array
+    public function getPaymentHandlers(?CartInterface $cart = null): array
     {
-        return array_map(function (PaymentHandlerInterface $paymentHandler) {
-            return [
-                'id' => $paymentHandler->getId(),
-                'version' => $paymentHandler->getVersion(),
-                'spec' => $paymentHandler->getSpec(),
-                'config_schema' => $paymentHandler->getConfigSchema(),
-                'instrument_schemas' => $paymentHandler->getInstrumentSchemas(),
-                'config' => $paymentHandler->getConfig()
-            ];
-        }, array_values($this->paymentHandlers));
+        if ($cart !== null) {
+            // Quote-specific filtering - check availability for this specific quote
+            $handlers = $this->paymentHandlerPool->getAvailableForQuote($cart);
+        } else {
+            // Discovery endpoint - only return enabled methods (no quote context)
+            $handlers = $this->paymentHandlerPool->getEnabledHandlers();
+        }
+
+        return array_values($handlers);
     }
 
     /**
+     * Set payment handlers
+     *
+     * @param array<PaymentHandlerInterface> $handlers
+     * @return self
+     */
+    public function setPaymentHandlers(array $handlers): self
+    {
+        return $this;
+    }
+
+    /**
+     * Serialize to JSON
+     *
      * @return array<mixed>
      */
     public function jsonSerialize(): array
     {
         return [
             'ucp' => [
-                self::VERSION => $this->getVersion(),
-                self::CAPABILITIES => $this->getCapabilities(),
-                self::SERVICES => $this->getServices(),
+                self::KEY_VERSION => $this->getVersion(),
+                self::KEY_CAPABILITIES => array_map(function (CapabilityDiscoveryInterface $capability) {
+                    return [
+                        'name' => $capability->getName(),
+                        'version' => $capability->getVersion(),
+                        'spec' => $capability->getSpec(),
+                        'schema' => $capability->getSchema(),
+                        'extends' => $capability->getExtends(),
+                        'config' => $capability->getConfig(),
+                    ];
+                }, $this->getCapabilities()),
+                self::KEY_SERVICES => array_map(function (UCPServiceInterface $service) {
+                    return [
+                        'version' => $service->getVersion(),
+                        'spec' => $service->getSpec(),
+                        'rest' => $service->getRest()?->toArray() ?? [],
+                    ];
+                }, $this->getServices()),
             ],
             'payment' => [
-                'handlers' => $this->getPaymentHandlers()
+                'handlers' => array_map(function (PaymentHandlerInterface $handler) {
+                    return [
+                        'id' => $handler->getId(),
+                        'name' => $handler->getName(),
+                        'version' => $handler->getVersion(),
+                        'spec' => $handler->getSpec(),
+                        'config_schema' => $handler->getConfigSchema(),
+                        'instrument_schemas' => $handler->getInstrumentSchemas(),
+                        'config' => $handler->getConfig(),
+                    ];
+                }, $this->getPaymentHandlers()),
             ]
         ];
     }

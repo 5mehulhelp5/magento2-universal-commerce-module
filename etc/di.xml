@@ -13,7 +13,7 @@
     <preference for="Magebit\UniversalCommerce\Api\ConfigInterface" type="Magebit\UniversalCommerce\Model\Config" />
 
     <!-- Discovery preferences -->
-    <preference for="Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile" />
 
     <!-- Idempotency preferences -->
     <preference for="Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface" type="Magebit\UniversalCommerce\Model\IdempotencyKey\Model" />
@@ -44,6 +44,7 @@
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\ItemResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\TotalResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\CapabilityResponse" />
+    <preference for="Magebit\UcpSpec\MutableApi\Services\UCPServiceRestInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Services\UCPServiceRest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentHandlerResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\PaymentHandlerResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\Types\LineItemResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface" type="Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\PaymentResponse" />
@@ -69,6 +70,15 @@
         </arguments>
     </type>
 
+    <!-- Payment Handler Pool Configuration -->
+    <type name="Magebit\UniversalCommerce\Model\Payment\PaymentHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="mock" xsi:type="object">Magebit\UniversalCommerce\Model\Payment\MockPaymentHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="Magebit\UniversalCommerce\Model\Discovery\UcpDiscoveryProfile">
         <arguments>
             <argument name="capabilities" xsi:type="array">
@@ -79,9 +89,7 @@
                 <item name="shopping" xsi:type="object">Magebit\UniversalCommerce\Model\Discovery\ShoppingService</item>
             </argument>
 
-            <argument name="paymentHandlers" xsi:type="array">
-                <item name="mock" xsi:type="object">Magebit\UniversalCommerce\Model\Payment\MockPaymentHandler</item>
-            </argument>
+            <argument name="paymentHandlerPool" xsi:type="object">Magebit\UniversalCommerce\Model\Payment\PaymentHandlerPool</argument>
         </arguments>
     </type>
 

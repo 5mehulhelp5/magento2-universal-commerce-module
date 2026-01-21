@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Discovery;
 
-use Magebit\UniversalCommerce\Api\Discovery\CapabilityInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityDiscoveryInterface;
 
-class CheckoutCapability implements CapabilityInterface
+class CheckoutCapability implements CapabilityDiscoveryInterface
 {
     public const NAME = 'dev.ucp.shopping.checkout';
     public const SPEC = 'https://ucp.dev/specs/checkout';
@@ -31,6 +31,17 @@ class CheckoutCapability implements CapabilityInterface
     }
 
     /**
+     * Set name
+     *
+     * @param string $name
+     * @return self
+     */
+    public function setName(string $name): self
+    {
+        return $this;
+    }
+
+    /**
      * Get version
      *
      * @return string
@@ -38,6 +49,17 @@ class CheckoutCapability implements CapabilityInterface
     public function getVersion(): string
     {
         return UcpDiscoveryProfile::UCP_VERSION;
+    }
+
+    /**
+     * Set version
+     *
+     * @param string $version
+     * @return self
+     */
+    public function setVersion(string $version): self
+    {
+        return $this;
     }
 
     /**
@@ -51,6 +73,17 @@ class CheckoutCapability implements CapabilityInterface
     }
 
     /**
+     * Set spec
+     *
+     * @param string $spec
+     * @return self
+     */
+    public function setSpec(string $spec): self
+    {
+        return $this;
+    }
+
+    /**
      * Get schema
      *
      * @return string
@@ -58,5 +91,58 @@ class CheckoutCapability implements CapabilityInterface
     public function getSchema(): string
     {
         return self::SCHEMA;
+    }
+
+    /**
+     * Set schema
+     *
+     * @param string $schema
+     * @return self
+     */
+    public function setSchema(string $schema): self
+    {
+        return $this;
+    }
+
+    /**
+     * Get extends
+     *
+     * @return string|null
+     */
+    public function getExtends(): string|null
+    {
+        return null;
+    }
+
+    /**
+     * Set extends
+     *
+     * @param string|null $extends
+     * @return self
+     */
+    public function setExtends(string|null $extends): self
+    {
+        return $this;
+    }
+
+    /**
+     * Get config
+     *
+     * @return array<mixed>|null
+     */
+    public function getConfig(): array|null
+    {
+        return null;
+    }
+
+    /**
+     * Set config
+     *
+     * @param array<mixed>|null $config
+     * @return self
+     */
+    public function setConfig(array|null $config): self
+    {
+        return $this;
     }
 }

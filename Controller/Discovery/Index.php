@@ -15,17 +15,17 @@ namespace Magebit\UniversalCommerce\Controller\Discovery;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultInterface;
-use Magebit\UniversalCommerce\Api\Discovery\UcpDiscoveryProfileInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpDiscoveryProfileInterface;
 
 class Index implements HttpGetActionInterface
 {
     /**
      * @param JsonFactory $jsonFactory
-     * @param UcpDiscoveryProfileInterface $ucpDiscoveryProfile
+     * @param UcpDiscoveryProfileInterface $discoveryProfile
      */
     public function __construct(
         private readonly JsonFactory $jsonFactory,
-        private readonly UcpDiscoveryProfileInterface $ucpDiscoveryProfile,
+        private readonly UcpDiscoveryProfileInterface $discoveryProfile,
     ) {
     }
 
@@ -37,6 +37,7 @@ class Index implements HttpGetActionInterface
     public function execute(): ResultInterface
     {
         $result = $this->jsonFactory->create();
-        return $result->setData($this->ucpDiscoveryProfile->jsonSerialize());
+        $result->setJsonData((string) json_encode($this->discoveryProfile));
+        return $result;
     }
 }
