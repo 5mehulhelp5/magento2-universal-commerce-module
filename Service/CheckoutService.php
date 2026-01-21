@@ -49,6 +49,11 @@ use Magento\Quote\Api\GuestCartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\UrlInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterfaceFactory;
+use Magebit\UniversalCommerce\Api\Webhook\WebhookNotifierInterface;
+use Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutResponse;
 
 class CheckoutService
 {
@@ -74,6 +79,10 @@ class CheckoutService
      * @param CheckoutMessageBuilder $messageBuilder
      * @param PaymentInterfaceFactory $paymentFactory
      * @param MessageInterfaceFactory $messageFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param UrlInterface $urlBuilder
+     * @param OrderConfirmationInterfaceFactory $orderConfirmationFactory
+     * @param WebhookNotifierInterface $webhookNotifier
      */
     public function __construct(
         protected readonly GuestCartManagementInterface $guestCartManagement,
@@ -97,6 +106,10 @@ class CheckoutService
         protected readonly CheckoutMessageBuilder $messageBuilder,
         protected readonly PaymentInterfaceFactory $paymentFactory,
         protected readonly MessageInterfaceFactory $messageFactory,
+        protected readonly OrderRepositoryInterface $orderRepository,
+        protected readonly UrlInterface $urlBuilder,
+        protected readonly OrderConfirmationInterfaceFactory $orderConfirmationFactory,
+        protected readonly WebhookNotifierInterface $webhookNotifier
     ) {
     }
 
@@ -197,10 +210,14 @@ class CheckoutService
      *
      * @param string $sessionId
      * @param PaymentDataInterface $paymentData
+     * @param PlatformConfigInterface|null $platformConfig
      * @return CheckoutResponseInterface
      */
-    public function completeCheckout(string $sessionId, PaymentDataInterface $paymentData): CheckoutResponseInterface
-    {
+    public function completeCheckout(
+        string $sessionId,
+        PaymentDataInterface $paymentData,
+        ?PlatformConfigInterface $platformConfig = null
+    ): CheckoutResponseInterface {
         $cart = $this->guestCartRepository->get($sessionId);
 
         /** @var Quote $cart */
@@ -233,10 +250,47 @@ class CheckoutService
         $payment->setMethod($handlerId);
 
         $this->cartRepository->save($cart);
-        $this->guestCartManagement->placeOrder($sessionId, $payment);
 
+        // Place order and capture order ID
+        $orderId = $this->guestCartManagement->placeOrder($sessionId, $payment);
+
+        // Retrieve the created order
+        $order = $this->orderRepository->get($orderId);
+
+        // Build order permalink URL
+        $orderPermalinkUrl = $this->urlBuilder->getUrl(
+            'sales/order/view',
+            ['order_id' => $orderId]
+        );
+
+        // Create OrderConfirmation object
+        $orderConfirmation = $this->orderConfirmationFactory->create();
+        $orderConfirmation->setId((string) $orderId);
+        $orderConfirmation->setPermalinkUrl($orderPermalinkUrl);
+
+        /** @var CheckoutResponse $response */
         $response = $this->buildCheckoutResponse($cart, $sessionId);
         $response->setStatus(CheckoutResponseInterface::STATUS_COMPLETED);
+
+        // Set order confirmation (UCP spec field)
+        $response->setOrder($orderConfirmation);
+
+        // Set custom fields (not in UCP spec, for convenience)
+        $response->setOrderId((string) $orderId);
+        $response->setOrderPermalinkUrl($orderPermalinkUrl);
+
+        // Send webhook notification if webhook URL is available
+        if ($platformConfig && $platformConfig->getWebhookUrl()) {
+            $this->webhookNotifier->notify(
+                $platformConfig->getWebhookUrl(),
+                'order_placed',
+                $sessionId,
+                [
+                    'id' => (string) $orderId,
+                    'permalink_url' => $orderPermalinkUrl,
+                ]
+            );
+        }
 
         return $response;
     }

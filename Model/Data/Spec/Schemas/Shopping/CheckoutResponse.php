@@ -37,6 +37,12 @@ use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
 class CheckoutResponse extends DataTransferObject implements CheckoutResponseInterface
 {
     /**
+     * Custom fields not in UCP spec interface
+     */
+    public const KEY_ORDER_ID = 'order_id';
+    public const KEY_ORDER_PERMALINK_URL = 'order_permalink_url';
+
+    /**
      * @param BuyerInterfaceFactory $buyerFactory
      * @param LineItemResponseInterfaceFactory $lineItemFactory
      * @param LinkInterfaceFactory $linkFactory
@@ -288,5 +294,47 @@ class CheckoutResponse extends DataTransferObject implements CheckoutResponseInt
     public function setOrder(?OrderConfirmationInterface $order): CheckoutResponseInterface
     {
         return $this->setData(self::KEY_ORDER, $order);
+    }
+
+    /**
+     * Get order ID (custom field, not in UCP spec)
+     *
+     * @return string|null
+     */
+    public function getOrderId(): ?string
+    {
+        return $this->getDataStringOrNull(self::KEY_ORDER_ID);
+    }
+
+    /**
+     * Set order ID (custom field, not in UCP spec)
+     *
+     * @param string|null $orderId
+     * @return self
+     */
+    public function setOrderId(?string $orderId): self
+    {
+        return $this->setData(self::KEY_ORDER_ID, $orderId);
+    }
+
+    /**
+     * Get order permalink URL (custom field, not in UCP spec)
+     *
+     * @return string|null
+     */
+    public function getOrderPermalinkUrl(): ?string
+    {
+        return $this->getDataStringOrNull(self::KEY_ORDER_PERMALINK_URL);
+    }
+
+    /**
+     * Set order permalink URL (custom field, not in UCP spec)
+     *
+     * @param string|null $url
+     * @return self
+     */
+    public function setOrderPermalinkUrl(?string $url): self
+    {
+        return $this->setData(self::KEY_ORDER_PERMALINK_URL, $url);
     }
 }

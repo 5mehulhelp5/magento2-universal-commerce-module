@@ -19,6 +19,7 @@ use Magebit\UniversalCommerce\Model\Data\Spec\Schemas\Shopping\CheckoutResponse;
 use Magebit\UniversalCommerce\Model\RequestValidator;
 use Magebit\UniversalCommerce\Service\CheckoutService;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterfaceFactory;
+use Magebit\UniversalCommerce\Model\AgentProfileParser;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
@@ -40,6 +41,7 @@ class Complete extends ApiController implements HttpPostActionInterface
      * @param MessageInterfaceFactory $messageFactory
      * @param CheckoutService $checkoutService
      * @param PaymentDataInterfaceFactory $paymentDataFactory
+     * @param AgentProfileParser $agentProfileParser
      */
     public function __construct(
         JsonFactory $jsonFactory,
@@ -49,6 +51,7 @@ class Complete extends ApiController implements HttpPostActionInterface
         MessageInterfaceFactory $messageFactory,
         private readonly CheckoutService $checkoutService,
         private readonly PaymentDataInterfaceFactory $paymentDataFactory,
+        private readonly AgentProfileParser $agentProfileParser
     ) {
         parent::__construct($jsonFactory, $request, $requestValidator, $errorResponseFactory, $messageFactory);
     }
@@ -84,7 +87,15 @@ class Complete extends ApiController implements HttpPostActionInterface
         }
 
         try {
-            $response = $this->checkoutService->completeCheckout($sessionId, $requestObject);
+            // Parse agent profile to get webhook URL
+            $ucpAgentHeader = $request->getHeader('UCP-Agent');
+            $platformConfig = null;
+
+            if ($ucpAgentHeader) {
+                $platformConfig = $this->agentProfileParser->parse((string) $ucpAgentHeader);
+            }
+
+            $response = $this->checkoutService->completeCheckout($sessionId, $requestObject, $platformConfig);
 
             /** @var CheckoutResponse $response */
             return $this->makeJsonResponse($response->toArray());

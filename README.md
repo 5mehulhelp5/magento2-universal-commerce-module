@@ -6,7 +6,7 @@ This module makes your store compatible with AI-powered shopping experiences usi
 
 ## Features
 
-- [ ] UCP Checkout Capability
+- [x] UCP Checkout Capability (Quote creation, updates, cancellation)
 - [ ] UCP Order Capability
 - [ ] UCP Identity Linking Capability
 - [ ] Unit and integration tests
