@@ -21,11 +21,37 @@
     </type>
 
     <!-- Specification implementations -->
+    <!-- Discovery -->
+    <preference for="Magebit\UcpSpec\Api\Discovery\UCPDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Discovery\UcpDiscoveryProfile" />
+
+    <!-- Schemas -->
     <preference for="Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpDiscoverProfile" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityDiscovery" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\CapabilityResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityResponse" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\UcpResponseCheckoutInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpResponseCheckout" />
+
+    <!-- Services -->
     <preference for="Magebit\UcpSpec\Api\Services\UCPServiceInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpService" />
     <preference for="Magebit\UcpSpec\Api\Services\UCPServiceRestInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpServiceRest" />
-    <preference for="Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityDiscovery" />
-    <preference for="Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpDiscoverProfile" />
-    <preference for="Magebit\UcpSpec\Api\Services\UCPServiceInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpService" />
-    <preference for="Magebit\UcpSpec\Api\Discovery\UCPDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Discovery\UcpDiscoveryProfile" />
+
+    <!-- Shopping - Checkout -->
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutCreateRequest" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutResponse" />
+
+    <!-- Shopping - Payment -->
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\PaymentCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\PaymentCreateRequest" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\PaymentResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\PaymentResponse" />
+
+    <!-- Shopping - Types -->
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\BuyerInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\Buyer" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\ItemCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\ItemCreateRequest" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\ItemResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\ItemResponse" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\LineItemCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\LineItemCreateRequest" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\LineItemResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\LineItemResponse" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\LinkInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\Link" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\MessageInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\Message" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\OrderConfirmationInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\OrderConfirmation" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentHandlerResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\PaymentHandlerResponse" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentInstrumentInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\PaymentInstrument" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\Shopping\Types\TotalResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\TotalResponse" />
 </config>
