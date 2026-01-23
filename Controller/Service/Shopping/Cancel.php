@@ -26,7 +26,7 @@ use Magebit\UniversalCommerce\Model\IdempotencyHandler;
 use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magento\Framework\Exception\LocalizedException;
 
-class Get extends ApiController
+class Cancel extends ApiController
 {
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -70,7 +70,7 @@ class Get extends ApiController
         }
 
         try {
-            $checkoutResponse = $this->restHandler->getCheckout($checkoutId);
+            $checkoutResponse = $this->restHandler->cancelCheckout($checkoutId);
         } catch (LocalizedException $e) {
             return $this->makeErrorResponse('requires_escalation', [
                 $this->messageFactory->create(['data' => [

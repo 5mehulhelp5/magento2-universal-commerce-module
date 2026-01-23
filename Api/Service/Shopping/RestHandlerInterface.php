@@ -27,4 +27,10 @@ interface RestHandlerInterface
      * @return CheckoutResponseInterface
      */
     public function getCheckout(string $checkoutId): CheckoutResponseInterface;
+
+    /**
+     * @param string $checkoutId
+     * @return CheckoutResponseInterface
+     */
+    public function cancelCheckout(string $checkoutId): CheckoutResponseInterface;
 }

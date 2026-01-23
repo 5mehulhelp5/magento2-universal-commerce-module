@@ -140,6 +140,10 @@ class QuoteToCheckoutResponse
      */
     public function getStatus(CartInterface $quote): string
     {
+        if (!$quote->getIsActive()) {
+            return CheckoutResponseInterface::STATUS_CANCELED;
+        }
+
         return CheckoutResponseInterface::STATUS_INCOMPLETE;
     }
 

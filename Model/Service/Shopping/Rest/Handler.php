@@ -72,6 +72,24 @@ class Handler implements RestHandlerInterface
     }
 
     /**
+     * @param string $checkoutId
+     * @return CheckoutResponseInterface
+     * @throws LocalizedException
+     */
+    public function cancelCheckout(string $checkoutId): CheckoutResponseInterface
+    {
+        try {
+            $cart = $this->guestCartRepository->get($checkoutId);
+        } catch (NoSuchEntityException $e) {
+            throw new LocalizedException(__('Checkout session not found: %1. Please create a new checkout session.', $checkoutId));
+        }
+
+        $cart->setIsActive(false);
+        $this->cartRepository->save($cart);
+        return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
+    }
+
+    /**
      * Add items to cart
      *
      * @param CartInterface $cart
