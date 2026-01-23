@@ -13,6 +13,7 @@ namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface as BaseRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 
 interface CheckoutCreateRequestInterface extends BaseRequestInterface
 {
@@ -30,4 +31,19 @@ interface CheckoutCreateRequestInterface extends BaseRequestInterface
      * @return self
      */
     public function setFulfillment(?FulfillmentRequestInterface $fulfillment): self;
+
+    /**
+     * Get discounts request
+     *
+     * @return \Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface|null
+     */
+    public function getDiscounts(): ?\Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
+
+    /**
+     * Set discounts request
+     *
+     * @param \Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface|null $discounts
+     * @return self
+     */
+    public function setDiscounts(?DiscountDiscountsObjectInterface $discounts): self;
 }

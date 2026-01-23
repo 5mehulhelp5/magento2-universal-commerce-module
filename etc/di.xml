@@ -23,6 +23,7 @@
         <arguments>
             <argument name="capabilities" xsi:type="array">
                 <item name="dev.ucp.shopping.checkout" xsi:type="object">Magebit\UniversalCommerce\Model\Service\Shopping\Capability\CheckoutCapability</item>
+                <item name="dev.ucp.shopping.discount" xsi:type="object">Magebit\UniversalCommerce\Model\Service\Shopping\Capability\DiscountCapability</item>
             </argument>
         </arguments>
     </type>
@@ -31,6 +32,7 @@
             <argument name="typeMapping" xsi:type="array">
                 <item name="subtotal" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_SUBTOTAL</item>
                 <item name="discount" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_DISCOUNT</item>
+                <item name="items_discount" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_ITEMS_DISCOUNT</item>
                 <item name="shipping" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_FULFILLMENT</item>
                 <item name="tax" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_TAX</item>
                 <item name="grand_total" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_TOTAL</item>
@@ -98,4 +100,9 @@
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentOptionResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentOptionResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentDestinationResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentAvailableMethodResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentAvailableMethodResponse" />
+
+    <!-- Shopping - Discount -->
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\DiscountDiscountsObject" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountAppliedDiscountInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\DiscountAppliedDiscount" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountAllocationInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\DiscountAllocation" />
 </config>

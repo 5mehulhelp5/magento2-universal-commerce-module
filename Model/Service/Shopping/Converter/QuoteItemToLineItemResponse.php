@@ -94,6 +94,16 @@ class QuoteItemToLineItemResponse
             $totals[] = $total;
         }
 
+        // Discount (item-level discount)
+        $discountAmount = (float) $quoteItem->getDiscountAmount();
+        if ($discountAmount > 0) {
+            $total = $this->totalResponseFactory->create();
+            $total->setType(TotalResponseInterface::TYPE_ITEMS_DISCOUNT);
+            $total->setAmount($this->priceConverter->convert($discountAmount));
+            $total->setDisplayText('Discount');
+            $totals[] = $total;
+        }
+
         // Total (including tax)
         $rowTotal = (float) $quoteItem->getRowTotalInclTax();
         $total = $this->totalResponseFactory->create();

@@ -21,9 +21,11 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
+use Magento\Quote\Api\GuestCouponManagementInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Catalog\Api\ProductRepositoryInterface;
@@ -40,6 +42,7 @@ class RestHandler implements RestHandlerInterface
     public function __construct(
         protected readonly GuestCartManagementInterface $guestCartManagement,
         protected readonly GuestCartRepositoryInterface $guestCartRepository,
+        protected readonly GuestCouponManagementInterface $guestCouponManagement,
         protected readonly QuoteToCheckoutResponse $quoteToCheckoutResponse,
         protected readonly ProductRepositoryInterface $productRepository,
         protected readonly CartRepositoryInterface $cartRepository,
@@ -64,6 +67,10 @@ class RestHandler implements RestHandlerInterface
 
         if ($request->getFulfillment()) {
             $this->addFulfillmentInformationToCart($cart, $request->getFulfillment());
+        }
+
+        if ($request->getDiscounts()) {
+            $this->addDiscountInformationToCart($maskedCartId, $cart, $request->getDiscounts());
         }
 
         $this->cartRepository->save($cart);
@@ -124,6 +131,10 @@ class RestHandler implements RestHandlerInterface
 
         if ($request->getFulfillment()) {
             $this->addFulfillmentInformationToCart($cart, $request->getFulfillment());
+        }
+
+        if ($request->getDiscounts()) {
+            $this->addDiscountInformationToCart($checkoutId, $cart, $request->getDiscounts());
         }
 
         $this->cartRepository->save($cart);
@@ -457,6 +468,44 @@ class RestHandler implements RestHandlerInterface
 
         if ($address->getPhoneNumber()) {
             $billingAddress->setTelephone($address->getPhoneNumber());
+        }
+    }
+
+    /**
+     * Add discount information to cart
+     *
+     * @param CartInterface $cart
+     * @param DiscountDiscountsObjectInterface $discounts
+     * @return void
+     */
+    public function addDiscountInformationToCart(string $maskedCartId, CartInterface $cart, DiscountDiscountsObjectInterface $discounts): void
+    {
+        /** @var Quote $cart */
+        $codes = $discounts->getCodes();
+
+        // If empty array, clear coupon code
+        if ($codes === null || empty($codes)) {
+            try {
+                $this->guestCouponManagement->remove($maskedCartId);
+            } catch (\Exception $e) {
+                // Ignore if no coupon to remove
+            }
+            return;
+        }
+
+        // Magento supports single coupon code, so apply the first one
+        $couponCode = trim($codes[0]);
+        if (empty($couponCode)) {
+            return;
+        }
+
+        try {
+            $this->guestCouponManagement->set($maskedCartId, $couponCode);
+            // Collect totals to apply the discount
+            $cart->collectTotals();
+        } catch (\Exception $e) {
+            // Coupon validation errors will be handled by quote validator
+            // and returned via messages array
         }
     }
 }

@@ -21,6 +21,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentFulfillmentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 
 class FulfillmentCheckout extends DataTransferObject implements FulfillmentCheckoutInterface
 {
@@ -288,6 +289,24 @@ class FulfillmentCheckout extends DataTransferObject implements FulfillmentCheck
     public function setFulfillment(?FulfillmentFulfillmentInterface $fulfillment): self
     {
         $this->setData(FulfillmentCheckoutInterface::KEY_FULFILLMENT, $fulfillment);
+        return $this;
+    }
+
+    /**
+     * @return DiscountDiscountsObjectInterface|null
+     */
+    public function getDiscounts(): DiscountDiscountsObjectInterface|null
+    {
+        return $this->getDataOfTypeOrNull('discounts', DiscountDiscountsObjectInterface::class);
+    }
+
+    /**
+     * @param DiscountDiscountsObjectInterface|null $discounts
+     * @return self
+     */
+    public function setDiscounts(?DiscountDiscountsObjectInterface $discounts): self
+    {
+        $this->setData('discounts', $discounts);
         return $this;
     }
 }

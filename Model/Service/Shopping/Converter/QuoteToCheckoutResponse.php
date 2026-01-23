@@ -32,6 +32,7 @@ use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResp
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToBuyerResponse;
 use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToFulfillmentResponse;
+use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToDiscountResponse;
 
 class QuoteToCheckoutResponse
 {
@@ -45,6 +46,7 @@ class QuoteToCheckoutResponse
      * @param QuoteToBuyerResponse $quoteToBuyerResponse
      * @param QuoteValidatorInterface $quoteValidator
      * @param QuoteToFulfillmentResponse $quoteToFulfillmentResponse
+     * @param QuoteToDiscountResponse $quoteToDiscountResponse
      */
     public function __construct(
         protected readonly FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory,
@@ -55,7 +57,8 @@ class QuoteToCheckoutResponse
         protected readonly QuoteToTotalsResponse $quoteToTotalsResponse,
         protected readonly QuoteToBuyerResponse $quoteToBuyerResponse,
         protected readonly QuoteValidatorInterface $quoteValidator,
-        protected readonly QuoteToFulfillmentResponse $quoteToFulfillmentResponse
+        protected readonly QuoteToFulfillmentResponse $quoteToFulfillmentResponse,
+        protected readonly QuoteToDiscountResponse $quoteToDiscountResponse
     ) {
     }
 
@@ -84,6 +87,10 @@ class QuoteToCheckoutResponse
 
         if ($fulfillment = $this->quoteToFulfillmentResponse->convert($quote)) {
             $response->setFulfillment($fulfillment);
+        }
+
+        if ($discounts = $this->quoteToDiscountResponse->convert($quote)) {
+            $response->setDiscounts($discounts);
         }
 
         $validationErrors = $this->quoteValidator->validate($quote) ?? [];

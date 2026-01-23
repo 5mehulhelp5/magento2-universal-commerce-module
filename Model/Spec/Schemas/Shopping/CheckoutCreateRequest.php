@@ -18,6 +18,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 
 class CheckoutCreateRequest extends DataTransferObject implements CheckoutCreateRequestInterface
 {
@@ -111,6 +112,24 @@ class CheckoutCreateRequest extends DataTransferObject implements CheckoutCreate
     public function setFulfillment(?FulfillmentRequestInterface $fulfillment): self
     {
         $this->setData('fulfillment', $fulfillment);
+        return $this;
+    }
+
+    /**
+     * @return DiscountDiscountsObjectInterface|null
+     */
+    public function getDiscounts(): ?DiscountDiscountsObjectInterface
+    {
+        return $this->getDataOfTypeOrNull('discounts', DiscountDiscountsObjectInterface::class);
+    }
+
+    /**
+     * @param DiscountDiscountsObjectInterface|null $discounts
+     * @return self
+     */
+    public function setDiscounts(?DiscountDiscountsObjectInterface $discounts): self
+    {
+        $this->setData('discounts', $discounts);
         return $this;
     }
 }
