@@ -88,6 +88,8 @@
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\TotalResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentMethodCreateRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentDestinationRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentGroupCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentGroupCreateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentMethodResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentGroupResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentGroupResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentOptionResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentOptionResponse" />

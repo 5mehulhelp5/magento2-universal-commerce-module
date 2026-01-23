@@ -114,9 +114,17 @@ class DataTransferObject extends DataObject implements JsonSerializable
      */
     public function getDataArrayOfTypeOrNull(string $key, string $type): ?array
     {
-        $value = $this->getDataArray($key);
+        $value = $this->getData($key);
+
+        if ($value === null || $value === false) {
+            return null;
+        }
 
         if (!is_array($value)) {
+            return null;
+        }
+
+        if (empty($value)) {
             return null;
         }
 
@@ -165,6 +173,11 @@ class DataTransferObject extends DataObject implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return $this->toArray();
+        $data = $this->toArray();
+
+        // Remove null values from serialization
+        return array_filter($data, function ($value) {
+            return $value !== null;
+        }, ARRAY_FILTER_USE_BOTH);
     }
 }

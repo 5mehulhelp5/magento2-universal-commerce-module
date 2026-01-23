@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
+use Magebit\AgenticCommerce\Model\Data\Buyer;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterfaceFactory;
 use Magento\Quote\Api\Data\CartInterface;
@@ -29,9 +30,9 @@ class QuoteToBuyerResponse
 
     /**
      * @param CartInterface $quote
-     * @return BuyerInterface
+     * @return BuyerInterface|null
      */
-    public function convert(CartInterface $quote): BuyerInterface
+    public function convert(CartInterface $quote): ?BuyerInterface
     {
         /** @var Quote $quote */
         /** @var BuyerInterface $buyer */
@@ -51,6 +52,11 @@ class QuoteToBuyerResponse
 
         if ($quote->getBillingAddress()->getTelephone()) {
             $buyer->setPhoneNumber($quote->getBillingAddress()->getTelephone());
+        }
+
+        /** @var Buyer $buyer */
+        if ($buyer->isEmpty()) {
+            return null;
         }
 
         return $buyer;

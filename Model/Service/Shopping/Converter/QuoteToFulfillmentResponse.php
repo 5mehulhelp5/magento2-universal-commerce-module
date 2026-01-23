@@ -79,10 +79,12 @@ class QuoteToFulfillmentResponse
         $response = $this->fulfillmentFulfillmentFactory->create();
 
         $methods = $this->getMethods($shippingAddress, $quoteItemIds);
-        if (!empty($methods)) {
-            $response->setMethods($methods);
+
+        if (empty($methods)) {
+            return null;
         }
 
+        $response->setMethods($methods);
         return $response;
     }
 
