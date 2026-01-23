@@ -25,6 +25,7 @@ use Magebit\UniversalCommerce\Model\RequestClassBuilder;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Exception\LocalizedException;
 
 abstract class ApiController implements ActionInterface, CsrfAwareActionInterface
 {
@@ -52,8 +53,7 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
      */
     public function getAndValidateRequest(string $classType, callable $factory): mixed
     {
-        /** @var Http $request */
-        $request = $this->getRequest();
+        $request = $this->getHttpRequest();
         $data = $request->getContent();
         $rawData = (array) json_decode($data, true);
 
@@ -136,10 +136,17 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
     }
 
     /**
-     * @return RequestInterface
+     * @return Http
      */
-    public function getRequest(): RequestInterface
+    public function getHttpRequest(): Http
     {
-        return $this->request;
+        /** @var Http $request */
+        $request = $this->request;
+
+        if (!$request instanceof Http) {
+            throw new LocalizedException(__('Invalid request'));
+        }
+
+        return $request;
     }
 }

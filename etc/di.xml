@@ -2,6 +2,10 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
+    <!-- Idempotency Key -->
+    <preference for="Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface" type="Magebit\UniversalCommerce\Model\IdempotencyKey\Model" />
+    <preference for="Magebit\UniversalCommerce\Api\IdempotencyKeyRepositoryInterface" type="Magebit\UniversalCommerce\Model\IdempotencyKey\Repository" />
+
     <!-- Service registry -->
     <type name="Magebit\UniversalCommerce\Model\Discovery\ServiceRegistry">
         <arguments>

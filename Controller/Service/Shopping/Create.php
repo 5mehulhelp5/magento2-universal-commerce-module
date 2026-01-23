@@ -22,6 +22,9 @@ use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
+use Magebit\UniversalCommerce\Model\IdempotencyHandler;
+use Magebit\UniversalCommerce\Model\DataTransferObject;
+use Magento\Framework\Exception\LocalizedException;
 
 class Create extends ApiController
 {
@@ -31,6 +34,7 @@ class Create extends ApiController
         RequestValidator $requestValidator,
         RequestClassBuilder $requestClassBuilder,
         MessageInterfaceFactory $messageFactory,
+        protected readonly IdempotencyHandler $idempotencyHandler,
         protected readonly CheckoutCreateRequestInterfaceFactory $checkoutCreateRequestFactory,
         protected readonly RestHandlerInterface $restHandler
     ) {
@@ -51,7 +55,17 @@ class Create extends ApiController
             return $this->validationResultToResponse($checkoutCreateRequest);
         }
 
-        $checkoutResponse = $this->restHandler->createCheckout($checkoutCreateRequest->toArray());
-        return $this->makeJsonResponse($checkoutResponse->toArray());
+        if ($idempotencyResponse = $this->idempotencyHandler->handle($this->getHttpRequest())) {
+            return $idempotencyResponse;
+        }
+
+        $checkoutResponse = $this->restHandler->createCheckout($checkoutCreateRequest);
+        // $this->idempotencyHandler->storeResponse($this->getRequest(), $checkoutResponse, 200);
+
+        if ($checkoutResponse instanceof DataTransferObject) {
+            return $this->makeJsonResponse($checkoutResponse);
+        }
+
+        throw new LocalizedException(__('Internal server error'));
     }
 }
