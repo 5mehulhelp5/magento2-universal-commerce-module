@@ -22,6 +22,8 @@ use Magento\Framework\DataObject;
 use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magento\Framework\App\Request\Http;
 
 abstract class ApiController implements ActionInterface, CsrfAwareActionInterface
@@ -31,12 +33,14 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
      * @param RequestInterface $request
      * @param RequestValidator $requestValidator
      * @param RequestClassBuilder $requestClassBuilder
+     * @param MessageInterfaceFactory $messageFactory
      */
     public function __construct(
         protected readonly JsonFactory $resultJsonFactory,
         protected readonly RequestInterface $request,
         protected readonly RequestValidator $requestValidator,
-        protected readonly RequestClassBuilder $requestClassBuilder
+        protected readonly RequestClassBuilder $requestClassBuilder,
+        protected readonly MessageInterfaceFactory $messageFactory
     ) {
     }
 
@@ -63,6 +67,38 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         $this->requestClassBuilder->populateWithArray($requestObject, $rawData, $classType);
 
         return $requestObject;
+    }
+
+    /**
+     * Convert ValidationResult to UCP-compliant error response
+     *
+     * @param ValidationResult $validationResult
+     * @return ResultJson
+     */
+    public function validationResultToResponse(ValidationResult $validationResult): ResultJson
+    {
+        $messages = [];
+        $errors = $validationResult->getErrors();
+
+        foreach ($errors as $path => $content) {
+            /** @var MessageInterface $message */
+            $message = $this->messageFactory->create(['data' => [
+                'type' => 'error',
+                'code' => 'validation_error',
+                'path' => $path === '' ? null : $path,
+                'content' => $content,
+                'severity' => 'requires_buyer_input'
+            ]]);
+
+            $messages[] = $message;
+        }
+
+        $responseData = [
+            'status' => 'requires_escalation',
+            'messages' => $messages
+        ];
+
+        return $this->makeJsonResponse($responseData, 400);
     }
 
     /**

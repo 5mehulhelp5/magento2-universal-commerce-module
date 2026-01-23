@@ -42,7 +42,7 @@ class RequestClassBuilder
      * Populate data object using data in array format.
      *
      * @param object $dataObject
-     * @param array<string, mixed> $data
+     * @param array<mixed> $data
      * @param string $interfaceName
      * @return $this
      */
@@ -56,7 +56,7 @@ class RequestClassBuilder
      * Update Data Object with the data from array
      *
      * @param object $dataObject
-     * @param array<string, mixed> $data
+     * @param array<mixed> $data
      * @param string $interfaceName
      * @return $this
      */
@@ -93,7 +93,7 @@ class RequestClassBuilder
      * @param object $dataObject
      * @param string $getterMethodName
      * @param string $methodName
-     * @param array<string, mixed> $value
+     * @param array<mixed> $value
      * @param string $interfaceName
      * @return $this
      */

@@ -13,9 +13,9 @@ namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
-use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\RequestInterface;
 use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
@@ -30,10 +30,11 @@ class Create extends ApiController
         RequestInterface $request,
         RequestValidator $requestValidator,
         RequestClassBuilder $requestClassBuilder,
+        MessageInterfaceFactory $messageFactory,
         protected readonly CheckoutCreateRequestInterfaceFactory $checkoutCreateRequestFactory,
         protected readonly RestHandlerInterface $restHandler
     ) {
-        parent::__construct($resultJsonFactory, $request, $requestValidator, $requestClassBuilder);
+        parent::__construct($resultJsonFactory, $request, $requestValidator, $requestClassBuilder, $messageFactory);
     }
 
     /**
@@ -47,10 +48,10 @@ class Create extends ApiController
         );
 
         if ($checkoutCreateRequest instanceof ValidationResult) {
-            throw new \Exception('Invalid request');
+            return $this->validationResultToResponse($checkoutCreateRequest);
         }
 
-        $checkoutResponse = $this->restHandler->createCheckout($checkoutCreateRequest);
-        return $this->makeJsonResponse($checkoutResponse);
+        $checkoutResponse = $this->restHandler->createCheckout($checkoutCreateRequest->toArray());
+        return $this->makeJsonResponse($checkoutResponse->toArray());
     }
 }
