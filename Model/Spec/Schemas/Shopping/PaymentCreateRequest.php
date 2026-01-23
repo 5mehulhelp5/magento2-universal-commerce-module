@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\PaymentCreateRequestInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentInstrumentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface;
 
 class PaymentCreateRequest extends DataTransferObject implements PaymentCreateRequestInterface
 {
@@ -27,7 +27,7 @@ class PaymentCreateRequest extends DataTransferObject implements PaymentCreateRe
     }
 
     /**
-     * @return array<PaymentInstrumentInterface>|null
+     * @return PaymentInstrumentInterface[]|null
      */
     public function getInstruments(): array|null
     {
@@ -35,5 +35,25 @@ class PaymentCreateRequest extends DataTransferObject implements PaymentCreateRe
             PaymentCreateRequestInterface::KEY_INSTRUMENTS,
             PaymentInstrumentInterface::class
         );
+    }
+
+    /**
+     * @param string|null $selectedInstrumentId
+     * @return self
+     */
+    public function setSelectedInstrumentId(?string $selectedInstrumentId): self
+    {
+        $this->setData(PaymentCreateRequestInterface::KEY_SELECTED_INSTRUMENT_ID, $selectedInstrumentId);
+        return $this;
+    }
+
+    /**
+     * @param PaymentInstrumentInterface[]|null $instruments
+     * @return self
+     */
+    public function setInstruments(?array $instruments): self
+    {
+        $this->setData(PaymentCreateRequestInterface::KEY_INSTRUMENTS, $instruments);
+        return $this;
     }
 }

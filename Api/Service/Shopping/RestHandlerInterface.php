@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
-use Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutResponseInterface;
 
 interface RestHandlerInterface

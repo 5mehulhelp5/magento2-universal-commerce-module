@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\LineItemResponseInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\ItemResponseInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
 
 class LineItemResponse extends DataTransferObject implements LineItemResponseInterface
 {
@@ -40,17 +40,11 @@ class LineItemResponse extends DataTransferObject implements LineItemResponseInt
      */
     public function getQuantity(): int
     {
-        $value = $this->getData(LineItemResponseInterface::KEY_QUANTITY);
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException(
-                sprintf('Data for key %s is not an int', LineItemResponseInterface::KEY_QUANTITY)
-            );
-        }
-        return $value;
+        return $this->getDataInt(LineItemResponseInterface::KEY_QUANTITY);
     }
 
     /**
-     * @return array<TotalResponseInterface>
+     * @return TotalResponseInterface[]
      */
     public function getTotals(): array
     {
@@ -66,5 +60,55 @@ class LineItemResponse extends DataTransferObject implements LineItemResponseInt
     public function getParentId(): string|null
     {
         return $this->getDataStringOrNull(LineItemResponseInterface::KEY_PARENT_ID);
+    }
+
+    /**
+     * @param string $id
+     * @return self
+     */
+    public function setId(string $id): self
+    {
+        $this->setData(LineItemResponseInterface::KEY_ID, $id);
+        return $this;
+    }
+
+    /**
+     * @param ItemResponseInterface $item
+     * @return self
+     */
+    public function setItem(ItemResponseInterface $item): self
+    {
+        $this->setData(LineItemResponseInterface::KEY_ITEM, $item);
+        return $this;
+    }
+
+    /**
+     * @param int $quantity
+     * @return self
+     */
+    public function setQuantity(int $quantity): self
+    {
+        $this->setData(LineItemResponseInterface::KEY_QUANTITY, $quantity);
+        return $this;
+    }
+
+    /**
+     * @param TotalResponseInterface[] $totals
+     * @return self
+     */
+    public function setTotals(array $totals): self
+    {
+        $this->setData(LineItemResponseInterface::KEY_TOTALS, $totals);
+        return $this;
+    }
+
+    /**
+     * @param string|null $parentId
+     * @return self
+     */
+    public function setParentId(?string $parentId): self
+    {
+        $this->setData(LineItemResponseInterface::KEY_PARENT_ID, $parentId);
+        return $this;
     }
 }

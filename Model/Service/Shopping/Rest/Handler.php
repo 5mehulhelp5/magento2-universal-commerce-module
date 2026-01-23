@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Rest;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutResponseInterface;
 
 class Handler implements RestHandlerInterface
@@ -21,7 +21,7 @@ class Handler implements RestHandlerInterface
      * @param CheckoutCreateRequestInterface $request
      * @return CheckoutResponseInterface
      */
-    public function createCheckout(): CheckoutResponseInterface
+    public function createCheckout(CheckoutCreateRequestInterface $request): CheckoutResponseInterface
     {
         throw new \Exception('Not implemented');
     }

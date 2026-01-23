@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
 
 class TotalResponse extends DataTransferObject implements TotalResponseInterface
 {
@@ -38,12 +38,36 @@ class TotalResponse extends DataTransferObject implements TotalResponseInterface
      */
     public function getAmount(): int
     {
-        $value = $this->getData(TotalResponseInterface::KEY_AMOUNT);
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException(
-                sprintf('Data for key %s is not an int', TotalResponseInterface::KEY_AMOUNT)
-            );
-        }
-        return $value;
+        return $this->getDataInt(TotalResponseInterface::KEY_AMOUNT);
+    }
+
+    /**
+     * @param string $type
+     * @return self
+     */
+    public function setType(string $type): self
+    {
+        $this->setData(TotalResponseInterface::KEY_TYPE, $type);
+        return $this;
+    }
+
+    /**
+     * @param string|null $displayText
+     * @return self
+     */
+    public function setDisplayText(?string $displayText): self
+    {
+        $this->setData(TotalResponseInterface::KEY_DISPLAY_TEXT, $displayText);
+        return $this;
+    }
+
+    /**
+     * @param int $amount
+     * @return self
+     */
+    public function setAmount(int $amount): self
+    {
+        $this->setData(TotalResponseInterface::KEY_AMOUNT, $amount);
+        return $this;
     }
 }

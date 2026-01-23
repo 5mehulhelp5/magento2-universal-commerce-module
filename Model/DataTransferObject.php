@@ -45,6 +45,32 @@ class DataTransferObject extends DataObject implements JsonSerializable
 
     /**
      * @param string $key
+     * @return int
+     * @throws \InvalidArgumentException
+     */
+    public function getDataInt(string $key): int
+    {
+        $value = $this->getData($key);
+
+        if (!is_int($value)) {
+            throw new \InvalidArgumentException(sprintf('Data for key %s is not an int', $key));
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $key
+     * @return int|null
+     */
+    public function getDataIntOrNull(string $key): ?int
+    {
+        $value = $this->getData($key);
+        return is_int($value) ? $value : null;
+    }
+
+    /**
+     * @param string $key
      * @return array<mixed>
      */
     public function getDataArray(string $key): array

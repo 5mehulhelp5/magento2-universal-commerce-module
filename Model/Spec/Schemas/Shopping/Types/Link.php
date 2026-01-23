@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\LinkInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
 
 class Link extends DataTransferObject implements LinkInterface
 {
@@ -39,5 +39,35 @@ class Link extends DataTransferObject implements LinkInterface
     public function getTitle(): string|null
     {
         return $this->getDataStringOrNull(LinkInterface::KEY_TITLE);
+    }
+
+    /**
+     * @param string $type
+     * @return self
+     */
+    public function setType(string $type): self
+    {
+        $this->setData(LinkInterface::KEY_TYPE, $type);
+        return $this;
+    }
+
+    /**
+     * @param string $url
+     * @return self
+     */
+    public function setUrl(string $url): self
+    {
+        $this->setData(LinkInterface::KEY_URL, $url);
+        return $this;
+    }
+
+    /**
+     * @param string|null $title
+     * @return self
+     */
+    public function setTitle(?string $title): self
+    {
+        $this->setData(LinkInterface::KEY_TITLE, $title);
+        return $this;
     }
 }

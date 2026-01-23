@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\ItemCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemCreateRequestInterface;
 
 class ItemCreateRequest extends DataTransferObject implements ItemCreateRequestInterface
 {
@@ -23,5 +23,15 @@ class ItemCreateRequest extends DataTransferObject implements ItemCreateRequestI
     public function getId(): string
     {
         return $this->getDataString(ItemCreateRequestInterface::KEY_ID);
+    }
+
+    /**
+     * @param string $id
+     * @return self
+     */
+    public function setId(string $id): self
+    {
+        $this->setData(ItemCreateRequestInterface::KEY_ID, $id);
+        return $this;
     }
 }

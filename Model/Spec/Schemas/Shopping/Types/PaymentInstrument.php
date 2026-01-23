@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentInstrumentInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PostalAddressInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentCredentialInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentCredentialInterface;
 
 class PaymentInstrument extends DataTransferObject implements PaymentInstrumentInterface
 {
@@ -86,16 +86,7 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentI
      */
     public function getExpiryMonth(): int|null
     {
-        $value = $this->getData(PaymentInstrumentInterface::KEY_EXPIRY_MONTH);
-        if ($value === null) {
-            return null;
-        }
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException(
-                sprintf('Data for key %s is not an int', PaymentInstrumentInterface::KEY_EXPIRY_MONTH)
-            );
-        }
-        return $value;
+        return $this->getDataIntOrNull(PaymentInstrumentInterface::KEY_EXPIRY_MONTH);
     }
 
     /**
@@ -103,16 +94,7 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentI
      */
     public function getExpiryYear(): int|null
     {
-        $value = $this->getData(PaymentInstrumentInterface::KEY_EXPIRY_YEAR);
-        if ($value === null) {
-            return null;
-        }
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException(
-                sprintf('Data for key %s is not an int', PaymentInstrumentInterface::KEY_EXPIRY_YEAR)
-            );
-        }
-        return $value;
+        return $this->getDataIntOrNull(PaymentInstrumentInterface::KEY_EXPIRY_YEAR);
     }
 
     /**
@@ -129,5 +111,115 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentI
     public function getRichCardArt(): string|null
     {
         return $this->getDataStringOrNull(PaymentInstrumentInterface::KEY_RICH_CARD_ART);
+    }
+
+    /**
+     * @param string $id
+     * @return self
+     */
+    public function setId(string $id): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_ID, $id);
+        return $this;
+    }
+
+    /**
+     * @param string $handlerId
+     * @return self
+     */
+    public function setHandlerId(string $handlerId): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_HANDLER_ID, $handlerId);
+        return $this;
+    }
+
+    /**
+     * @param string $type
+     * @return self
+     */
+    public function setType(string $type): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_TYPE, $type);
+        return $this;
+    }
+
+    /**
+     * @param PostalAddressInterface|null $billingAddress
+     * @return self
+     */
+    public function setBillingAddress(?PostalAddressInterface $billingAddress): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_BILLING_ADDRESS, $billingAddress);
+        return $this;
+    }
+
+    /**
+     * @param PaymentCredentialInterface|null $credential
+     * @return self
+     */
+    public function setCredential(?PaymentCredentialInterface $credential): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_CREDENTIAL, $credential);
+        return $this;
+    }
+
+    /**
+     * @param string $brand
+     * @return self
+     */
+    public function setBrand(string $brand): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_BRAND, $brand);
+        return $this;
+    }
+
+    /**
+     * @param string $lastDigits
+     * @return self
+     */
+    public function setLastDigits(string $lastDigits): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_LAST_DIGITS, $lastDigits);
+        return $this;
+    }
+
+    /**
+     * @param int|null $expiryMonth
+     * @return self
+     */
+    public function setExpiryMonth(?int $expiryMonth): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_EXPIRY_MONTH, $expiryMonth);
+        return $this;
+    }
+
+    /**
+     * @param int|null $expiryYear
+     * @return self
+     */
+    public function setExpiryYear(?int $expiryYear): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_EXPIRY_YEAR, $expiryYear);
+        return $this;
+    }
+
+    /**
+     * @param string|null $richTextDescription
+     * @return self
+     */
+    public function setRichTextDescription(?string $richTextDescription): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_RICH_TEXT_DESCRIPTION, $richTextDescription);
+        return $this;
+    }
+
+    /**
+     * @param string|null $richCardArt
+     * @return self
+     */
+    public function setRichCardArt(?string $richCardArt): self
+    {
+        $this->setData(PaymentInstrumentInterface::KEY_RICH_CARD_ART, $richCardArt);
+        return $this;
     }
 }

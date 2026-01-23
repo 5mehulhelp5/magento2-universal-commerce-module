@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
 
 class Message extends DataTransferObject implements MessageInterface
 {
@@ -63,5 +63,65 @@ class Message extends DataTransferObject implements MessageInterface
     public function getSeverity(): string
     {
         return $this->getDataString(MessageInterface::KEY_SEVERITY);
+    }
+
+    /**
+     * @param string $type
+     * @return self
+     */
+    public function setType(string $type): self
+    {
+        $this->setData(MessageInterface::KEY_TYPE, $type);
+        return $this;
+    }
+
+    /**
+     * @param string $code
+     * @return self
+     */
+    public function setCode(string $code): self
+    {
+        $this->setData(MessageInterface::KEY_CODE, $code);
+        return $this;
+    }
+
+    /**
+     * @param string|null $path
+     * @return self
+     */
+    public function setPath(?string $path): self
+    {
+        $this->setData(MessageInterface::KEY_PATH, $path);
+        return $this;
+    }
+
+    /**
+     * @param string|null $contentType
+     * @return self
+     */
+    public function setContentType(?string $contentType): self
+    {
+        $this->setData(MessageInterface::KEY_CONTENT_TYPE, $contentType);
+        return $this;
+    }
+
+    /**
+     * @param string $content
+     * @return self
+     */
+    public function setContent(string $content): self
+    {
+        $this->setData(MessageInterface::KEY_CONTENT, $content);
+        return $this;
+    }
+
+    /**
+     * @param string $severity
+     * @return self
+     */
+    public function setSeverity(string $severity): self
+    {
+        $this->setData(MessageInterface::KEY_SEVERITY, $severity);
+        return $this;
     }
 }

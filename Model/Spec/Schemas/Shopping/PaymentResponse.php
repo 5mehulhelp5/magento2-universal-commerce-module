@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\PaymentResponseInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentHandlerResponseInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentInstrumentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentHandlerResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface;
 
 class PaymentResponse extends DataTransferObject implements PaymentResponseInterface
 {
     /**
-     * @return array<PaymentHandlerResponseInterface>
+     * @return PaymentHandlerResponseInterface[]
      */
     public function getHandlers(): array
     {
@@ -39,7 +39,7 @@ class PaymentResponse extends DataTransferObject implements PaymentResponseInter
     }
 
     /**
-     * @return array<PaymentInstrumentInterface>|null
+     * @return PaymentInstrumentInterface[]|null
      */
     public function getInstruments(): array|null
     {
@@ -47,5 +47,35 @@ class PaymentResponse extends DataTransferObject implements PaymentResponseInter
             PaymentResponseInterface::KEY_INSTRUMENTS,
             PaymentInstrumentInterface::class
         );
+    }
+
+    /**
+     * @param PaymentHandlerResponseInterface[] $handlers
+     * @return self
+     */
+    public function setHandlers(array $handlers): self
+    {
+        $this->setData(PaymentResponseInterface::KEY_HANDLERS, $handlers);
+        return $this;
+    }
+
+    /**
+     * @param string|null $selectedInstrumentId
+     * @return self
+     */
+    public function setSelectedInstrumentId(?string $selectedInstrumentId): self
+    {
+        $this->setData(PaymentResponseInterface::KEY_SELECTED_INSTRUMENT_ID, $selectedInstrumentId);
+        return $this;
+    }
+
+    /**
+     * @param PaymentInstrumentInterface[]|null $instruments
+     * @return self
+     */
+    public function setInstruments(?array $instruments): self
+    {
+        $this->setData(PaymentResponseInterface::KEY_INSTRUMENTS, $instruments);
+        return $this;
     }
 }

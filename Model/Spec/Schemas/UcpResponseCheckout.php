@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\UcpResponseCheckoutInterface;
-use Magebit\UcpSpec\Api\Schemas\CapabilityResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterface;
 
 class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheckoutInterface
 {
@@ -27,7 +27,7 @@ class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheck
     }
 
     /**
-     * @return array<CapabilityResponseInterface>
+     * @return CapabilityResponseInterface[]
      */
     public function getCapabilities(): array
     {
@@ -35,5 +35,25 @@ class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheck
             UcpResponseCheckoutInterface::KEY_CAPABILITIES,
             CapabilityResponseInterface::class
         );
+    }
+
+    /**
+     * @param string $version
+     * @return self
+     */
+    public function setVersion(string $version): self
+    {
+        $this->setData(UcpResponseCheckoutInterface::KEY_VERSION, $version);
+        return $this;
+    }
+
+    /**
+     * @param CapabilityResponseInterface[] $capabilities
+     * @return self
+     */
+    public function setCapabilities(array $capabilities): self
+    {
+        $this->setData(UcpResponseCheckoutInterface::KEY_CAPABILITIES, $capabilities);
+        return $this;
     }
 }

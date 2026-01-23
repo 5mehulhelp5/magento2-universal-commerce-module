@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\PaymentHandlerResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentHandlerResponseInterface;
 
 class PaymentHandlerResponse extends DataTransferObject implements PaymentHandlerResponseInterface
 {
@@ -58,7 +58,7 @@ class PaymentHandlerResponse extends DataTransferObject implements PaymentHandle
     }
 
     /**
-     * @return array<string>
+     * @return string[]
      */
     public function getInstrumentSchemas(): array
     {
@@ -79,5 +79,75 @@ class PaymentHandlerResponse extends DataTransferObject implements PaymentHandle
     public function getConfig(): array
     {
         return $this->getDataArray(PaymentHandlerResponseInterface::KEY_CONFIG);
+    }
+
+    /**
+     * @param string $id
+     * @return self
+     */
+    public function setId(string $id): self
+    {
+        $this->setData(PaymentHandlerResponseInterface::KEY_ID, $id);
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return self
+     */
+    public function setName(string $name): self
+    {
+        $this->setData(PaymentHandlerResponseInterface::KEY_NAME, $name);
+        return $this;
+    }
+
+    /**
+     * @param string $version
+     * @return self
+     */
+    public function setVersion(string $version): self
+    {
+        $this->setData(PaymentHandlerResponseInterface::KEY_VERSION, $version);
+        return $this;
+    }
+
+    /**
+     * @param string $spec
+     * @return self
+     */
+    public function setSpec(string $spec): self
+    {
+        $this->setData(PaymentHandlerResponseInterface::KEY_SPEC, $spec);
+        return $this;
+    }
+
+    /**
+     * @param string $configSchema
+     * @return self
+     */
+    public function setConfigSchema(string $configSchema): self
+    {
+        $this->setData(PaymentHandlerResponseInterface::KEY_CONFIG_SCHEMA, $configSchema);
+        return $this;
+    }
+
+    /**
+     * @param string[] $instrumentSchemas
+     * @return self
+     */
+    public function setInstrumentSchemas(array $instrumentSchemas): self
+    {
+        $this->setData(PaymentHandlerResponseInterface::KEY_INSTRUMENT_SCHEMAS, $instrumentSchemas);
+        return $this;
+    }
+
+    /**
+     * @param array<mixed> $config
+     * @return self
+     */
+    public function setConfig(array $config): self
+    {
+        $this->setData(PaymentHandlerResponseInterface::KEY_CONFIG, $config);
+        return $this;
     }
 }

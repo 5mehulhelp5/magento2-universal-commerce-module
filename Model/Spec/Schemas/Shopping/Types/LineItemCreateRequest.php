@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\LineItemCreateRequestInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\Types\ItemCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemCreateRequestInterface;
 
 class LineItemCreateRequest extends DataTransferObject implements LineItemCreateRequestInterface
 {
@@ -27,16 +27,30 @@ class LineItemCreateRequest extends DataTransferObject implements LineItemCreate
     }
 
     /**
+     * @param ItemCreateRequestInterface $item
+     * @return self
+     */
+    public function setItem(ItemCreateRequestInterface $item): self
+    {
+        $this->setData(LineItemCreateRequestInterface::KEY_ITEM, $item);
+        return $this;
+    }
+
+    /**
      * @return int
      */
     public function getQuantity(): int
     {
-        $value = $this->getData(LineItemCreateRequestInterface::KEY_QUANTITY);
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException(
-                sprintf('Data for key %s is not an int', LineItemCreateRequestInterface::KEY_QUANTITY)
-            );
-        }
-        return $value;
+        return $this->getDataInt(LineItemCreateRequestInterface::KEY_QUANTITY);
+    }
+
+    /**
+     * @param int $quantity
+     * @return self
+     */
+    public function setQuantity(int $quantity): self
+    {
+        $this->setData(LineItemCreateRequestInterface::KEY_QUANTITY, $quantity);
+        return $this;
     }
 }

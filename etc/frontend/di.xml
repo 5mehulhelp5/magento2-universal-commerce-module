@@ -30,6 +30,12 @@
                     <item name="controller" xsi:type="string">discovery</item>
                     <item name="action" xsi:type="string">index</item>
                 </item>
+                <item name="shopping.create.session" xsi:type="array">
+                    <item name="path" xsi:type="string">ucp/shopping/checkout-sessions</item>
+                    <item name="method" xsi:type="string">POST</item>
+                    <item name="controller" xsi:type="string">service</item>
+                    <item name="action" xsi:type="string">shopping_create</item>
+                </item>
             </argument>
         </arguments>
     </type>
