@@ -79,24 +79,16 @@ class Complete extends ApiController
             return $idempotencyResponse;
         }
 
-        try {
+        return $this->errorBoundary(function () use ($checkoutId, $paymentData) {
             $completeCheckoutResponse = $this->restHandler->completeCheckout($checkoutId, $paymentData);
-        } catch (LocalizedException $e) {
-            return $this->makeErrorResponse('requires_escalation', [
-                $this->messageFactory->create(['data' => [
-                    'type' => 'error',
-                    'code' => 'requires_escalation',
-                    'message' => $e->getMessage(),
-                ]])
-            ], 500);
-        }
 
-        if ($completeCheckoutResponse instanceof DataTransferObject) {
-            $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $completeCheckoutResponse, 201);
+            if ($completeCheckoutResponse instanceof DataTransferObject) {
+                $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $completeCheckoutResponse, 201);
 
-            return $this->makeJsonResponse($completeCheckoutResponse);
-        }
+                return $this->makeJsonResponse($completeCheckoutResponse);
+            }
 
-        throw new LocalizedException(__('Internal server error'));
+            throw new LocalizedException(__('Internal server error'));
+        });
     }
 }

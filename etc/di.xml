@@ -60,7 +60,7 @@
     <preference for="Magebit\UcpSpec\Api\Services\UCPServiceRestInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpServiceRest" />
 
     <!-- Shopping - Checkout -->
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutCreateRequest" />
+    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutCreateRequest" />
     <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutUpdateRequest" />
     <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutUpdateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\FulfillmentCheckout" />

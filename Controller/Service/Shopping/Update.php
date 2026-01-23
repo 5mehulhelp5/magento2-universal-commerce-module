@@ -79,14 +79,16 @@ class Update extends ApiController
             return $idempotencyResponse;
         }
 
-        $checkoutResponse = $this->restHandler->updateCheckout($checkoutId, $checkoutUpdateRequest);
+        return $this->errorBoundary(function () use ($checkoutId, $checkoutUpdateRequest) {
+            $checkoutResponse = $this->restHandler->updateCheckout($checkoutId, $checkoutUpdateRequest);
 
-        if ($checkoutResponse instanceof DataTransferObject) {
-            $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $checkoutResponse, 201);
+            if ($checkoutResponse instanceof DataTransferObject) {
+                $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $checkoutResponse, 201);
 
-            return $this->makeJsonResponse($checkoutResponse);
-        }
+                return $this->makeJsonResponse($checkoutResponse);
+            }
 
-        throw new LocalizedException(__('Internal server error'));
+            throw new LocalizedException(__('Internal server error'));
+        });
     }
 }

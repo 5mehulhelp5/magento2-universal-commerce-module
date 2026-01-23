@@ -24,6 +24,7 @@ use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UniversalCommerce\Exception\UcpException;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\LocalizedException;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
@@ -46,6 +47,43 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         protected readonly MessageInterfaceFactory $messageFactory,
         protected readonly IdempotencyHandler $idempotencyHandler
     ) {
+    }
+
+    /**
+     * Error boundary
+     *
+     * @param callable $callback
+     * @return ResultJson
+     */
+    public function errorBoundary(callable $callback): ResultJson
+    {
+        try {
+            return $callback();
+        } catch (UcpException $e) {
+            return $this->makeErrorResponse($e->getType(), [
+                $this->messageFactory->create(['data' => [
+                    'type' => $e->getType(),
+                    'code' => $e->getTypeCode(),
+                    'message' => $e->getMessage(),
+                ]])
+            ], $e->getStatusCode());
+        } catch (LocalizedException $e) {
+            return $this->makeErrorResponse('requires_escalation', [
+                $this->messageFactory->create(['data' => [
+                    'type' => 'error',
+                    'code' => 'invalid_request',
+                    'message' => $e->getMessage(),
+                ]])
+            ], 500);
+        } catch (\Exception $e) {
+            return $this->makeErrorResponse('requires_escalation', [
+                $this->messageFactory->create(['data' => [
+                    'type' => 'error',
+                    'code' => 'server_error',
+                    'message' => $e->getMessage(),
+                ]])
+            ], 500);
+        }
     }
 
     /**

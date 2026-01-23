@@ -13,7 +13,7 @@ namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
@@ -26,10 +26,10 @@ use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Address;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
+use Magebit\UniversalCommerce\Exception\UcpException;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -42,7 +42,7 @@ class RestHandler implements RestHandlerInterface
         protected readonly GuestCartRepositoryInterface $guestCartRepository,
         protected readonly QuoteToCheckoutResponse $quoteToCheckoutResponse,
         protected readonly ProductRepositoryInterface $productRepository,
-        protected readonly CartRepositoryInterface $cartRepository
+        protected readonly CartRepositoryInterface $cartRepository,
     ) {
     }
     /**
@@ -61,6 +61,11 @@ class RestHandler implements RestHandlerInterface
         }
 
         $this->copyPersonalInformationFromBillingToShipping($cart);
+
+        if ($request->getFulfillment()) {
+            $this->addFulfillmentInformationToCart($cart, $request->getFulfillment());
+        }
+
         $this->cartRepository->save($cart);
 
         return $this->quoteToCheckoutResponse->convert($cart, $maskedCartId);
@@ -73,12 +78,7 @@ class RestHandler implements RestHandlerInterface
      */
     public function getCheckout(string $checkoutId): FulfillmentCheckoutInterface
     {
-        try {
-            $cart = $this->guestCartRepository->get($checkoutId);
-        } catch (NoSuchEntityException $e) {
-            throw new LocalizedException(__('Checkout session not found: %1. Please create a new checkout session.', $checkoutId));
-        }
-
+        $cart = $this->getCartByMaskedId($checkoutId);
         return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
     }
 
@@ -89,10 +89,15 @@ class RestHandler implements RestHandlerInterface
      */
     public function cancelCheckout(string $checkoutId): FulfillmentCheckoutInterface
     {
-        try {
-            $cart = $this->guestCartRepository->get($checkoutId);
-        } catch (NoSuchEntityException $e) {
-            throw new LocalizedException(__('Checkout session not found: %1. Please create a new checkout session.', $checkoutId));
+        $cart = $this->getCartByMaskedId($checkoutId);
+
+        if (!$cart->getIsActive()) {
+            throw new UcpException(
+                __('Checkout session is already canceled: %1.', $checkoutId),
+                'error',
+                'checkout_already_canceled',
+                400
+            );
         }
 
         $cart->setIsActive(false);
@@ -108,12 +113,7 @@ class RestHandler implements RestHandlerInterface
      */
     public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): FulfillmentCheckoutInterface
     {
-        try {
-            $cart = $this->guestCartRepository->get($checkoutId);
-        } catch (NoSuchEntityException $e) {
-            throw new LocalizedException(__('Checkout session not found: %1. Please create a new checkout session.', $checkoutId));
-        }
-
+        $cart = $this->getCartByMaskedId($checkoutId);
         $this->addItemsToCart($cart, $request->getLineItems());
 
         if ($request->getBuyer()) {
@@ -139,12 +139,7 @@ class RestHandler implements RestHandlerInterface
      */
     public function completeCheckout(string $checkoutId, PaymentDataInterface $paymentData): FulfillmentCheckoutInterface
     {
-        try {
-            $cart = $this->guestCartRepository->get($checkoutId);
-        } catch (NoSuchEntityException $e) {
-            throw new LocalizedException(__('Checkout session not found: %1. Please create a new checkout session.', $checkoutId));
-        }
-
+        $cart = $this->getCartByMaskedId($checkoutId);
         $payment = $paymentData->getPaymentData();
         $billingAddress = $payment->getBillingAddress();
 
@@ -161,6 +156,29 @@ class RestHandler implements RestHandlerInterface
         }
 
         return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
+    }
+
+    /**
+     * Get cart by masked ID
+     *
+     * @param string $maskedCartId
+     * @return CartInterface
+     * @throws UcpException
+     */
+    public function getCartByMaskedId(string $maskedCartId): CartInterface
+    {
+        try {
+            $cart = $this->guestCartRepository->get($maskedCartId);
+        } catch (NoSuchEntityException $e) {
+            throw new UcpException(
+                __('Checkout session not found: %1. Please create a new checkout session.', $maskedCartId),
+                'not_found',
+                'session_not_found',
+                404
+            );
+        }
+
+        return $cart;
     }
 
     /**

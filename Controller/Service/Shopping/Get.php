@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
@@ -69,24 +67,16 @@ class Get extends ApiController
             return $idempotencyResponse;
         }
 
-        try {
+        return $this->errorBoundary(function () use ($checkoutId) {
             $checkoutResponse = $this->restHandler->getCheckout($checkoutId);
-        } catch (LocalizedException $e) {
-            return $this->makeErrorResponse('requires_escalation', [
-                $this->messageFactory->create(['data' => [
-                    'type' => 'error',
-                    'code' => 'invalid_request',
-                    'message' => $e->getMessage(),
-                ]])
-            ], 400);
-        }
 
-        if ($checkoutResponse instanceof DataTransferObject) {
-            $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $checkoutResponse, 200);
+            if ($checkoutResponse instanceof DataTransferObject) {
+                $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $checkoutResponse, 200);
 
-            return $this->makeJsonResponse($checkoutResponse);
-        }
+                return $this->makeJsonResponse($checkoutResponse);
+            }
 
-        throw new LocalizedException(__('Internal server error'));
+            throw new LocalizedException(__('Internal server error'));
+        });
     }
 }
