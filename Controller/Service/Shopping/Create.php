@@ -21,7 +21,7 @@ use Magento\Framework\App\RequestInterface;
 use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
-use Magento\Framework\Api\DataObjectHelper;
+use Magebit\UniversalCommerce\Model\RequestClassBuilder;
 
 class Create extends ApiController
 {
@@ -29,11 +29,11 @@ class Create extends ApiController
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
         RequestValidator $requestValidator,
-        DataObjectHelper $dataObjectHelper,
+        RequestClassBuilder $requestClassBuilder,
         protected readonly CheckoutCreateRequestInterfaceFactory $checkoutCreateRequestFactory,
         protected readonly RestHandlerInterface $restHandler
     ) {
-        parent::__construct($resultJsonFactory, $request, $requestValidator, $dataObjectHelper);
+        parent::__construct($resultJsonFactory, $request, $requestValidator, $requestClassBuilder);
     }
 
     /**

@@ -21,7 +21,7 @@ use Magento\Framework\Controller\Result\Json as ResultJson;
 use Magento\Framework\DataObject;
 use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
-use Magento\Framework\Api\DataObjectHelper;
+use Magebit\UniversalCommerce\Model\RequestClassBuilder;
 use Magento\Framework\App\Request\Http;
 
 abstract class ApiController implements ActionInterface, CsrfAwareActionInterface
@@ -30,13 +30,13 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
      * @param JsonFactory $resultJsonFactory
      * @param RequestInterface $request
      * @param RequestValidator $requestValidator
-     * @param DataObjectHelper $dataObjectHelper
+     * @param RequestClassBuilder $requestClassBuilder
      */
     public function __construct(
         protected readonly JsonFactory $resultJsonFactory,
         protected readonly RequestInterface $request,
         protected readonly RequestValidator $requestValidator,
-        protected readonly DataObjectHelper $dataObjectHelper
+        protected readonly RequestClassBuilder $requestClassBuilder
     ) {
     }
 
@@ -59,8 +59,8 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
             return $validationResult;
         }
 
-        $requestObject = $factory($rawData);
-        $this->dataObjectHelper->populateWithArray($requestObject, $rawData, $classType);
+        $requestObject = $factory();
+        $this->requestClassBuilder->populateWithArray($requestObject, $rawData, $classType);
 
         return $requestObject;
     }
