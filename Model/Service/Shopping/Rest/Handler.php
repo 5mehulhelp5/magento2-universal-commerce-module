@@ -54,8 +54,6 @@ class Handler implements RestHandlerInterface
             $this->addBuyerInformationToCart($cart, $request->getBuyer());
         }
 
-        /** @var Quote $cart */
-        $cart->collectTotals();
         $this->cartRepository->save($cart);
 
         return $this->quoteToCheckoutResponse->convert($cart, $maskedCartId);
@@ -167,6 +165,7 @@ class Handler implements RestHandlerInterface
         }
 
         $billingAddress = $cart->getBillingAddress();
+        $billingAddress->setCountryId('US');
 
         if ($buyer->getEmail()) {
             $billingAddress->setEmail($buyer->getEmail());
@@ -180,8 +179,23 @@ class Handler implements RestHandlerInterface
             $billingAddress->setLastname($buyer->getLastName());
         }
 
+        if ($buyer->getFullName()) {
+            [$firstName, $lastName] = explode(' ', $buyer->getFullName(), 2);
+            $billingAddress->setFirstname($firstName);
+            $billingAddress->setLastname($lastName);
+        }
+
         if ($buyer->getPhoneNumber()) {
             $billingAddress->setTelephone($buyer->getPhoneNumber());
         }
+
+        // Same as billing
+        $shippingAddress = $cart->getShippingAddress();
+        $shippingAddress->setSameAsBilling(1);
+        $shippingAddress->setCountryId('US');
+        $shippingAddress->setFirstname($billingAddress->getFirstname());
+        $shippingAddress->setLastname($billingAddress->getLastname());
+        $shippingAddress->setTelephone($billingAddress->getTelephone());
+        $shippingAddress->collectShippingRates();
     }
 }

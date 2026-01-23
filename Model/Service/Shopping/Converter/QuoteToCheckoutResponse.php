@@ -31,6 +31,7 @@ use Magento\Quote\Model\Quote;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResponse;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToBuyerResponse;
 use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
+use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToFulfillmentResponse;
 
 class QuoteToCheckoutResponse
 {
@@ -43,6 +44,7 @@ class QuoteToCheckoutResponse
      * @param QuoteToTotalsResponse $quoteToTotalsResponse
      * @param QuoteToBuyerResponse $quoteToBuyerResponse
      * @param QuoteValidatorInterface $quoteValidator
+     * @param QuoteToFulfillmentResponse $quoteToFulfillmentResponse
      */
     public function __construct(
         protected readonly FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory,
@@ -52,7 +54,8 @@ class QuoteToCheckoutResponse
         protected readonly ServiceRegistry $serviceRegistry,
         protected readonly QuoteToTotalsResponse $quoteToTotalsResponse,
         protected readonly QuoteToBuyerResponse $quoteToBuyerResponse,
-        protected readonly QuoteValidatorInterface $quoteValidator
+        protected readonly QuoteValidatorInterface $quoteValidator,
+        protected readonly QuoteToFulfillmentResponse $quoteToFulfillmentResponse
     ) {
     }
 
@@ -78,6 +81,10 @@ class QuoteToCheckoutResponse
         $response->setTotals($this->getTotals($quote));
         $response->setLinks($this->getLinks($quote));
         $response->setPayment($this->getPayment($quote));
+
+        if ($fulfillment = $this->quoteToFulfillmentResponse->convert($quote)) {
+            $response->setFulfillment($fulfillment);
+        }
 
         $validationErrors = $this->quoteValidator->validate($quote) ?? [];
         $response->setMessages($validationErrors);
