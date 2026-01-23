@@ -16,6 +16,8 @@
     </type>
 
     <!-- Shopping service -->
+    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface" type="Magebit\UniversalCommerce\Model\Service\Shopping\Rest\Handler" />
+
     <type name="Magebit\UniversalCommerce\Model\Service\Shopping\ShoppingService">
         <arguments>
             <argument name="capabilities" xsi:type="array">
@@ -23,7 +25,17 @@
             </argument>
         </arguments>
     </type>
-    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface" type="Magebit\UniversalCommerce\Model\Service\Shopping\Rest\Handler" />
+    <type name="Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResponse">
+        <arguments>
+            <argument name="typeMapping" xsi:type="array">
+                <item name="subtotal" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_SUBTOTAL</item>
+                <item name="discount" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_DISCOUNT</item>
+                <item name="shipping" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_FULFILLMENT</item>
+                <item name="tax" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_TAX</item>
+                <item name="grand_total" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_TOTAL</item>
+            </argument>
+        </arguments>
+    </type>
 
     <!-- Specification implementations -->
     <!-- Discovery -->
@@ -41,16 +53,20 @@
 
     <!-- Shopping - Checkout -->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutCreateRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutUpdateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutResponse" />
 
     <!-- Shopping - Payment -->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\PaymentCreateRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\PaymentUpdateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\PaymentResponse" />
 
     <!-- Shopping - Types -->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\Buyer" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\ItemCreateRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\ItemUpdateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\LineItemCreateRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\LineItemUpdateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\PaymentInstrument" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\ItemResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\LineItemResponse" />

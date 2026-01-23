@@ -28,6 +28,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterfaceFactory;
 use Magento\Quote\Model\Quote;
+use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResponse;
 
 class QuoteToCheckoutResponse
 {
@@ -43,7 +44,8 @@ class QuoteToCheckoutResponse
         protected readonly QuoteItemToLineItemResponse $quoteItemToLineItemResponse,
         protected readonly UcpResponseCheckoutInterfaceFactory $ucpResponseFactory,
         protected readonly PaymentResponseInterfaceFactory $paymentResponseFactory,
-        protected readonly ServiceRegistry $serviceRegistry
+        protected readonly ServiceRegistry $serviceRegistry,
+        protected readonly QuoteToTotalsResponse $quoteToTotalsResponse
     ) {
     }
 
@@ -163,7 +165,7 @@ class QuoteToCheckoutResponse
      */
     public function getTotals(CartInterface $quote): array
     {
-        return [];
+        return $this->quoteToTotalsResponse->convert($quote);
     }
 
     /**

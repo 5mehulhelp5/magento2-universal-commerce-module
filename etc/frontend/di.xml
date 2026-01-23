@@ -48,6 +48,12 @@
                     <item name="controller" xsi:type="string">service</item>
                     <item name="action" xsi:type="string">shopping_cancel</item>
                 </item>
+                <item name="shopping.update.session" xsi:type="array">
+                    <item name="path" xsi:type="string">ucp/shopping/checkout-sessions/{checkout_id}</item>
+                    <item name="method" xsi:type="string">PUT</item>
+                    <item name="controller" xsi:type="string">service</item>
+                    <item name="action" xsi:type="string">shopping_update</item>
+                </item>
             </argument>
         </arguments>
     </type>

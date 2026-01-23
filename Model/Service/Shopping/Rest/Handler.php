@@ -14,6 +14,7 @@ namespace Magebit\UniversalCommerce\Model\Service\Shopping\Rest;
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
@@ -86,6 +87,26 @@ class Handler implements RestHandlerInterface
 
         $cart->setIsActive(false);
         $this->cartRepository->save($cart);
+        return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
+    }
+
+    /**
+     * @param string $checkoutId
+     * @param CheckoutUpdateRequestInterface $request
+     * @return CheckoutResponseInterface
+     * @throws LocalizedException
+     */
+    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): CheckoutResponseInterface
+    {
+        try {
+            $cart = $this->guestCartRepository->get($checkoutId);
+        } catch (NoSuchEntityException $e) {
+            throw new LocalizedException(__('Checkout session not found: %1. Please create a new checkout session.', $checkoutId));
+        }
+
+        $this->addItemsToCart($cart, $request->getLineItems());
+        $this->cartRepository->save($cart);
+
         return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
     }
 
