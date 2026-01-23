@@ -17,6 +17,7 @@
 
     <!-- Shopping service -->
     <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface" type="Magebit\UniversalCommerce\Model\Service\Shopping\Rest\Handler" />
+    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface" type="Magebit\UniversalCommerce\Model\Service\Shopping\Validation\QuoteValidationComposite" />
 
     <type name="Magebit\UniversalCommerce\Model\Service\Shopping\ShoppingService">
         <arguments>
@@ -33,6 +34,13 @@
                 <item name="shipping" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_FULFILLMENT</item>
                 <item name="tax" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_TAX</item>
                 <item name="grand_total" xsi:type="const">\Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface::TYPE_TOTAL</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magebit\UniversalCommerce\Model\Service\Shopping\Validation\QuoteValidationComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="quote_address_validator" xsi:type="object">Magebit\UniversalCommerce\Model\Service\Shopping\Validation\QuoteAddressValidator</item>
             </argument>
         </arguments>
     </type>

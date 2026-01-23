@@ -15,6 +15,7 @@ use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
@@ -48,6 +49,10 @@ class Handler implements RestHandlerInterface
         $cart = $this->guestCartRepository->get($maskedCartId);
 
         $this->addItemsToCart($cart, $request->getLineItems());
+
+        if ($request->getBuyer()) {
+            $this->addBuyerInformationToCart($cart, $request->getBuyer());
+        }
 
         /** @var Quote $cart */
         $cart->collectTotals();
@@ -105,6 +110,11 @@ class Handler implements RestHandlerInterface
         }
 
         $this->addItemsToCart($cart, $request->getLineItems());
+
+        if ($request->getBuyer()) {
+            $this->addBuyerInformationToCart($cart, $request->getBuyer());
+        }
+
         $this->cartRepository->save($cart);
 
         return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
@@ -131,6 +141,47 @@ class Handler implements RestHandlerInterface
 
             /** @var Quote $cart */
             $cart->addProduct($product, $quantity);
+        }
+    }
+
+    /**
+     * Add buyer information to cart
+     *
+     * @param CartInterface $cart
+     * @param BuyerInterface $buyer
+     * @return void
+     */
+    public function addBuyerInformationToCart(CartInterface $cart, BuyerInterface $buyer): void
+    {
+        /** @var Quote $cart */
+        if ($buyer->getEmail()) {
+            $cart->setCustomerEmail($buyer->getEmail());
+        }
+
+        if ($buyer->getFirstName()) {
+            $cart->setCustomerFirstname($buyer->getFirstName());
+        }
+
+        if ($buyer->getLastName()) {
+            $cart->setCustomerLastname($buyer->getLastName());
+        }
+
+        $billingAddress = $cart->getBillingAddress();
+
+        if ($buyer->getEmail()) {
+            $billingAddress->setEmail($buyer->getEmail());
+        }
+
+        if ($buyer->getFirstName()) {
+            $billingAddress->setFirstname($buyer->getFirstName());
+        }
+
+        if ($buyer->getLastName()) {
+            $billingAddress->setLastname($buyer->getLastName());
+        }
+
+        if ($buyer->getPhoneNumber()) {
+            $billingAddress->setTelephone($buyer->getPhoneNumber());
         }
     }
 }

@@ -18,6 +18,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterfaceFactory;
@@ -29,6 +30,8 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterfaceFactory;
 use Magento\Quote\Model\Quote;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResponse;
+use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToBuyerResponse;
+use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
 
 class QuoteToCheckoutResponse
 {
@@ -38,6 +41,9 @@ class QuoteToCheckoutResponse
      * @param UcpResponseCheckoutInterfaceFactory $ucpResponseFactory
      * @param PaymentResponseInterfaceFactory $paymentResponseFactory
      * @param ServiceRegistry $serviceRegistry
+     * @param QuoteToTotalsResponse $quoteToTotalsResponse
+     * @param QuoteToBuyerResponse $quoteToBuyerResponse
+     * @param QuoteValidatorInterface $quoteValidator
      */
     public function __construct(
         protected readonly CheckoutResponseInterfaceFactory $checkoutResponseFactory,
@@ -45,7 +51,9 @@ class QuoteToCheckoutResponse
         protected readonly UcpResponseCheckoutInterfaceFactory $ucpResponseFactory,
         protected readonly PaymentResponseInterfaceFactory $paymentResponseFactory,
         protected readonly ServiceRegistry $serviceRegistry,
-        protected readonly QuoteToTotalsResponse $quoteToTotalsResponse
+        protected readonly QuoteToTotalsResponse $quoteToTotalsResponse,
+        protected readonly QuoteToBuyerResponse $quoteToBuyerResponse,
+        protected readonly QuoteValidatorInterface $quoteValidator
     ) {
     }
 
@@ -67,12 +75,14 @@ class QuoteToCheckoutResponse
         }
 
         $response->setUcp($this->getUcp($quote));
-        $response->setStatus($this->getStatus($quote));
         $response->setCurrency($this->getCurrency($quote));
         $response->setTotals($this->getTotals($quote));
-        $response->setMessages($this->getMessages($quote));
         $response->setLinks($this->getLinks($quote));
         $response->setPayment($this->getPayment($quote));
+
+        $validationErrors = $this->quoteValidator->validate($quote) ?? [];
+        $response->setMessages($validationErrors);
+        $response->setStatus($this->getStatus($quote, $validationErrors));
 
         return $response;
     }
@@ -133,20 +143,25 @@ class QuoteToCheckoutResponse
      */
     public function getBuyer(CartInterface $quote): ?BuyerInterface
     {
-        return null;
+        return $this->quoteToBuyerResponse->convert($quote);
     }
 
     /**
      * @param CartInterface $quote
+     * @param MessageInterface[] $validationErrors
      * @return string
      */
-    public function getStatus(CartInterface $quote): string
+    public function getStatus(CartInterface $quote, array $validationErrors): string
     {
         if (!$quote->getIsActive()) {
             return CheckoutResponseInterface::STATUS_CANCELED;
         }
 
-        return CheckoutResponseInterface::STATUS_INCOMPLETE;
+        if (!empty($validationErrors)) {
+            return CheckoutResponseInterface::STATUS_INCOMPLETE;
+        }
+
+        return CheckoutResponseInterface::STATUS_READY_FOR_COMPLETE;
     }
 
     /**
@@ -166,15 +181,6 @@ class QuoteToCheckoutResponse
     public function getTotals(CartInterface $quote): array
     {
         return $this->quoteToTotalsResponse->convert($quote);
-    }
-
-    /**
-     * @param CartInterface $quote
-     * @return MessageInterface[]|null
-     */
-    public function getMessages(CartInterface $quote): array|null
-    {
-        return [];
     }
 
     /**
