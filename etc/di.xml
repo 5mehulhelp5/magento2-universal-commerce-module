@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Service registry -->
+    <type name="Magebit\UniversalCommerce\Model\Discovery\ServiceRegistry">
+        <arguments>
+            <argument name="services" xsi:type="array">
+                <item name="dev.ucp.shopping" xsi:type="object">Magebit\UniversalCommerce\Model\Service\Shopping\ShoppingService</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Shopping service -->
+    <type name="Magebit\UniversalCommerce\Model\Service\Shopping\ShoppingService">
+        <arguments>
+            <argument name="capabilities" xsi:type="array">
+                <item name="dev.ucp.shopping.checkout" xsi:type="object">Magebit\UniversalCommerce\Model\Service\Shopping\Capability\CheckoutCapability</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Specification implementations -->
+    <preference for="Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpDiscoverProfile" />
+    <preference for="Magebit\UcpSpec\Api\Services\UCPServiceInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpService" />
+    <preference for="Magebit\UcpSpec\Api\Services\UCPServiceRestInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpServiceRest" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityDiscovery" />
+    <preference for="Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpDiscoverProfile" />
+    <preference for="Magebit\UcpSpec\Api\Services\UCPServiceInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpService" />
+    <preference for="Magebit\UcpSpec\Api\Discovery\UCPDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Discovery\UcpDiscoveryProfile" />
+</config>
