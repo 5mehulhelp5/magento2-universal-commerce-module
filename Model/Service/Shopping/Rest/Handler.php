@@ -13,7 +13,7 @@ namespace Magebit\UniversalCommerce\Model\Service\Shopping\Rest;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
@@ -41,9 +41,9 @@ class Handler implements RestHandlerInterface
     }
     /**
      * @param CheckoutCreateRequestInterface $request
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      */
-    public function createCheckout(CheckoutCreateRequestInterface $request): CheckoutResponseInterface
+    public function createCheckout(CheckoutCreateRequestInterface $request): FulfillmentCheckoutInterface
     {
         $maskedCartId = $this->guestCartManagement->createEmptyCart();
         $cart = $this->guestCartRepository->get($maskedCartId);
@@ -63,10 +63,10 @@ class Handler implements RestHandlerInterface
 
     /**
      * @param string $checkoutId
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      * @throws LocalizedException
      */
-    public function getCheckout(string $checkoutId): CheckoutResponseInterface
+    public function getCheckout(string $checkoutId): FulfillmentCheckoutInterface
     {
         try {
             $cart = $this->guestCartRepository->get($checkoutId);
@@ -79,10 +79,10 @@ class Handler implements RestHandlerInterface
 
     /**
      * @param string $checkoutId
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      * @throws LocalizedException
      */
-    public function cancelCheckout(string $checkoutId): CheckoutResponseInterface
+    public function cancelCheckout(string $checkoutId): FulfillmentCheckoutInterface
     {
         try {
             $cart = $this->guestCartRepository->get($checkoutId);
@@ -98,10 +98,10 @@ class Handler implements RestHandlerInterface
     /**
      * @param string $checkoutId
      * @param CheckoutUpdateRequestInterface $request
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      * @throws LocalizedException
      */
-    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): CheckoutResponseInterface
+    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): FulfillmentCheckoutInterface
     {
         try {
             $cart = $this->guestCartRepository->get($checkoutId);

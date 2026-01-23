@@ -12,33 +12,33 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
 
 interface RestHandlerInterface
 {
     /**
      * @param CheckoutCreateRequestInterface $request
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      */
-    public function createCheckout(CheckoutCreateRequestInterface $request): CheckoutResponseInterface;
+    public function createCheckout(CheckoutCreateRequestInterface $request): FulfillmentCheckoutInterface;
 
     /**
      * @param string $checkoutId
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      */
-    public function getCheckout(string $checkoutId): CheckoutResponseInterface;
+    public function getCheckout(string $checkoutId): FulfillmentCheckoutInterface;
 
     /**
      * @param string $checkoutId
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      */
-    public function cancelCheckout(string $checkoutId): CheckoutResponseInterface;
+    public function cancelCheckout(string $checkoutId): FulfillmentCheckoutInterface;
 
     /**
      * @param string $checkoutId
      * @param CheckoutUpdateRequestInterface $request
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      */
-    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): CheckoutResponseInterface;
+    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): FulfillmentCheckoutInterface;
 }

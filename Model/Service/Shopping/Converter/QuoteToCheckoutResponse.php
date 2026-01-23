@@ -12,13 +12,12 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterfaceFactory;
@@ -36,7 +35,7 @@ use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
 class QuoteToCheckoutResponse
 {
     /**
-     * @param CheckoutResponseInterfaceFactory $checkoutResponseFactory
+     * @param FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory
      * @param QuoteItemToLineItemResponse $quoteItemToLineItemResponse
      * @param UcpResponseCheckoutInterfaceFactory $ucpResponseFactory
      * @param PaymentResponseInterfaceFactory $paymentResponseFactory
@@ -46,7 +45,7 @@ class QuoteToCheckoutResponse
      * @param QuoteValidatorInterface $quoteValidator
      */
     public function __construct(
-        protected readonly CheckoutResponseInterfaceFactory $checkoutResponseFactory,
+        protected readonly FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory,
         protected readonly QuoteItemToLineItemResponse $quoteItemToLineItemResponse,
         protected readonly UcpResponseCheckoutInterfaceFactory $ucpResponseFactory,
         protected readonly PaymentResponseInterfaceFactory $paymentResponseFactory,
@@ -60,11 +59,11 @@ class QuoteToCheckoutResponse
     /**
      * @param CartInterface $quote
      * @param string $maskedCartId
-     * @return CheckoutResponseInterface
+     * @return FulfillmentCheckoutInterface
      */
-    public function convert(CartInterface $quote, string $maskedCartId): CheckoutResponseInterface
+    public function convert(CartInterface $quote, string $maskedCartId): FulfillmentCheckoutInterface
     {
-        /** @var CheckoutResponseInterface $response */
+        /** @var FulfillmentCheckoutInterface $response */
         $response = $this->checkoutResponseFactory->create();
         $response->setId($maskedCartId);
 
@@ -154,14 +153,14 @@ class QuoteToCheckoutResponse
     public function getStatus(CartInterface $quote, array $validationErrors): string
     {
         if (!$quote->getIsActive()) {
-            return CheckoutResponseInterface::STATUS_CANCELED;
+            return FulfillmentCheckoutInterface::STATUS_CANCELED;
         }
 
         if (!empty($validationErrors)) {
-            return CheckoutResponseInterface::STATUS_INCOMPLETE;
+            return FulfillmentCheckoutInterface::STATUS_INCOMPLETE;
         }
 
-        return CheckoutResponseInterface::STATUS_READY_FOR_COMPLETE;
+        return FulfillmentCheckoutInterface::STATUS_READY_FOR_COMPLETE;
     }
 
     /**
