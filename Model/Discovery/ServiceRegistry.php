@@ -30,4 +30,13 @@ class ServiceRegistry
     {
         return $this->services;
     }
+
+    /**
+     * @param string $name
+     * @return ServiceInterface
+     */
+    public function getService(string $name): ServiceInterface|null
+    {
+        return $this->services[$name] ?? null;
+    }
 }

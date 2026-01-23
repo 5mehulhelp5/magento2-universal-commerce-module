@@ -19,6 +19,7 @@ use Magebit\UcpSpec\Api\Services\UCPServiceRestInterfaceFactory;
 use Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterface;
 use Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterfaceFactory;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
+use Magebit\UniversalCommerce\Model\Config;
 
 class ShoppingService implements ServiceInterface
 {
@@ -28,12 +29,14 @@ class ShoppingService implements ServiceInterface
      * @param UCPServiceInterfaceFactory $ucpServiceFactory
      * @param UCPServiceRestInterfaceFactory $ucpServiceRestFactory
      * @param CapabilityDiscoveryInterfaceFactory $capabilityDiscoveryFactory
+     * @param Config $config
      * @param array<CapabilityDiscoveryInterface> $capabilities
      */
     public function __construct(
         private readonly UCPServiceInterfaceFactory $ucpServiceFactory,
         private readonly UCPServiceRestInterfaceFactory $ucpServiceRestFactory,
         private readonly CapabilityDiscoveryInterfaceFactory $capabilityDiscoveryFactory,
+        private readonly Config $config,
         private readonly array $capabilities = [],
     ) {
     }
@@ -68,7 +71,7 @@ class ShoppingService implements ServiceInterface
                     CapabilityDiscoveryInterface::KEY_CONFIG => $capability->getConfig(),
                 ])
             ]);
-        }, $this->capabilities);
+        }, array_values($this->capabilities));
     }
 
     /**
@@ -76,10 +79,12 @@ class ShoppingService implements ServiceInterface
      */
     public function getRest(): UCPServiceRestInterface
     {
+        $baseUrl = $this->config->getApiBaseUrl();
+
         return $this->ucpServiceRestFactory->create([
             'data' => [
                 UCPServiceRestInterface::KEY_SCHEMA => 'https://ucp.dev/services/shopping/openapi.json',
-                UCPServiceRestInterface::KEY_ENDPOINT => '/rest/V1/ucp/shopping',
+                UCPServiceRestInterface::KEY_ENDPOINT => $baseUrl . '/ucp/shopping',
             ]
         ]);
     }

@@ -26,7 +26,7 @@ use Magebit\UniversalCommerce\Model\IdempotencyHandler;
 use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magento\Framework\Exception\LocalizedException;
 
-class Create extends ApiController
+class Get extends ApiController
 {
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -35,7 +35,6 @@ class Create extends ApiController
         RequestClassBuilder $requestClassBuilder,
         MessageInterfaceFactory $messageFactory,
         IdempotencyHandler $idempotencyHandler,
-        protected readonly CheckoutCreateRequestInterfaceFactory $checkoutCreateRequestFactory,
         protected readonly RestHandlerInterface $restHandler
     ) {
         parent::__construct(
@@ -53,20 +52,34 @@ class Create extends ApiController
      */
     public function execute(): ResultJson
     {
-        $checkoutCreateRequest = $this->getAndValidateRequest(
-            CheckoutCreateRequestInterface::class,
-            $this->checkoutCreateRequestFactory->create(...)
-        );
+        /** @var string|null $checkoutId */
+        $checkoutId = $this->getHttpRequest()->getParam('checkout_id');
 
-        if ($checkoutCreateRequest instanceof ValidationResult) {
-            return $this->validationResultToResponse($checkoutCreateRequest);
+        if (!$checkoutId) {
+            return $this->makeErrorResponse('requires_escalation', [
+                $this->messageFactory->create(['data' => [
+                    'type' => 'error',
+                    'code' => 'invalid_request',
+                    'message' => 'Checkout ID is required',
+                ]])
+            ], 400);
         }
 
         if ($idempotencyResponse = $this->handleIdempotency()) {
             return $idempotencyResponse;
         }
 
-        $checkoutResponse = $this->restHandler->createCheckout($checkoutCreateRequest);
+        try {
+            $checkoutResponse = $this->restHandler->getCheckout($checkoutId);
+        } catch (LocalizedException $e) {
+            return $this->makeErrorResponse('requires_escalation', [
+                $this->messageFactory->create(['data' => [
+                    'type' => 'error',
+                    'code' => 'invalid_request',
+                    'message' => $e->getMessage(),
+                ]])
+            ], 400);
+        }
 
         if ($checkoutResponse instanceof DataTransferObject) {
             $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $checkoutResponse, 201);

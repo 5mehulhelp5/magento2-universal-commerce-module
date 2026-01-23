@@ -17,6 +17,7 @@ use Magebit\UcpSpec\Api\Discovery\UCPDiscoveryProfileInterfaceFactory as Discove
 use Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterface as UcpProfileInterface;
 use Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterfaceFactory as UcpProfileInterfaceFactory;
 use Magebit\UniversalCommerce\Api\ServiceInterface;
+use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 
 class MerchantProfileBuilder
 {
@@ -60,9 +61,9 @@ class MerchantProfileBuilder
 
         return $this->ucpProfileFactory->create([
             'data' => [
-                UcpProfileInterface::KEY_VERSION => '2026-01-11',
+                UcpProfileInterface::KEY_VERSION => UniversalCommerceProtocolInterface::SPEC_VERSION,
                 UcpProfileInterface::KEY_SERVICES => $services,
-                UcpProfileInterface::KEY_CAPABILITIES => $capabilities,
+                UcpProfileInterface::KEY_CAPABILITIES => array_values($capabilities),
             ]
         ]);
     }

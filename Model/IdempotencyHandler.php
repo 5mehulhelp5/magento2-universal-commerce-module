@@ -19,7 +19,8 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\Result\Json as ResultJson;
 use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface;
 use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterfaceFactory;
-use Magebit\UniversalCommerce\Model\Data\DataTransferObject;
+use Magebit\UniversalCommerce\Model\DataTransferObject;
+use Magento\Framework\Exception\LocalizedException;
 
 class IdempotencyHandler
 {
@@ -51,6 +52,8 @@ class IdempotencyHandler
                 $resultJson->setHttpResponseCode($idempotency->getResponseStatus() ?? 200);
                 return $resultJson;
             }
+
+            throw new LocalizedException(__('Same idempotency key used for different request'));
         } catch (NoSuchEntityException $e) {
             return null;
         }

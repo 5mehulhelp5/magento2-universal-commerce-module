@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
-use Magebit\UcpSpec\Api\Schemas\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface;
 
 interface RestHandlerInterface
 {
@@ -21,4 +21,10 @@ interface RestHandlerInterface
      * @return CheckoutResponseInterface
      */
     public function createCheckout(CheckoutCreateRequestInterface $request): CheckoutResponseInterface;
+
+    /**
+     * @param string $checkoutId
+     * @return CheckoutResponseInterface
+     */
+    public function getCheckout(string $checkoutId): CheckoutResponseInterface;
 }

@@ -26,6 +26,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\LocalizedException;
+use Magebit\UniversalCommerce\Model\IdempotencyHandler;
 
 abstract class ApiController implements ActionInterface, CsrfAwareActionInterface
 {
@@ -35,13 +36,15 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
      * @param RequestValidator $requestValidator
      * @param RequestClassBuilder $requestClassBuilder
      * @param MessageInterfaceFactory $messageFactory
+     * @param IdempotencyHandler $idempotencyHandler
      */
     public function __construct(
         protected readonly JsonFactory $resultJsonFactory,
         protected readonly RequestInterface $request,
         protected readonly RequestValidator $requestValidator,
         protected readonly RequestClassBuilder $requestClassBuilder,
-        protected readonly MessageInterfaceFactory $messageFactory
+        protected readonly MessageInterfaceFactory $messageFactory,
+        protected readonly IdempotencyHandler $idempotencyHandler
     ) {
     }
 
@@ -70,6 +73,30 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
     }
 
     /**
+     * Handle idempotency
+     *
+     * @return ResultJson|null
+     */
+    public function handleIdempotency(): ?ResultJson
+    {
+        try {
+            if ($idempotencyResponse = $this->idempotencyHandler->handle($this->getHttpRequest())) {
+                return $idempotencyResponse;
+            }
+        } catch (LocalizedException $e) {
+            return $this->makeErrorResponse('requires_escalation', [
+                $this->messageFactory->create(['data' => [
+                    'type' => 'error',
+                    'code' => 'invalid_request',
+                    'message' => $e->getMessage(),
+                ]])
+            ], 400);
+        }
+
+        return null;
+    }
+
+    /**
      * Convert ValidationResult to UCP-compliant error response
      *
      * @param ValidationResult $validationResult
@@ -93,12 +120,23 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
             $messages[] = $message;
         }
 
-        $responseData = [
-            'status' => 'requires_escalation',
-            'messages' => $messages
-        ];
+        return $this->makeErrorResponse('requires_escalation', $messages, 400);
+    }
 
-        return $this->makeJsonResponse($responseData, 400);
+    /**
+     * Make error response
+     *
+     * @param string $status
+     * @param array<MessageInterface> $messages
+     * @param int $statusCode
+     * @return ResultJson
+     */
+    public function makeErrorResponse(string $status, array $messages, int $statusCode = 400): ResultJson
+    {
+        return $this->makeJsonResponse([
+            'status' => $status,
+            'messages' => $messages
+        ], $statusCode);
     }
 
     /**
