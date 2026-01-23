@@ -54,6 +54,12 @@
                     <item name="controller" xsi:type="string">service</item>
                     <item name="action" xsi:type="string">shopping_update</item>
                 </item>
+                <item name="shopping.complete.session" xsi:type="array">
+                    <item name="path" xsi:type="string">ucp/shopping/checkout-sessions/{checkout_id}/complete</item>
+                    <item name="method" xsi:type="string">POST</item>
+                    <item name="controller" xsi:type="string">service</item>
+                    <item name="action" xsi:type="string">shopping_complete</item>
+                </item>
             </argument>
         </arguments>
     </type>

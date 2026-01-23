@@ -38,16 +38,24 @@ class QuoteToBuyerResponse
         /** @var BuyerInterface $buyer */
         $buyer = $this->buyerInterfaceFactory->create();
 
+        $billingAddress = $quote->getBillingAddress();
+
         if ($quote->getCustomerFirstname()) {
             $buyer->setFirstName($quote->getCustomerFirstname());
+        } elseif ($billingAddress->getFirstname()) {
+            $buyer->setFirstName($billingAddress->getFirstname());
         }
 
         if ($quote->getCustomerLastname()) {
             $buyer->setLastName($quote->getCustomerLastname());
+        } elseif ($billingAddress->getLastname()) {
+            $buyer->setLastName($billingAddress->getLastname());
         }
 
         if ($quote->getCustomerEmail()) {
             $buyer->setEmail($quote->getCustomerEmail());
+        } elseif ($billingAddress->getEmail()) {
+            $buyer->setEmail($billingAddress->getEmail());
         }
 
         if ($quote->getBillingAddress()->getTelephone()) {

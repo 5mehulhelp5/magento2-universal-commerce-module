@@ -13,6 +13,7 @@ namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface;
 
 interface RestHandlerInterface
 {
@@ -40,4 +41,11 @@ interface RestHandlerInterface
      * @return FulfillmentCheckoutInterface
      */
     public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): FulfillmentCheckoutInterface;
+
+    /**
+     * @param string $checkoutId
+     * @param PaymentDataInterface $paymentData
+     * @return FulfillmentCheckoutInterface
+     */
+    public function completeCheckout(string $checkoutId, PaymentDataInterface $paymentData): FulfillmentCheckoutInterface;
 }

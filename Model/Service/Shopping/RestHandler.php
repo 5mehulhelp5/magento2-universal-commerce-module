@@ -15,10 +15,12 @@ use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
@@ -127,6 +129,38 @@ class RestHandler implements RestHandlerInterface
     }
 
     /**
+     * @param string $checkoutId
+     * @param PaymentDataInterface $paymentData
+     * @return FulfillmentCheckoutInterface
+     * @throws LocalizedException
+     */
+    public function completeCheckout(string $checkoutId, PaymentDataInterface $paymentData): FulfillmentCheckoutInterface
+    {
+        try {
+            $cart = $this->guestCartRepository->get($checkoutId);
+        } catch (NoSuchEntityException $e) {
+            throw new LocalizedException(__('Checkout session not found: %1. Please create a new checkout session.', $checkoutId));
+        }
+
+        $payment = $paymentData->getPaymentData();
+        $billingAddress = $payment->getBillingAddress();
+
+        if ($billingAddress) {
+            $this->addBillingAddressToCart($cart, $billingAddress);
+        }
+
+        $this->cartRepository->save($cart);
+
+        try {
+            $orderId = $this->guestCartManagement->placeOrder($checkoutId);
+        } catch (LocalizedException $e) {
+            throw new LocalizedException(__('Failed to place order: %1', $e->getMessage()));
+        }
+
+        return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
+    }
+
+    /**
      * Add items to cart
      *
      * @param CartInterface $cart
@@ -197,14 +231,7 @@ class RestHandler implements RestHandlerInterface
             $billingAddress->setTelephone($buyer->getPhoneNumber());
         }
 
-        // Same as billing
-        $shippingAddress = $cart->getShippingAddress();
-        $shippingAddress->setSameAsBilling(1);
-        $shippingAddress->setCountryId('US');
-        $shippingAddress->setFirstname($billingAddress->getFirstname());
-        $shippingAddress->setLastname($billingAddress->getLastname());
-        $shippingAddress->setTelephone($billingAddress->getTelephone());
-        $shippingAddress->collectShippingRates();
+        $this->copyBillingAddressToShippingAddress($cart);
     }
 
     /**
@@ -237,20 +264,6 @@ class RestHandler implements RestHandlerInterface
 
         $shippingAddress = $cart->getShippingAddress();
 
-        // Set shipping address from selected destination
-        $selectedDestinationId = $shippingMethod->getSelectedDestinationId();
-        if ($selectedDestinationId) {
-            $destinations = $shippingMethod->getDestinations();
-            if ($destinations) {
-                foreach ($destinations as $destination) {
-                    if ($destination->getId() === $selectedDestinationId) {
-                        $this->setShippingAddressFromDestination($shippingAddress, $destination);
-                        break;
-                    }
-                }
-            }
-        }
-
         // Set shipping method from selected option
         $groups = $shippingMethod->getGroups();
         if ($groups) {
@@ -272,54 +285,78 @@ class RestHandler implements RestHandlerInterface
     }
 
     /**
-     * Set shipping address from destination
+     * Copy billing address to shipping address
      *
-     * @param Address $shippingAddress
-     * @param FulfillmentDestinationRequestInterface $destination
+     * @param CartInterface $cart
      * @return void
      */
-    private function setShippingAddressFromDestination(
-        Address $shippingAddress,
-        FulfillmentDestinationRequestInterface $destination
-    ): void {
-        if ($destination->getStreetAddress()) {
-            $shippingAddress->setStreet($destination->getStreetAddress());
+    public function copyBillingAddressToShippingAddress(CartInterface $cart): void
+    {
+        /** @var Quote $cart */
+        $billingAddress = $cart->getBillingAddress();
+        $shippingAddress = $cart->getShippingAddress();
+        $shippingAddress->setSameAsBilling(1);
+        $shippingAddress->setCountryId($billingAddress->getCountryId());
+        $shippingAddress->setCity($billingAddress->getCity());
+        $shippingAddress->setRegion($billingAddress->getRegion());
+        $shippingAddress->setPostcode($billingAddress->getPostcode());
+        $shippingAddress->setFirstname($billingAddress->getFirstname());
+        $shippingAddress->setLastname($billingAddress->getLastname());
+        $shippingAddress->setTelephone($billingAddress->getTelephone());
+        $shippingAddress->setStreet($billingAddress->getStreet());
+        $shippingAddress->collectShippingRates();
+    }
+
+    /**
+     * Add billing address to cart
+     *
+     * @param CartInterface $cart
+     * @param PostalAddressInterface $address
+     * @return void
+     */
+    private function addBillingAddressToCart(CartInterface $cart, PostalAddressInterface $address): void
+    {
+        /** @var Quote $cart */
+        $billingAddress = $cart->getBillingAddress();
+
+        if ($address->getStreetAddress()) {
+            $billingAddress->setStreet($address->getStreetAddress());
         }
 
-        if ($destination->getAddressLocality()) {
-            $shippingAddress->setCity($destination->getAddressLocality());
+        if ($address->getAddressLocality()) {
+            $billingAddress->setCity($address->getAddressLocality());
         }
 
-        if ($destination->getAddressRegion()) {
-            $shippingAddress->setRegion($destination->getAddressRegion());
+        if ($address->getAddressRegion()) {
+            $billingAddress->setRegion($address->getAddressRegion());
         }
 
-        if ($destination->getAddressCountry()) {
-            $shippingAddress->setCountryId($destination->getAddressCountry());
+        if ($address->getAddressCountry()) {
+            $billingAddress->setCountryId($address->getAddressCountry());
         }
 
-        if ($destination->getPostalCode()) {
-            $shippingAddress->setPostcode($destination->getPostalCode());
+        if ($address->getPostalCode()) {
+            $billingAddress->setPostcode($address->getPostalCode());
         }
 
-        if ($destination->getFirstName()) {
-            $shippingAddress->setFirstname($destination->getFirstName());
+        if ($address->getFirstName()) {
+            $billingAddress->setFirstname($address->getFirstName());
         }
 
-        if ($destination->getLastName()) {
-            $shippingAddress->setLastname($destination->getLastName());
+        if ($address->getLastName()) {
+            $billingAddress->setLastname($address->getLastName());
         }
 
-        if ($destination->getFullName() && !$destination->getFirstName() && !$destination->getLastName()) {
-            $nameParts = explode(' ', $destination->getFullName(), 2);
-            $shippingAddress->setFirstname($nameParts[0] ?? '');
-            $shippingAddress->setLastname($nameParts[1] ?? '');
+        if ($address->getFullName() && !$address->getFirstName() && !$address->getLastName()) {
+            $nameParts = explode(' ', $address->getFullName(), 2);
+            $billingAddress->setFirstname($nameParts[0] ?? '');
+            $billingAddress->setLastname($nameParts[1] ?? '');
         }
 
-        if ($destination->getPhoneNumber()) {
-            $shippingAddress->setTelephone($destination->getPhoneNumber());
+        if ($address->getPhoneNumber()) {
+            $billingAddress->setTelephone($address->getPhoneNumber());
         }
 
-        $shippingAddress->setSameAsBilling(0);
+        $this->copyBillingAddressToShippingAddress($cart);
     }
 }
