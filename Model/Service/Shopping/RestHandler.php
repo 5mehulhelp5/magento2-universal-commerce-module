@@ -60,6 +60,7 @@ class RestHandler implements RestHandlerInterface
             $this->addBuyerInformationToCart($cart, $request->getBuyer());
         }
 
+        $this->copyPersonalInformationFromBillingToShipping($cart);
         $this->cartRepository->save($cart);
 
         return $this->quoteToCheckoutResponse->convert($cart, $maskedCartId);
@@ -118,6 +119,8 @@ class RestHandler implements RestHandlerInterface
         if ($request->getBuyer()) {
             $this->addBuyerInformationToCart($cart, $request->getBuyer());
         }
+
+        $this->copyPersonalInformationFromBillingToShipping($cart);
 
         if ($request->getFulfillment()) {
             $this->addFulfillmentInformationToCart($cart, $request->getFulfillment());
@@ -230,8 +233,6 @@ class RestHandler implements RestHandlerInterface
         if ($buyer->getPhoneNumber()) {
             $billingAddress->setTelephone($buyer->getPhoneNumber());
         }
-
-        $this->copyBillingAddressToShippingAddress($cart);
     }
 
     /**
@@ -262,49 +263,132 @@ class RestHandler implements RestHandlerInterface
             return;
         }
 
-        $shippingAddress = $cart->getShippingAddress();
+        $destinations = $shippingMethod->getDestinations() ?? [];
+
+        foreach ($destinations as $destination) {
+            $this->addDestinationToCart($cart, $destination);
+            break;
+        }
 
         // Set shipping method from selected option
         $groups = $shippingMethod->getGroups();
-        if ($groups) {
-            foreach ($groups as $group) {
-                $selectedOptionId = $group->getSelectedOptionId();
-                if ($selectedOptionId) {
-                    // Parse carrier_method from option ID (format: "carrier_method")
-                    $parts = explode('_', $selectedOptionId, 2);
-                    if (count($parts) === 2) {
-                        [$carrier, $method] = $parts;
-                        $shippingAddress->setShippingMethod($carrier . '_' . $method);
-                        break;
-                    }
-                }
-            }
+
+        if (!$groups) {
+            return;
         }
 
-        $shippingAddress->collectShippingRates();
+        foreach ($groups as $group) {
+            $selectedOptionId = $group->getSelectedOptionId();
+
+            if (!$selectedOptionId) {
+                continue;
+            }
+
+            $this->setShippingMethodToCart($cart, $selectedOptionId);
+            break;
+        }
     }
 
     /**
-     * Copy billing address to shipping address
+     * Set shipping method to cart
+     *
+     * @param CartInterface $cart
+     * @param string $shippingMethod
+     * @return void
+     */
+    public function setShippingMethodToCart(CartInterface $cart, string $shippingMethod): void
+    {
+        /** @var Quote $cart */
+        $shippingAddress = $cart->getShippingAddress();
+        $shippingAddress->setShippingMethod($shippingMethod);
+
+        $cartExtension = $cart->getExtensionAttributes();
+        if ($cartExtension && $cartExtension->getShippingAssignments()) {
+            $cartExtension->getShippingAssignments()[0]
+                ->getShipping()
+                ->setMethod($shippingMethod);
+        }
+
+        $shippingAddress->setCollectShippingRates(true);
+    }
+
+    /**
+     * Copy personal information from billing to shipping address
      *
      * @param CartInterface $cart
      * @return void
      */
-    public function copyBillingAddressToShippingAddress(CartInterface $cart): void
+    public function copyPersonalInformationFromBillingToShipping(CartInterface $cart): void
     {
         /** @var Quote $cart */
         $billingAddress = $cart->getBillingAddress();
         $shippingAddress = $cart->getShippingAddress();
-        $shippingAddress->setSameAsBilling(1);
-        $shippingAddress->setCountryId($billingAddress->getCountryId());
-        $shippingAddress->setCity($billingAddress->getCity());
-        $shippingAddress->setRegion($billingAddress->getRegion());
-        $shippingAddress->setPostcode($billingAddress->getPostcode());
-        $shippingAddress->setFirstname($billingAddress->getFirstname());
-        $shippingAddress->setLastname($billingAddress->getLastname());
-        $shippingAddress->setTelephone($billingAddress->getTelephone());
-        $shippingAddress->setStreet($billingAddress->getStreet());
-        $shippingAddress->collectShippingRates();
+
+        if ($billingAddress->getFirstName()) {
+            $shippingAddress->setFirstname($billingAddress->getFirstName());
+        }
+
+        if ($billingAddress->getLastName()) {
+            $shippingAddress->setLastname($billingAddress->getLastName());
+        }
+
+        if ($billingAddress->getEmail()) {
+            $shippingAddress->setEmail($billingAddress->getEmail());
+        }
+
+        if ($billingAddress->getPhoneNumber()) {
+            $shippingAddress->setTelephone($billingAddress->getPhoneNumber());
+        }
+    }
+
+    /**
+     * Add destination to cart
+     *
+     * @param CartInterface $cart
+     * @param FulfillmentDestinationRequestInterface $destination
+     * @return void
+     */
+    public function addDestinationToCart(CartInterface $cart, FulfillmentDestinationRequestInterface $destination): void
+    {
+        /** @var Quote $cart */
+        $shippingAddress = $cart->getShippingAddress();
+
+        if ($destination->getStreetAddress()) {
+            $shippingAddress->setStreet($destination->getStreetAddress());
+        }
+        if ($destination->getAddressLocality()) {
+            $shippingAddress->setCity($destination->getAddressLocality());
+        }
+
+        if ($destination->getAddressRegion()) {
+            $shippingAddress->setRegion($destination->getAddressRegion());
+        }
+
+        if ($destination->getAddressCountry()) {
+            $shippingAddress->setCountryId($destination->getAddressCountry());
+        }
+
+        if ($destination->getPostalCode()) {
+            $shippingAddress->setPostcode($destination->getPostalCode());
+        }
+
+        if ($destination->getFirstName()) {
+            $shippingAddress->setFirstname($destination->getFirstName());
+        }
+
+        if ($destination->getLastName()) {
+            $shippingAddress->setLastname($destination->getLastName());
+        }
+
+        if ($destination->getFullName() && !$destination->getFirstName() && !$destination->getLastName()) {
+            $nameParts = explode(' ', $destination->getFullName(), 2);
+            $shippingAddress->setFirstname($nameParts[0] ?? '');
+            $shippingAddress->setLastname($nameParts[1] ?? '');
+        }
+
+        if ($destination->getPhoneNumber()) {
+            $shippingAddress->setTelephone($destination->getPhoneNumber());
+        }
     }
 
     /**
@@ -314,7 +398,7 @@ class RestHandler implements RestHandlerInterface
      * @param PostalAddressInterface $address
      * @return void
      */
-    private function addBillingAddressToCart(CartInterface $cart, PostalAddressInterface $address): void
+    public function addBillingAddressToCart(CartInterface $cart, PostalAddressInterface $address): void
     {
         /** @var Quote $cart */
         $billingAddress = $cart->getBillingAddress();
@@ -356,7 +440,5 @@ class RestHandler implements RestHandlerInterface
         if ($address->getPhoneNumber()) {
             $billingAddress->setTelephone($address->getPhoneNumber());
         }
-
-        $this->copyBillingAddressToShippingAddress($cart);
     }
 }

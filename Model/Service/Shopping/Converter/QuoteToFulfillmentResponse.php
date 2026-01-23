@@ -79,11 +79,6 @@ class QuoteToFulfillmentResponse
         $response = $this->fulfillmentFulfillmentFactory->create();
 
         $methods = $this->getMethods($shippingAddress, $quoteItemIds);
-
-        if (empty($methods)) {
-            return null;
-        }
-
         $response->setMethods($methods);
         return $response;
     }
@@ -121,7 +116,7 @@ class QuoteToFulfillmentResponse
 
         // Create groups with options (shipping rates)
         $group = $this->fulfillmentGroupResponseFactory->create();
-        $group->setId('group_1');
+        $group->setId('package');
         $group->setLineItemIds($quoteItemIds);
 
         $options = $this->convertShippingRatesToOptions($shippingRates);

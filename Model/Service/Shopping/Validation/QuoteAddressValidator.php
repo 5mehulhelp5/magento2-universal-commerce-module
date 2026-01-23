@@ -36,6 +36,7 @@ class QuoteAddressValidator implements QuoteValidatorInterface
         $errors = [];
 
         $errors = array_merge($errors, $this->validateBillingAddress($quote));
+        $errors = array_merge($errors, $this->validateShippingAddress($quote));
 
         return $errors;
     }
@@ -61,6 +62,44 @@ class QuoteAddressValidator implements QuoteValidatorInterface
 
         if (!$billingAddress->getTelephone()) {
             $errors[] = $this->createMessage('Telephone is required', '$.buyer.phone_number');
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param CartInterface $quote
+     * @return MessageInterface[]
+     */
+    public function validateShippingAddress(CartInterface $quote): array
+    {
+        /** @var Quote $quote */
+        $shippingAddress = $quote->getShippingAddress();
+
+        if ($quote->getIsVirtual()) {
+            return [];
+        }
+
+        $errors = [];
+
+        if (!$shippingAddress->getStreet()) {
+            $errors[] = $this->createMessage('Street is required', '$.fulfillment.methods[0].destination.street_address');
+        }
+
+        if (!$shippingAddress->getCity()) {
+            $errors[] = $this->createMessage('City is required', '$.fulfillment.methods[0].destination.address_locality');
+        }
+
+        if (!$shippingAddress->getCountry()) {
+            $errors[] = $this->createMessage('Country is required', '$.fulfillment.methods[0].destination.address_country');
+        }
+
+        if (!$shippingAddress->getPostcode()) {
+            $errors[] = $this->createMessage('Postcode is required', '$.fulfillment.methods[0].destination.postal_code');
+        }
+
+        if (!$shippingAddress->getRegion()) {
+            $errors[] = $this->createMessage('Region is required', '$.fulfillment.methods[0].destination.address_region');
         }
 
         return $errors;
