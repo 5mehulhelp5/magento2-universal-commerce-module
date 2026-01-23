@@ -125,6 +125,12 @@ class QuoteToFulfillmentResponse
         $options = $this->convertShippingRatesToOptions($shippingRates);
         if (!empty($options)) {
             $group->setOptions(array_values($options));
+
+            // Set selected_option_id if shipping method is already selected
+            $selectedShippingMethod = $shippingAddress->getShippingMethod();
+            if ($selectedShippingMethod) {
+                $group->setSelectedOptionId($selectedShippingMethod);
+            }
         }
 
         $method->setGroups([$group]);

@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterfaceFactory;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
 use Magento\Framework\Controller\Result\JsonFactory;

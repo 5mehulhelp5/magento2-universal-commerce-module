@@ -13,7 +13,6 @@ namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
 
 interface RestHandlerInterface
 {

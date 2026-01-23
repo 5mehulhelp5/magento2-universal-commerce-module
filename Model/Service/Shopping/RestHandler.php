@@ -9,18 +9,22 @@
  */
 declare(strict_types=1);
 
-namespace Magebit\UniversalCommerce\Model\Service\Shopping\Rest;
+namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Api\GuestCartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
@@ -29,7 +33,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 
-class Handler implements RestHandlerInterface
+class RestHandler implements RestHandlerInterface
 {
     public function __construct(
         protected readonly GuestCartManagementInterface $guestCartManagement,
@@ -111,6 +115,10 @@ class Handler implements RestHandlerInterface
 
         if ($request->getBuyer()) {
             $this->addBuyerInformationToCart($cart, $request->getBuyer());
+        }
+
+        if ($request->getFulfillment()) {
+            $this->addFulfillmentInformationToCart($cart, $request->getFulfillment());
         }
 
         $this->cartRepository->save($cart);
@@ -197,5 +205,121 @@ class Handler implements RestHandlerInterface
         $shippingAddress->setLastname($billingAddress->getLastname());
         $shippingAddress->setTelephone($billingAddress->getTelephone());
         $shippingAddress->collectShippingRates();
+    }
+
+    /**
+     * Add fulfillment information to cart
+     *
+     * @param CartInterface $cart
+     * @param FulfillmentRequestInterface $fulfillment
+     * @return void
+     */
+    public function addFulfillmentInformationToCart(CartInterface $cart, FulfillmentRequestInterface $fulfillment): void
+    {
+        /** @var Quote $cart */
+        $methods = $fulfillment->getMethods();
+        if (!$methods) {
+            return;
+        }
+
+        // Find shipping method
+        $shippingMethod = null;
+        foreach ($methods as $method) {
+            if ($method->getType() === FulfillmentMethodCreateRequestInterface::TYPE_SHIPPING) {
+                $shippingMethod = $method;
+                break;
+            }
+        }
+
+        if (!$shippingMethod) {
+            return;
+        }
+
+        $shippingAddress = $cart->getShippingAddress();
+
+        // Set shipping address from selected destination
+        $selectedDestinationId = $shippingMethod->getSelectedDestinationId();
+        if ($selectedDestinationId) {
+            $destinations = $shippingMethod->getDestinations();
+            if ($destinations) {
+                foreach ($destinations as $destination) {
+                    if ($destination->getId() === $selectedDestinationId) {
+                        $this->setShippingAddressFromDestination($shippingAddress, $destination);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Set shipping method from selected option
+        $groups = $shippingMethod->getGroups();
+        if ($groups) {
+            foreach ($groups as $group) {
+                $selectedOptionId = $group->getSelectedOptionId();
+                if ($selectedOptionId) {
+                    // Parse carrier_method from option ID (format: "carrier_method")
+                    $parts = explode('_', $selectedOptionId, 2);
+                    if (count($parts) === 2) {
+                        [$carrier, $method] = $parts;
+                        $shippingAddress->setShippingMethod($carrier . '_' . $method);
+                        break;
+                    }
+                }
+            }
+        }
+
+        $shippingAddress->collectShippingRates();
+    }
+
+    /**
+     * Set shipping address from destination
+     *
+     * @param Address $shippingAddress
+     * @param FulfillmentDestinationRequestInterface $destination
+     * @return void
+     */
+    private function setShippingAddressFromDestination(
+        Address $shippingAddress,
+        FulfillmentDestinationRequestInterface $destination
+    ): void {
+        if ($destination->getStreetAddress()) {
+            $shippingAddress->setStreet($destination->getStreetAddress());
+        }
+
+        if ($destination->getAddressLocality()) {
+            $shippingAddress->setCity($destination->getAddressLocality());
+        }
+
+        if ($destination->getAddressRegion()) {
+            $shippingAddress->setRegion($destination->getAddressRegion());
+        }
+
+        if ($destination->getAddressCountry()) {
+            $shippingAddress->setCountryId($destination->getAddressCountry());
+        }
+
+        if ($destination->getPostalCode()) {
+            $shippingAddress->setPostcode($destination->getPostalCode());
+        }
+
+        if ($destination->getFirstName()) {
+            $shippingAddress->setFirstname($destination->getFirstName());
+        }
+
+        if ($destination->getLastName()) {
+            $shippingAddress->setLastname($destination->getLastName());
+        }
+
+        if ($destination->getFullName() && !$destination->getFirstName() && !$destination->getLastName()) {
+            $nameParts = explode(' ', $destination->getFullName(), 2);
+            $shippingAddress->setFirstname($nameParts[0] ?? '');
+            $shippingAddress->setLastname($nameParts[1] ?? '');
+        }
+
+        if ($destination->getPhoneNumber()) {
+            $shippingAddress->setTelephone($destination->getPhoneNumber());
+        }
+
+        $shippingAddress->setSameAsBilling(0);
     }
 }

@@ -78,7 +78,7 @@ class DataTransferObject extends DataObject implements JsonSerializable
         $value = $this->getData($key);
 
         if (!is_array($value)) {
-            throw new \InvalidArgumentException(sprintf('Data for key %s is not an array', $key));
+            return [];
         }
 
         return $value;
@@ -122,7 +122,7 @@ class DataTransferObject extends DataObject implements JsonSerializable
 
         foreach ($value as $item) {
             if (!($item instanceof $type)) {
-                throw new \InvalidArgumentException(sprintf('Item %s is not a %s', $item, $type));
+                return null;
             }
         }
 

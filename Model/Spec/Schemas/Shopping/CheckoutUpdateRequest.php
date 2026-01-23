@@ -11,10 +11,11 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
 
 class CheckoutUpdateRequest extends DataTransferObject implements CheckoutUpdateRequestInterface
 {
@@ -108,6 +109,24 @@ class CheckoutUpdateRequest extends DataTransferObject implements CheckoutUpdate
     public function setPayment(PaymentUpdateRequestInterface $payment): self
     {
         $this->setData(CheckoutUpdateRequestInterface::KEY_PAYMENT, $payment);
+        return $this;
+    }
+
+    /**
+     * @return FulfillmentRequestInterface|null
+     */
+    public function getFulfillment(): ?FulfillmentRequestInterface
+    {
+        return $this->getDataOfTypeOrNull('fulfillment', FulfillmentRequestInterface::class);
+    }
+
+    /**
+     * @param FulfillmentRequestInterface|null $fulfillment
+     * @return self
+     */
+    public function setFulfillment(?FulfillmentRequestInterface $fulfillment): self
+    {
+        $this->setData('fulfillment', $fulfillment);
         return $this;
     }
 }

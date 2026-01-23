@@ -16,7 +16,7 @@
     </type>
 
     <!-- Shopping service -->
-    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface" type="Magebit\UniversalCommerce\Model\Service\Shopping\Rest\Handler" />
+    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface" type="Magebit\UniversalCommerce\Model\Service\Shopping\RestHandler" />
     <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface" type="Magebit\UniversalCommerce\Model\Service\Shopping\Validation\QuoteValidationComposite" />
 
     <type name="Magebit\UniversalCommerce\Model\Service\Shopping\ShoppingService">
@@ -61,7 +61,8 @@
 
     <!-- Shopping - Checkout -->
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutCreateRequest" />
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutUpdateRequest" />
+    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutUpdateRequest" />
+    <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutUpdateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\FulfillmentCheckout" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\FulfillmentCheckout" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentFulfillmentInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\FulfillmentFulfillment" />
@@ -85,6 +86,8 @@
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\OrderConfirmation" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentHandlerResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\PaymentHandlerResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\TotalResponse" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentRequest" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentMethodCreateRequest" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentMethodResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentGroupResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentGroupResponse" />
     <preference for="Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentOptionResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\FulfillmentOptionResponse" />
