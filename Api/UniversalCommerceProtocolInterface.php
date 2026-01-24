@@ -13,5 +13,5 @@ namespace Magebit\UniversalCommerce\Api;
 
 interface UniversalCommerceProtocolInterface
 {
-    public const SPEC_VERSION = '2026-01-11';
+    public const SPEC_VERSION = '2026-01-23';
 }
