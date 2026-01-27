@@ -17,7 +17,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\UcpPlatformSchemaInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface;
 
-class UcpDiscoverProfile extends DataTransferObject implements UcpPlatformSchemaInterface
+class UcpPlatformSchema extends DataTransferObject implements UcpPlatformSchemaInterface
 {
     /**
      * @return string

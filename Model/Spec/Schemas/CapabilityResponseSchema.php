@@ -15,7 +15,7 @@ namespace Magebit\UniversalCommerce\Model\Spec\Schemas;
 use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseSchemaInterface;
 
-class CapabilityResponse extends DataTransferObject implements CapabilityResponseSchemaInterface
+class CapabilityResponseSchema extends DataTransferObject implements CapabilityResponseSchemaInterface
 {
     /**
      * @return string

@@ -36,14 +36,6 @@ class Buyer extends DataTransferObject implements BuyerInterface
     /**
      * @return string|null
      */
-    public function getFullName(): string|null
-    {
-        return $this->getDataStringOrNull(BuyerInterface::KEY_FULL_NAME);
-    }
-
-    /**
-     * @return string|null
-     */
     public function getEmail(): string|null
     {
         return $this->getDataStringOrNull(BuyerInterface::KEY_EMAIL);
@@ -74,16 +66,6 @@ class Buyer extends DataTransferObject implements BuyerInterface
     public function setLastName(?string $lastName): self
     {
         $this->setData(BuyerInterface::KEY_LAST_NAME, $lastName);
-        return $this;
-    }
-
-    /**
-     * @param string|null $fullName
-     * @return self
-     */
-    public function setFullName(?string $fullName): self
-    {
-        $this->setData(BuyerInterface::KEY_FULL_NAME, $fullName);
         return $this;
     }
 

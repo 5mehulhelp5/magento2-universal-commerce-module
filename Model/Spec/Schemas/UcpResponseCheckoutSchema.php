@@ -18,7 +18,7 @@ use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseSchemaInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\ServiceResponseSchemaInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\PaymentHandlerResponseSchemaInterface;
 
-class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheckoutSchemaInterface
+class UcpResponseCheckoutSchema extends DataTransferObject implements UcpResponseCheckoutSchemaInterface
 {
     /**
      * @return string

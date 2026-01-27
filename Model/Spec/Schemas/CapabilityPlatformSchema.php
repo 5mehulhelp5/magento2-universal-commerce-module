@@ -15,7 +15,7 @@ namespace Magebit\UniversalCommerce\Model\Spec\Schemas;
 use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface;
 
-class CapabilityDiscovery extends DataTransferObject implements CapabilityPlatformSchemaInterface
+class CapabilityPlatformSchema extends DataTransferObject implements CapabilityPlatformSchemaInterface
 {
     /**
      * @return string

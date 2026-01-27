@@ -56,13 +56,13 @@
     <preference for="Magebit\UcpSpec\MutableApi\Discovery\UCPDiscoveryProfileInterface" type="Magebit\UniversalCommerce\Model\Spec\Discovery\UcpDiscoveryProfile" />
 
     <!-- Schemas -->
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\UcpPlatformSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpDiscoverProfile" />
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityDiscovery" />
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityResponse" />
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpResponseCheckout" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\UcpPlatformSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpPlatformSchema" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityPlatformSchema" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityResponseSchema" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\UcpResponseCheckoutSchema" />
 
     <!-- Services -->
-    <preference for="Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\UcpService" />
+    <preference for="Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface" type="Magebit\UniversalCommerce\Model\Spec\Services\ServicePlatformSchema" />
 
     <!-- Shopping - Checkout -->
     <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutCreateRequest" />

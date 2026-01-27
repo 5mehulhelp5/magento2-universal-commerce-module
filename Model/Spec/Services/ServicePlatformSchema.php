@@ -16,7 +16,7 @@ use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface;
 use JsonSerializable;
 
-class UcpService extends DataTransferObject implements ServicePlatformSchemaInterface, JsonSerializable
+class ServicePlatformSchema extends DataTransferObject implements ServicePlatformSchemaInterface, JsonSerializable
 {
     /**
      * @return string

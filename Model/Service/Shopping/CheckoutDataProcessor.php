@@ -132,12 +132,6 @@ class CheckoutDataProcessor
             $billingAddress->setLastname($buyer->getLastName());
         }
 
-        if ($buyer->getFullName()) {
-            [$firstName, $lastName] = explode(' ', $buyer->getFullName(), 2);
-            $billingAddress->setFirstname($firstName);
-            $billingAddress->setLastname($lastName);
-        }
-
         if ($buyer->getPhoneNumber()) {
             $billingAddress->setTelephone($buyer->getPhoneNumber());
         }
@@ -340,12 +334,6 @@ class CheckoutDataProcessor
             $shippingAddress->setLastname($destination->getLastName());
         }
 
-        if ($destination->getFullName() && !$destination->getFirstName() && !$destination->getLastName()) {
-            $nameParts = explode(' ', $destination->getFullName(), 2);
-            $shippingAddress->setFirstname($nameParts[0] ?? '');
-            $shippingAddress->setLastname($nameParts[1] ?? '');
-        }
-
         if ($destination->getPhoneNumber()) {
             $shippingAddress->setTelephone($destination->getPhoneNumber());
         }
@@ -426,12 +414,6 @@ class CheckoutDataProcessor
 
         if ($address->getLastName()) {
             $billingAddress->setLastname($address->getLastName());
-        }
-
-        if ($address->getFullName() && !$address->getFirstName() && !$address->getLastName()) {
-            $nameParts = explode(' ', $address->getFullName(), 2);
-            $billingAddress->setFirstname($nameParts[0] ?? '');
-            $billingAddress->setLastname($nameParts[1] ?? '');
         }
 
         if ($address->getPhoneNumber()) {
