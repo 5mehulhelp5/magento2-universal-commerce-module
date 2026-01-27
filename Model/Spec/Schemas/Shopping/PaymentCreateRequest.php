@@ -13,47 +13,29 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\SelectedPaymentInstrumentInterface;
 
-class PaymentCreateRequest extends DataTransferObject implements PaymentCreateRequestInterface
+class PaymentCreateRequest extends DataTransferObject implements PaymentInterface
 {
     /**
-     * @return string|null
-     */
-    public function getSelectedInstrumentId(): string|null
-    {
-        return $this->getDataStringOrNull(PaymentCreateRequestInterface::KEY_SELECTED_INSTRUMENT_ID);
-    }
-
-    /**
-     * @return PaymentInstrumentInterface[]|null
+     * @return SelectedPaymentInstrumentInterface[]|null
      */
     public function getInstruments(): array|null
     {
         return $this->getDataArrayOfTypeOrNull(
-            PaymentCreateRequestInterface::KEY_INSTRUMENTS,
-            PaymentInstrumentInterface::class
+            PaymentInterface::KEY_INSTRUMENTS,
+            SelectedPaymentInstrumentInterface::class
         );
     }
 
     /**
-     * @param string|null $selectedInstrumentId
-     * @return self
-     */
-    public function setSelectedInstrumentId(?string $selectedInstrumentId): self
-    {
-        $this->setData(PaymentCreateRequestInterface::KEY_SELECTED_INSTRUMENT_ID, $selectedInstrumentId);
-        return $this;
-    }
-
-    /**
-     * @param PaymentInstrumentInterface[]|null $instruments
+     * @param SelectedPaymentInstrumentInterface[]|null $instruments
      * @return self
      */
     public function setInstruments(?array $instruments): self
     {
-        $this->setData(PaymentCreateRequestInterface::KEY_INSTRUMENTS, $instruments);
+        $this->setData(PaymentInterface::KEY_INSTRUMENTS, $instruments);
         return $this;
     }
 }

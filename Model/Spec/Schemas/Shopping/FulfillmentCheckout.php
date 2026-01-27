@@ -12,25 +12,25 @@ namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentFulfillmentInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 
 class FulfillmentCheckout extends DataTransferObject implements FulfillmentCheckoutInterface
 {
     /**
-     * @return UcpResponseCheckoutInterface
+     * @return UcpResponseCheckoutSchemaInterface
      */
-    public function getUcp(): UcpResponseCheckoutInterface
+    public function getUcp(): UcpResponseCheckoutSchemaInterface
     {
-        return $this->getDataOfType(FulfillmentCheckoutInterface::KEY_UCP, UcpResponseCheckoutInterface::class);
+        return $this->getDataOfType(FulfillmentCheckoutInterface::KEY_UCP, UcpResponseCheckoutSchemaInterface::class);
     }
 
     /**
@@ -126,11 +126,11 @@ class FulfillmentCheckout extends DataTransferObject implements FulfillmentCheck
     }
 
     /**
-     * @return PaymentResponseInterface
+     * @return PaymentInterface|null
      */
-    public function getPayment(): PaymentResponseInterface
+    public function getPayment(): PaymentInterface|null
     {
-        return $this->getDataOfType(FulfillmentCheckoutInterface::KEY_PAYMENT, PaymentResponseInterface::class);
+        return $this->getDataOfTypeOrNull(FulfillmentCheckoutInterface::KEY_PAYMENT, PaymentInterface::class);
     }
 
     /**
@@ -153,10 +153,10 @@ class FulfillmentCheckout extends DataTransferObject implements FulfillmentCheck
     }
 
     /**
-     * @param UcpResponseCheckoutInterface $ucp
+     * @param UcpResponseCheckoutSchemaInterface $ucp
      * @return self
      */
-    public function setUcp(UcpResponseCheckoutInterface $ucp): self
+    public function setUcp(UcpResponseCheckoutSchemaInterface $ucp): self
     {
         $this->setData(FulfillmentCheckoutInterface::KEY_UCP, $ucp);
         return $this;
@@ -263,10 +263,10 @@ class FulfillmentCheckout extends DataTransferObject implements FulfillmentCheck
     }
 
     /**
-     * @param PaymentResponseInterface $payment
+     * @param PaymentInterface|null $payment
      * @return self
      */
-    public function setPayment(PaymentResponseInterface $payment): self
+    public function setPayment(?PaymentInterface $payment): self
     {
         $this->setData(FulfillmentCheckoutInterface::KEY_PAYMENT, $payment);
         return $this;

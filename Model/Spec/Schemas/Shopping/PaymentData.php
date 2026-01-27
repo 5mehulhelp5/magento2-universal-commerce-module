@@ -11,26 +11,29 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentInstrumentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\SelectedPaymentInstrumentInterface;
 
-class PaymentData extends DataTransferObject implements PaymentDataInterface
+class PaymentData extends DataTransferObject implements PaymentInterface
 {
     /**
-     * @return PaymentInstrumentInterface
+     * @return SelectedPaymentInstrumentInterface[]|null
      */
-    public function getPaymentData(): PaymentInstrumentInterface
+    public function getInstruments(): array|null
     {
-        return $this->getDataOfType(PaymentDataInterface::KEY_PAYMENT_DATA, PaymentInstrumentInterface::class);
+        return $this->getDataArrayOfTypeOrNull(
+            PaymentInterface::KEY_INSTRUMENTS,
+            SelectedPaymentInstrumentInterface::class
+        );
     }
 
     /**
-     * @param PaymentInstrumentInterface $paymentData
+     * @param SelectedPaymentInstrumentInterface[]|null $instruments
      * @return self
      */
-    public function setPaymentData(PaymentInstrumentInterface $paymentData): self
+    public function setInstruments(?array $instruments): self
     {
-        $this->setData(PaymentDataInterface::KEY_PAYMENT_DATA, $paymentData);
+        $this->setData(PaymentInterface::KEY_INSTRUMENTS, $instruments);
         return $this;
     }
 }

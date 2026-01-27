@@ -15,7 +15,7 @@ use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magebit\UniversalCommerce\Model\Service\Shopping\CheckoutDataProcessor;
 use Magento\Quote\Api\GuestCartManagementInterface;
@@ -110,11 +110,11 @@ class RestHandler implements RestHandlerInterface
 
     /**
      * @param string $checkoutId
-     * @param PaymentDataInterface $paymentData
+     * @param PaymentInterface $paymentData
      * @return FulfillmentCheckoutInterface
      * @throws LocalizedException
      */
-    public function completeCheckout(string $checkoutId, PaymentDataInterface $paymentData): FulfillmentCheckoutInterface
+    public function completeCheckout(string $checkoutId, PaymentInterface $paymentData): FulfillmentCheckoutInterface
     {
         $cart = $this->getCartByMaskedId($checkoutId);
         $payment = $paymentData->getPaymentData();

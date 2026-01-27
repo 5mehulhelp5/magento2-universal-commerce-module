@@ -13,24 +13,16 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseSchemaInterface;
 
-class CapabilityResponse extends DataTransferObject implements CapabilityResponseInterface
+class CapabilityResponse extends DataTransferObject implements CapabilityResponseSchemaInterface
 {
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->getDataString(CapabilityResponseInterface::KEY_NAME);
-    }
-
     /**
      * @return string
      */
     public function getVersion(): string
     {
-        return $this->getDataString(CapabilityResponseInterface::KEY_VERSION);
+        return $this->getDataString(CapabilityResponseSchemaInterface::KEY_VERSION);
     }
 
     /**
@@ -38,7 +30,7 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
      */
     public function getSpec(): string|null
     {
-        return $this->getDataStringOrNull(CapabilityResponseInterface::KEY_SPEC);
+        return $this->getDataStringOrNull(CapabilityResponseSchemaInterface::KEY_SPEC);
     }
 
     /**
@@ -46,15 +38,15 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
      */
     public function getSchema(): string|null
     {
-        return $this->getDataStringOrNull(CapabilityResponseInterface::KEY_SCHEMA);
+        return $this->getDataStringOrNull(CapabilityResponseSchemaInterface::KEY_SCHEMA);
     }
 
     /**
      * @return string|null
      */
-    public function getExtends(): string|null
+    public function getId(): string|null
     {
-        return $this->getDataStringOrNull(CapabilityResponseInterface::KEY_EXTENDS);
+        return $this->getDataStringOrNull(CapabilityResponseSchemaInterface::KEY_ID);
     }
 
     /**
@@ -62,18 +54,19 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
      */
     public function getConfig(): array|null
     {
-        $value = $this->getData(CapabilityResponseInterface::KEY_CONFIG);
+        $value = $this->getData(CapabilityResponseSchemaInterface::KEY_CONFIG);
+        if ($value === null || $value === false) {
+            return null;
+        }
         return is_array($value) ? $value : null;
     }
 
     /**
-     * @param string $name
-     * @return self
+     * @return string|null
      */
-    public function setName(string $name): self
+    public function getExtends(): string|null
     {
-        $this->setData(CapabilityResponseInterface::KEY_NAME, $name);
-        return $this;
+        return $this->getDataStringOrNull(CapabilityResponseSchemaInterface::KEY_EXTENDS);
     }
 
     /**
@@ -82,7 +75,7 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
      */
     public function setVersion(string $version): self
     {
-        $this->setData(CapabilityResponseInterface::KEY_VERSION, $version);
+        $this->setData(CapabilityResponseSchemaInterface::KEY_VERSION, $version);
         return $this;
     }
 
@@ -92,7 +85,7 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
      */
     public function setSpec(?string $spec): self
     {
-        $this->setData(CapabilityResponseInterface::KEY_SPEC, $spec);
+        $this->setData(CapabilityResponseSchemaInterface::KEY_SPEC, $spec);
         return $this;
     }
 
@@ -102,17 +95,17 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
      */
     public function setSchema(?string $schema): self
     {
-        $this->setData(CapabilityResponseInterface::KEY_SCHEMA, $schema);
+        $this->setData(CapabilityResponseSchemaInterface::KEY_SCHEMA, $schema);
         return $this;
     }
 
     /**
-     * @param string|null $extends
+     * @param string|null $id
      * @return self
      */
-    public function setExtends(?string $extends): self
+    public function setId(?string $id): self
     {
-        $this->setData(CapabilityResponseInterface::KEY_EXTENDS, $extends);
+        $this->setData(CapabilityResponseSchemaInterface::KEY_ID, $id);
         return $this;
     }
 
@@ -122,7 +115,17 @@ class CapabilityResponse extends DataTransferObject implements CapabilityRespons
      */
     public function setConfig(?array $config): self
     {
-        $this->setData(CapabilityResponseInterface::KEY_CONFIG, $config);
+        $this->setData(CapabilityResponseSchemaInterface::KEY_CONFIG, $config);
+        return $this;
+    }
+
+    /**
+     * @param string|null $extends
+     * @return self
+     */
+    public function setExtends(?string $extends): self
+    {
+        $this->setData(CapabilityResponseSchemaInterface::KEY_EXTENDS, $extends);
         return $this;
     }
 }

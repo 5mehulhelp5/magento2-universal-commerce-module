@@ -11,11 +11,13 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Discovery;
 
-use Magebit\UcpSpec\Api\Discovery\UCPDiscoveryProfileInterface as DiscoveryProfileInterface;
-use Magebit\UcpSpec\Api\Discovery\UCPDiscoveryProfileInterfaceFactory as DiscoveryProfileInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Discovery\UCPDiscoveryProfileInterface as DiscoveryProfileInterface;
+use Magebit\UcpSpec\MutableApi\Discovery\UCPDiscoveryProfileInterfaceFactory as DiscoveryProfileInterfaceFactory;
 
-use Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterface as UcpProfileInterface;
-use Magebit\UcpSpec\Api\Schemas\UcpDiscoveryProfileInterfaceFactory as UcpProfileInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpPlatformSchemaInterface as UcpProfileInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpPlatformSchemaInterfaceFactory as UcpProfileInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface;
 use Magebit\UniversalCommerce\Api\ServiceInterface;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 
@@ -55,15 +57,31 @@ class MerchantProfileBuilder
         $capabilities = [];
 
         foreach ($registeredServices as $name => $service) {
-            $services[$name] = $service->getService();
-            $capabilities = array_merge($capabilities, $service->getCapabilities());
+            $serviceObj = $service->getService();
+
+            if (!isset($services[$name])) {
+                $services[$name] = [];
+            }
+
+            $services[$name][] = $serviceObj;
+
+            $serviceCapabilities = $service->getCapabilities();
+
+            foreach ($serviceCapabilities as $capName => $capArray) {
+                if (!isset($capabilities[$capName])) {
+                    $capabilities[$capName] = [];
+                }
+
+                $capabilities[$capName] = array_merge($capabilities[$capName], $capArray);
+            }
         }
 
         return $this->ucpProfileFactory->create([
             'data' => [
                 UcpProfileInterface::KEY_VERSION => UniversalCommerceProtocolInterface::SPEC_VERSION,
                 UcpProfileInterface::KEY_SERVICES => $services,
-                UcpProfileInterface::KEY_CAPABILITIES => array_values($capabilities),
+                UcpProfileInterface::KEY_CAPABILITIES => $capabilities,
+                UcpProfileInterface::KEY_PAYMENT_HANDLERS => [],
             ]
         ]);
     }

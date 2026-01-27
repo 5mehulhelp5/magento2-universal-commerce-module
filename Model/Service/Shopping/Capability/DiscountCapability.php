@@ -11,19 +11,11 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Capability;
 
-use Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterface;
+use Magebit\UniversalCommerce\Model\Spec\Schemas\CapabilityDiscovery;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 
-class DiscountCapability implements CapabilityDiscoveryInterface
+class DiscountCapability extends CapabilityDiscovery
 {
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return 'dev.ucp.shopping.discount';
-    }
-
     /**
      * @return string
      */
@@ -51,9 +43,9 @@ class DiscountCapability implements CapabilityDiscoveryInterface
     /**
      * @return string|null
      */
-    public function getExtends(): string|null
+    public function getId(): string|null
     {
-        return 'dev.ucp.shopping.checkout';
+        return null;
     }
 
     /**
@@ -62,5 +54,13 @@ class DiscountCapability implements CapabilityDiscoveryInterface
     public function getConfig(): array|null
     {
         return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getExtends(): string|null
+    {
+        return 'dev.ucp.shopping.checkout';
     }
 }

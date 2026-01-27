@@ -116,15 +116,7 @@ class DataTransferObject extends DataObject implements JsonSerializable
     {
         $value = $this->getData($key);
 
-        if ($value === null || $value === false) {
-            return null;
-        }
-
         if (!is_array($value)) {
-            return null;
-        }
-
-        if (empty($value)) {
             return null;
         }
 

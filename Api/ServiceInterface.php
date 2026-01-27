@@ -11,18 +11,18 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Api;
 
-use Magebit\UcpSpec\Api\Services\UCPServiceInterface;
-use Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface;
 
 interface ServiceInterface
 {
     /**
-     * @return UCPServiceInterface
+     * @return ServicePlatformSchemaInterface
      */
-    public function getService(): UCPServiceInterface;
+    public function getService(): ServicePlatformSchemaInterface;
 
     /**
-     * @return array<CapabilityDiscoveryInterface>
+     * @return array<string, array<CapabilityPlatformSchemaInterface>>
      */
     public function getCapabilities(): array;
 }

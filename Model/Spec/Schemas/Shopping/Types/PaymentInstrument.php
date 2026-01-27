@@ -66,51 +66,15 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentI
     }
 
     /**
-     * @return string
+     * @return array<mixed>|null
      */
-    public function getBrand(): string
+    public function getDisplay(): array|null
     {
-        return $this->getDataString(PaymentInstrumentInterface::KEY_BRAND);
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastDigits(): string
-    {
-        return $this->getDataString(PaymentInstrumentInterface::KEY_LAST_DIGITS);
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getExpiryMonth(): int|null
-    {
-        return $this->getDataIntOrNull(PaymentInstrumentInterface::KEY_EXPIRY_MONTH);
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getExpiryYear(): int|null
-    {
-        return $this->getDataIntOrNull(PaymentInstrumentInterface::KEY_EXPIRY_YEAR);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getRichTextDescription(): string|null
-    {
-        return $this->getDataStringOrNull(PaymentInstrumentInterface::KEY_RICH_TEXT_DESCRIPTION);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getRichCardArt(): string|null
-    {
-        return $this->getDataStringOrNull(PaymentInstrumentInterface::KEY_RICH_CARD_ART);
+        $value = $this->getData(PaymentInstrumentInterface::KEY_DISPLAY);
+        if ($value === null || $value === false) {
+            return null;
+        }
+        return is_array($value) ? $value : null;
     }
 
     /**
@@ -164,62 +128,12 @@ class PaymentInstrument extends DataTransferObject implements PaymentInstrumentI
     }
 
     /**
-     * @param string $brand
+     * @param array<mixed>|null $display
      * @return self
      */
-    public function setBrand(string $brand): self
+    public function setDisplay(?array $display): self
     {
-        $this->setData(PaymentInstrumentInterface::KEY_BRAND, $brand);
-        return $this;
-    }
-
-    /**
-     * @param string $lastDigits
-     * @return self
-     */
-    public function setLastDigits(string $lastDigits): self
-    {
-        $this->setData(PaymentInstrumentInterface::KEY_LAST_DIGITS, $lastDigits);
-        return $this;
-    }
-
-    /**
-     * @param int|null $expiryMonth
-     * @return self
-     */
-    public function setExpiryMonth(?int $expiryMonth): self
-    {
-        $this->setData(PaymentInstrumentInterface::KEY_EXPIRY_MONTH, $expiryMonth);
-        return $this;
-    }
-
-    /**
-     * @param int|null $expiryYear
-     * @return self
-     */
-    public function setExpiryYear(?int $expiryYear): self
-    {
-        $this->setData(PaymentInstrumentInterface::KEY_EXPIRY_YEAR, $expiryYear);
-        return $this;
-    }
-
-    /**
-     * @param string|null $richTextDescription
-     * @return self
-     */
-    public function setRichTextDescription(?string $richTextDescription): self
-    {
-        $this->setData(PaymentInstrumentInterface::KEY_RICH_TEXT_DESCRIPTION, $richTextDescription);
-        return $this;
-    }
-
-    /**
-     * @param string|null $richCardArt
-     * @return self
-     */
-    public function setRichCardArt(?string $richCardArt): self
-    {
-        $this->setData(PaymentInstrumentInterface::KEY_RICH_CARD_ART, $richCardArt);
+        $this->setData(PaymentInstrumentInterface::KEY_DISPLAY, $display);
         return $this;
     }
 }

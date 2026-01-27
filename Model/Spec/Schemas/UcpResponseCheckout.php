@@ -13,27 +13,51 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityResponseSchemaInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\ServiceResponseSchemaInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\PaymentHandlerResponseSchemaInterface;
 
-class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheckoutInterface
+class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheckoutSchemaInterface
 {
     /**
      * @return string
      */
     public function getVersion(): string
     {
-        return $this->getDataString(UcpResponseCheckoutInterface::KEY_VERSION);
+        return $this->getDataString(UcpResponseCheckoutSchemaInterface::KEY_VERSION);
     }
 
     /**
-     * @return CapabilityResponseInterface[]
+     * @return array<string, array<ServiceResponseSchemaInterface>>|null
      */
-    public function getCapabilities(): array
+    public function getServices(): array|null
+    {
+        return $this->getDataArrayOfTypeOrNull(
+            UcpResponseCheckoutSchemaInterface::KEY_SERVICES,
+            ServiceResponseSchemaInterface::class
+        );
+    }
+
+    /**
+     * @return array<string, array<CapabilityResponseSchemaInterface>>|null
+     */
+    public function getCapabilities(): array|null
+    {
+        return $this->getDataArrayOfTypeOrNull(
+            UcpResponseCheckoutSchemaInterface::KEY_CAPABILITIES,
+            CapabilityResponseSchemaInterface::class
+        );
+    }
+
+    /**
+     * @return array<string, array<PaymentHandlerResponseSchemaInterface>>
+     */
+    public function getPaymentHandlers(): array
     {
         return $this->getDataArrayOfType(
-            UcpResponseCheckoutInterface::KEY_CAPABILITIES,
-            CapabilityResponseInterface::class
+            UcpResponseCheckoutSchemaInterface::KEY_PAYMENT_HANDLERS,
+            PaymentHandlerResponseSchemaInterface::class
         );
     }
 
@@ -43,17 +67,37 @@ class UcpResponseCheckout extends DataTransferObject implements UcpResponseCheck
      */
     public function setVersion(string $version): self
     {
-        $this->setData(UcpResponseCheckoutInterface::KEY_VERSION, $version);
+        $this->setData(UcpResponseCheckoutSchemaInterface::KEY_VERSION, $version);
         return $this;
     }
 
     /**
-     * @param CapabilityResponseInterface[] $capabilities
+     * @param array<string, array<ServiceResponseSchemaInterface>>|null $services
      * @return self
      */
-    public function setCapabilities(array $capabilities): self
+    public function setServices(?array $services): self
     {
-        $this->setData(UcpResponseCheckoutInterface::KEY_CAPABILITIES, $capabilities);
+        $this->setData(UcpResponseCheckoutSchemaInterface::KEY_SERVICES, $services);
+        return $this;
+    }
+
+    /**
+     * @param array<string, array<CapabilityResponseSchemaInterface>>|null $capabilities
+     * @return self
+     */
+    public function setCapabilities(?array $capabilities): self
+    {
+        $this->setData(UcpResponseCheckoutSchemaInterface::KEY_CAPABILITIES, $capabilities);
+        return $this;
+    }
+
+    /**
+     * @param array<string, array<PaymentHandlerResponseSchemaInterface>> $paymentHandlers
+     * @return self
+     */
+    public function setPaymentHandlers(array $paymentHandlers): self
+    {
+        $this->setData(UcpResponseCheckoutSchemaInterface::KEY_PAYMENT_HANDLERS, $paymentHandlers);
         return $this;
     }
 }

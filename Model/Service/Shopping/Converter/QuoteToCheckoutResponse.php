@@ -19,14 +19,14 @@ use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentResponseInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterface;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 use Magebit\UniversalCommerce\Model\Discovery\ServiceRegistry;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterfaceFactory;
 use Magento\Quote\Model\Quote;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResponse;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToBuyerResponse;
@@ -39,8 +39,8 @@ class QuoteToCheckoutResponse
     /**
      * @param FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory
      * @param QuoteItemToLineItemResponse $quoteItemToLineItemResponse
-     * @param UcpResponseCheckoutInterfaceFactory $ucpResponseFactory
-     * @param PaymentResponseInterfaceFactory $paymentResponseFactory
+     * @param UcpResponseCheckoutSchemaInterfaceFactory $ucpResponseFactory
+     * @param PaymentInterfaceFactory $paymentFactory
      * @param ServiceRegistry $serviceRegistry
      * @param QuoteToTotalsResponse $quoteToTotalsResponse
      * @param QuoteToBuyerResponse $quoteToBuyerResponse
@@ -51,8 +51,8 @@ class QuoteToCheckoutResponse
     public function __construct(
         protected readonly FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory,
         protected readonly QuoteItemToLineItemResponse $quoteItemToLineItemResponse,
-        protected readonly UcpResponseCheckoutInterfaceFactory $ucpResponseFactory,
-        protected readonly PaymentResponseInterfaceFactory $paymentResponseFactory,
+        protected readonly UcpResponseCheckoutSchemaInterfaceFactory $ucpResponseFactory,
+        protected readonly PaymentInterfaceFactory $paymentFactory,
         protected readonly ServiceRegistry $serviceRegistry,
         protected readonly QuoteToTotalsResponse $quoteToTotalsResponse,
         protected readonly QuoteToBuyerResponse $quoteToBuyerResponse,
@@ -102,9 +102,9 @@ class QuoteToCheckoutResponse
 
     /**
      * @param CartInterface $quote
-     * @return UcpResponseCheckoutInterface
+     * @return UcpResponseCheckoutSchemaInterface
      */
-    public function getUcp(CartInterface $quote): UcpResponseCheckoutInterface
+    public function getUcp(CartInterface $quote): UcpResponseCheckoutSchemaInterface
     {
         $service = $this->serviceRegistry->getService('dev.ucp.shopping');
 
@@ -114,22 +114,22 @@ class QuoteToCheckoutResponse
 
         return $this->ucpResponseFactory->create([
             'data' => [
-                UcpResponseCheckoutInterface::KEY_VERSION => UniversalCommerceProtocolInterface::SPEC_VERSION,
-                UcpResponseCheckoutInterface::KEY_CAPABILITIES => $service->getCapabilities(),
+                UcpResponseCheckoutSchemaInterface::KEY_VERSION => UniversalCommerceProtocolInterface::SPEC_VERSION,
+                UcpResponseCheckoutSchemaInterface::KEY_CAPABILITIES => $service->getCapabilities(),
+                UcpResponseCheckoutSchemaInterface::KEY_PAYMENT_HANDLERS => [],
             ]
         ]);
     }
 
     /**
      * @param CartInterface $quote
-     * @return PaymentResponseInterface
+     * @return PaymentInterface
      */
-    public function getPayment(CartInterface $quote): PaymentResponseInterface
+    public function getPayment(CartInterface $quote): PaymentInterface
     {
-        return $this->paymentResponseFactory->create([
+        return $this->paymentFactory->create([
             'data' => [
-                PaymentResponseInterface::KEY_HANDLERS => [],
-                PaymentResponseInterface::KEY_INSTRUMENTS => [],
+                PaymentInterface::KEY_INSTRUMENTS => [],
             ]
         ]);
     }

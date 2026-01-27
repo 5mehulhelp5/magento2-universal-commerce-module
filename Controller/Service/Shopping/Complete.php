@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentDataInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
@@ -36,7 +36,7 @@ class Complete extends ApiController
         MessageInterfaceFactory $messageFactory,
         IdempotencyHandler $idempotencyHandler,
         protected readonly RestHandlerInterface $restHandler,
-        protected readonly PaymentDataInterfaceFactory $paymentDataFactory
+        protected readonly PaymentInterfaceFactory $paymentFactory
     ) {
         parent::__construct(
             $resultJsonFactory,
@@ -67,8 +67,8 @@ class Complete extends ApiController
         }
 
         $paymentData = $this->getAndValidateRequest(
-            PaymentDataInterface::class,
-            $this->paymentDataFactory->create(...)
+            PaymentInterface::class,
+            $this->paymentFactory->create(...)
         );
 
         if ($paymentData instanceof ValidationResult) {

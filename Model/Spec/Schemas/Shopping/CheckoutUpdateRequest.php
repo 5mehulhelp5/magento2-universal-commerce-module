@@ -12,9 +12,10 @@ namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentUpdateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ContextInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 
@@ -78,36 +79,36 @@ class CheckoutUpdateRequest extends DataTransferObject implements CheckoutUpdate
     }
 
     /**
-     * @return string
+     * @return ContextInterface|null
      */
-    public function getCurrency(): string
+    public function getContext(): ContextInterface|null
     {
-        return $this->getDataString(CheckoutUpdateRequestInterface::KEY_CURRENCY);
+        return $this->getDataOfTypeOrNull(CheckoutUpdateRequestInterface::KEY_CONTEXT, ContextInterface::class);
     }
 
     /**
-     * @param string $currency
+     * @param ContextInterface|null $context
      * @return self
      */
-    public function setCurrency(string $currency): self
+    public function setContext(?ContextInterface $context): self
     {
-        $this->setData(CheckoutUpdateRequestInterface::KEY_CURRENCY, $currency);
+        $this->setData(CheckoutUpdateRequestInterface::KEY_CONTEXT, $context);
         return $this;
     }
 
     /**
-     * @return PaymentUpdateRequestInterface
+     * @return PaymentInterface|null
      */
-    public function getPayment(): PaymentUpdateRequestInterface
+    public function getPayment(): PaymentInterface|null
     {
-        return $this->getDataOfType(CheckoutUpdateRequestInterface::KEY_PAYMENT, PaymentUpdateRequestInterface::class);
+        return $this->getDataOfTypeOrNull(CheckoutUpdateRequestInterface::KEY_PAYMENT, PaymentInterface::class);
     }
 
     /**
-     * @param PaymentUpdateRequestInterface $payment
+     * @param PaymentInterface|null $payment
      * @return self
      */
-    public function setPayment(PaymentUpdateRequestInterface $payment): self
+    public function setPayment(?PaymentInterface $payment): self
     {
         $this->setData(CheckoutUpdateRequestInterface::KEY_PAYMENT, $payment);
         return $this;

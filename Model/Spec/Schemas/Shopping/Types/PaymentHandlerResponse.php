@@ -13,92 +13,52 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PaymentHandlerResponseInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\PaymentHandlerResponseSchemaInterface;
 
-class PaymentHandlerResponse extends DataTransferObject implements PaymentHandlerResponseInterface
+class PaymentHandlerResponse extends DataTransferObject implements PaymentHandlerResponseSchemaInterface
 {
-    /**
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->getDataString(PaymentHandlerResponseInterface::KEY_ID);
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->getDataString(PaymentHandlerResponseInterface::KEY_NAME);
-    }
-
     /**
      * @return string
      */
     public function getVersion(): string
     {
-        return $this->getDataString(PaymentHandlerResponseInterface::KEY_VERSION);
+        return $this->getDataString(PaymentHandlerResponseSchemaInterface::KEY_VERSION);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSpec(): string|null
+    {
+        return $this->getDataStringOrNull(PaymentHandlerResponseSchemaInterface::KEY_SPEC);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSchema(): string|null
+    {
+        return $this->getDataStringOrNull(PaymentHandlerResponseSchemaInterface::KEY_SCHEMA);
     }
 
     /**
      * @return string
      */
-    public function getSpec(): string
+    public function getId(): string
     {
-        return $this->getDataString(PaymentHandlerResponseInterface::KEY_SPEC);
+        return $this->getDataString(PaymentHandlerResponseSchemaInterface::KEY_ID);
     }
 
     /**
-     * @return string
+     * @return array<mixed>|null
      */
-    public function getConfigSchema(): string
+    public function getConfig(): array|null
     {
-        return $this->getDataString(PaymentHandlerResponseInterface::KEY_CONFIG_SCHEMA);
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getInstrumentSchemas(): array
-    {
-        $value = $this->getDataArray(PaymentHandlerResponseInterface::KEY_INSTRUMENT_SCHEMAS);
-        foreach ($value as $item) {
-            if (!is_string($item)) {
-                throw new \InvalidArgumentException(
-                    sprintf('Item in %s is not a string', PaymentHandlerResponseInterface::KEY_INSTRUMENT_SCHEMAS)
-                );
-            }
+        $value = $this->getData(PaymentHandlerResponseSchemaInterface::KEY_CONFIG);
+        if ($value === null || $value === false) {
+            return null;
         }
-        return $value;
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getConfig(): array
-    {
-        return $this->getDataArray(PaymentHandlerResponseInterface::KEY_CONFIG);
-    }
-
-    /**
-     * @param string $id
-     * @return self
-     */
-    public function setId(string $id): self
-    {
-        $this->setData(PaymentHandlerResponseInterface::KEY_ID, $id);
-        return $this;
-    }
-
-    /**
-     * @param string $name
-     * @return self
-     */
-    public function setName(string $name): self
-    {
-        $this->setData(PaymentHandlerResponseInterface::KEY_NAME, $name);
-        return $this;
+        return is_array($value) ? $value : null;
     }
 
     /**
@@ -107,47 +67,47 @@ class PaymentHandlerResponse extends DataTransferObject implements PaymentHandle
      */
     public function setVersion(string $version): self
     {
-        $this->setData(PaymentHandlerResponseInterface::KEY_VERSION, $version);
+        $this->setData(PaymentHandlerResponseSchemaInterface::KEY_VERSION, $version);
         return $this;
     }
 
     /**
-     * @param string $spec
+     * @param string|null $spec
      * @return self
      */
-    public function setSpec(string $spec): self
+    public function setSpec(?string $spec): self
     {
-        $this->setData(PaymentHandlerResponseInterface::KEY_SPEC, $spec);
+        $this->setData(PaymentHandlerResponseSchemaInterface::KEY_SPEC, $spec);
         return $this;
     }
 
     /**
-     * @param string $configSchema
+     * @param string|null $schema
      * @return self
      */
-    public function setConfigSchema(string $configSchema): self
+    public function setSchema(?string $schema): self
     {
-        $this->setData(PaymentHandlerResponseInterface::KEY_CONFIG_SCHEMA, $configSchema);
+        $this->setData(PaymentHandlerResponseSchemaInterface::KEY_SCHEMA, $schema);
         return $this;
     }
 
     /**
-     * @param string[] $instrumentSchemas
+     * @param string $id
      * @return self
      */
-    public function setInstrumentSchemas(array $instrumentSchemas): self
+    public function setId(string $id): self
     {
-        $this->setData(PaymentHandlerResponseInterface::KEY_INSTRUMENT_SCHEMAS, $instrumentSchemas);
+        $this->setData(PaymentHandlerResponseSchemaInterface::KEY_ID, $id);
         return $this;
     }
 
     /**
-     * @param array<mixed> $config
+     * @param array<mixed>|null $config
      * @return self
      */
-    public function setConfig(array $config): self
+    public function setConfig(?array $config): self
     {
-        $this->setData(PaymentHandlerResponseInterface::KEY_CONFIG, $config);
+        $this->setData(PaymentHandlerResponseSchemaInterface::KEY_CONFIG, $config);
         return $this;
     }
 }

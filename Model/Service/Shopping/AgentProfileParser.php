@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformConfigInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformSchemaInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformSchemaInterfaceFactory;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use Psr\Log\LoggerInterface;
@@ -30,13 +30,13 @@ class AgentProfileParser
     private const HTTP_TIMEOUT = 5;
 
     /**
-     * @param PlatformConfigInterfaceFactory $platformConfigFactory
+     * @param PlatformSchemaInterfaceFactory $platformSchemaFactory
      * @param CurlFactory $curlFactory
      * @param CacheInterface $cache
      * @param LoggerInterface $logger
      */
     public function __construct(
-        private readonly PlatformConfigInterfaceFactory $platformConfigFactory,
+        private readonly PlatformSchemaInterfaceFactory $platformSchemaFactory,
         private readonly CurlFactory $curlFactory,
         private readonly CacheInterface $cache,
         private readonly LoggerInterface $logger
@@ -47,11 +47,11 @@ class AgentProfileParser
      * Parse UCP agent profile from header
      *
      * @param string|null $ucpAgentHeader
-     * @return PlatformConfigInterface
+     * @return PlatformSchemaInterface
      */
-    public function parse(?string $ucpAgentHeader = null): PlatformConfigInterface
+    public function parse(?string $ucpAgentHeader = null): PlatformSchemaInterface
     {
-        $platformConfig = $this->platformConfigFactory->create();
+        $platformConfig = $this->platformSchemaFactory->create();
 
         if (!$ucpAgentHeader) {
             return $platformConfig;

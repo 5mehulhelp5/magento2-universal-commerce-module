@@ -13,24 +13,16 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas;
 
 use Magebit\UniversalCommerce\Model\DataTransferObject;
-use Magebit\UcpSpec\Api\Schemas\CapabilityDiscoveryInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface;
 
-class CapabilityDiscovery extends DataTransferObject implements CapabilityDiscoveryInterface
+class CapabilityDiscovery extends DataTransferObject implements CapabilityPlatformSchemaInterface
 {
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->getDataString(CapabilityDiscoveryInterface::KEY_NAME);
-    }
-
     /**
      * @return string
      */
     public function getVersion(): string
     {
-        return $this->getDataString(CapabilityDiscoveryInterface::KEY_VERSION);
+        return $this->getDataString(CapabilityPlatformSchemaInterface::KEY_VERSION);
     }
 
     /**
@@ -38,7 +30,7 @@ class CapabilityDiscovery extends DataTransferObject implements CapabilityDiscov
      */
     public function getSpec(): string
     {
-        return $this->getDataString(CapabilityDiscoveryInterface::KEY_SPEC);
+        return $this->getDataString(CapabilityPlatformSchemaInterface::KEY_SPEC);
     }
 
     /**
@@ -46,15 +38,15 @@ class CapabilityDiscovery extends DataTransferObject implements CapabilityDiscov
      */
     public function getSchema(): string
     {
-        return $this->getDataString(CapabilityDiscoveryInterface::KEY_SCHEMA);
+        return $this->getDataString(CapabilityPlatformSchemaInterface::KEY_SCHEMA);
     }
 
     /**
      * @return string|null
      */
-    public function getExtends(): string|null
+    public function getId(): string|null
     {
-        return $this->getDataStringOrNull(CapabilityDiscoveryInterface::KEY_EXTENDS);
+        return $this->getDataStringOrNull(CapabilityPlatformSchemaInterface::KEY_ID);
     }
 
     /**
@@ -62,7 +54,79 @@ class CapabilityDiscovery extends DataTransferObject implements CapabilityDiscov
      */
     public function getConfig(): array|null
     {
-        return $this->getDataArray(CapabilityDiscoveryInterface::KEY_CONFIG);
+        $value = $this->getData(CapabilityPlatformSchemaInterface::KEY_CONFIG);
+        if ($value === null || $value === false) {
+            return null;
+        }
+        return is_array($value) ? $value : null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getExtends(): string|null
+    {
+        return $this->getDataStringOrNull(CapabilityPlatformSchemaInterface::KEY_EXTENDS);
+    }
+
+    /**
+     * @param string $version
+     * @return self
+     */
+    public function setVersion(string $version): self
+    {
+        $this->setData(CapabilityPlatformSchemaInterface::KEY_VERSION, $version);
+        return $this;
+    }
+
+    /**
+     * @param string $spec
+     * @return self
+     */
+    public function setSpec(string $spec): self
+    {
+        $this->setData(CapabilityPlatformSchemaInterface::KEY_SPEC, $spec);
+        return $this;
+    }
+
+    /**
+     * @param string $schema
+     * @return self
+     */
+    public function setSchema(string $schema): self
+    {
+        $this->setData(CapabilityPlatformSchemaInterface::KEY_SCHEMA, $schema);
+        return $this;
+    }
+
+    /**
+     * @param string|null $id
+     * @return self
+     */
+    public function setId(?string $id): self
+    {
+        $this->setData(CapabilityPlatformSchemaInterface::KEY_ID, $id);
+        return $this;
+    }
+
+    /**
+     * @param array<mixed>|null $config
+     * @return self
+     */
+    public function setConfig(?array $config): self
+    {
+        $this->setData(CapabilityPlatformSchemaInterface::KEY_CONFIG, $config);
+        return $this;
+    }
+
+    /**
+     * @param string|null $extends
+     * @return self
+     */
+    public function setExtends(?string $extends): self
+    {
+        $this->setData(CapabilityPlatformSchemaInterface::KEY_EXTENDS, $extends);
+        return $this;
     }
 
     /**
