@@ -59,20 +59,26 @@ class ShoppingSchemaConformanceTest extends TestCase
     }
 
     /**
-     * POST /complete currently 500s. The body is captured verbatim so the harness records the
-     * broken state; it is an error envelope, not a checkout response, so no schema applies.
-     *
      * @return void
      */
-    public function testCompleteResponseRecordsKnownBrokenState(): void
+    public function testCompleteResponseMatchesSpec(): void
     {
-        $payload = self::loadFixture('shopping.checkout_session.complete.500.BROKEN.json');
-
-        $this->assertSame('requires_escalation', $payload['status']);
-        $this->assertSame('invalid_request', $payload['messages'][0]['code']);
-        $this->markTestIncomplete(
-            'POST /ucp/shopping/checkout-sessions/{id}/complete returns HTTP 500 and an error '
-            . 'envelope instead of a checkout response. Fixture records the broken state.'
+        $this->assertMatchesSchema(
+            self::loadFixtureObject('shopping.checkout_session.complete.200.json'),
+            self::CHECKOUT_SCHEMA
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCompletedSessionCarriesTheOrder(): void
+    {
+        $payload = self::loadFixture('shopping.checkout_session.complete.200.json');
+
+        $this->assertSame('completed', $payload['status']);
+        $this->assertNotEmpty($payload['order']['id']);
+        $this->assertNotEmpty($payload['order']['permalink_url']);
+        $this->assertSame([], $payload['messages']);
     }
 }
