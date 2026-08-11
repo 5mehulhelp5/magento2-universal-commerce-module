@@ -4,6 +4,7 @@
         <universal_commerce>
             <api>
                 <base_url></base_url>
+                <require_request_id>1</require_request_id>
             </api>
             <idempotency>
                 <ttl_hours>24</ttl_hours>

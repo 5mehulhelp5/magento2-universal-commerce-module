@@ -22,6 +22,7 @@ use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
+use Magebit\UniversalCommerce\Model\Config;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
 use Psr\Log\LoggerInterface;
 use JsonSerializable;
@@ -34,6 +35,7 @@ class Update extends ApiController
         RequestInterface $request,
         RequestValidator $requestValidator,
         RequestClassBuilder $requestClassBuilder,
+        Config $config,
         MessageErrorInterfaceFactory $messageFactory,
         IdempotencyHandler $idempotencyHandler,
         LoggerInterface $logger,
@@ -45,6 +47,7 @@ class Update extends ApiController
             $request,
             $requestValidator,
             $requestClassBuilder,
+            $config,
             $messageFactory,
             $idempotencyHandler,
             $logger

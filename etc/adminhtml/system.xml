@@ -15,6 +15,11 @@
                     <comment>Base URL for UCP API endpoints. If empty, the default store base URL will be used.</comment>
                     <validate>validate-url</validate>
                 </field>
+                <field id="require_request_id" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Require Request-Id Header</label>
+                    <comment>The spec marks Request-Id as required. Disable only to accept clients that omit it.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
             <group id="idempotency" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Idempotency</label>

@@ -28,6 +28,7 @@ use Magebit\UcpSpec\Api\Shopping\Types\MessageErrorInterfaceFactory;
 use Magebit\UniversalCommerce\Exception\UcpException;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\LocalizedException;
+use Magebit\UniversalCommerce\Model\Config;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
 use Psr\Log\LoggerInterface;
 
@@ -39,10 +40,16 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
     public const STATUS_REQUIRES_ESCALATION = 'requires_escalation';
 
     /**
+     * Trace header the spec marks required on every request, and which responses echo back.
+     */
+    public const HEADER_REQUEST_ID = 'Request-Id';
+
+    /**
      * @param JsonFactory $resultJsonFactory
      * @param RequestInterface $request
      * @param RequestValidator $requestValidator
      * @param RequestClassBuilder $requestClassBuilder
+     * @param Config $config
      * @param MessageErrorInterfaceFactory $messageFactory
      * @param IdempotencyHandler $idempotencyHandler
      * @param LoggerInterface $logger
@@ -52,6 +59,7 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         protected readonly RequestInterface $request,
         protected readonly RequestValidator $requestValidator,
         protected readonly RequestClassBuilder $requestClassBuilder,
+        protected readonly Config $config,
         protected readonly MessageErrorInterfaceFactory $messageFactory,
         protected readonly IdempotencyHandler $idempotencyHandler,
         protected readonly LoggerInterface $logger
@@ -67,6 +75,8 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
     public function errorBoundary(callable $callback): ResultJson
     {
         try {
+            $this->assertRequestId();
+
             return $callback();
         } catch (UcpException $e) {
             return $this->makeErrorResponse(
@@ -160,6 +170,37 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
     }
 
     /**
+     * @return void
+     * @throws UcpException If the trace header is missing or is not a UUID
+     */
+    protected function assertRequestId(): void
+    {
+        $requestId = $this->getHttpRequest()->getHeader(self::HEADER_REQUEST_ID);
+
+        if (!is_string($requestId) || $requestId === '') {
+            if (!$this->config->isRequestIdRequired()) {
+                return;
+            }
+
+            throw new UcpException(
+                __('The %1 header is required.', self::HEADER_REQUEST_ID),
+                self::STATUS_REQUIRES_ESCALATION,
+                'invalid_request',
+                400
+            );
+        }
+
+        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $requestId) !== 1) {
+            throw new UcpException(
+                __('The %1 header must be a UUID.', self::HEADER_REQUEST_ID),
+                self::STATUS_REQUIRES_ESCALATION,
+                'invalid_request',
+                400
+            );
+        }
+    }
+
+    /**
      * The spec requires type, code, content and severity on every error, so they are set here rather
      * than at each construction site.
      *
@@ -217,6 +258,12 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData($data);
         $resultJson->setHttpResponseCode($statusCode);
+
+        $requestId = $this->getHttpRequest()->getHeader(self::HEADER_REQUEST_ID);
+
+        if (is_string($requestId) && $requestId !== '') {
+            $resultJson->setHeader(self::HEADER_REQUEST_ID, $requestId, true);
+        }
 
         return $resultJson;
     }

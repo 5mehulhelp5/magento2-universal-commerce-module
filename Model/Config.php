@@ -20,6 +20,7 @@ class Config
     private const XML_PATH_IDEMPOTENCY_TTL_HOURS = 'universal_commerce/idempotency/ttl_hours';
     private const XML_PATH_PAYMENT_METHOD = 'universal_commerce/checkout/payment_method';
     private const XML_PATH_LINKS = 'universal_commerce/links';
+    private const XML_PATH_REQUIRE_REQUEST_ID = 'universal_commerce/api/require_request_id';
 
     /**
      * Quote lifetime in days, which is what a checkout session's expiry is derived from.
@@ -104,6 +105,19 @@ class Config
         );
 
         return is_string($method) && $method !== '' ? $method : 'checkmo';
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isRequestIdRequired(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_REQUIRE_REQUEST_ID,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 
     /**
