@@ -14,10 +14,10 @@ namespace Magebit\UniversalCommerce\Model\Discovery;
 use Magebit\UcpSpec\Api\Discovery\ProfileSchemaInterface as DiscoveryProfileInterface;
 use Magebit\UcpSpec\Api\Discovery\ProfileSchemaInterfaceFactory as DiscoveryProfileInterfaceFactory;
 
-use Magebit\UcpSpec\Api\UcpPlatformSchemaInterface as UcpProfileInterface;
-use Magebit\UcpSpec\Api\UcpPlatformSchemaInterfaceFactory as UcpProfileInterfaceFactory;
-use Magebit\UcpSpec\Api\ServicePlatformSchemaInterface;
-use Magebit\UcpSpec\Api\CapabilityPlatformSchemaInterface;
+use Magebit\UcpSpec\Api\UcpBusinessSchemaInterface as UcpProfileInterface;
+use Magebit\UcpSpec\Api\UcpBusinessSchemaInterfaceFactory as UcpProfileInterfaceFactory;
+use Magebit\UcpSpec\Api\ServiceBusinessSchemaInterface;
+use Magebit\UcpSpec\Api\CapabilityBusinessSchemaInterface;
 use Magebit\UniversalCommerce\Api\ServiceInterface;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 

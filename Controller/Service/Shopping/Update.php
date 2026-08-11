@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterfaceFactory;
-use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageErrorInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
@@ -34,7 +34,7 @@ class Update extends ApiController
         RequestInterface $request,
         RequestValidator $requestValidator,
         RequestClassBuilder $requestClassBuilder,
-        MessageInterfaceFactory $messageFactory,
+        MessageErrorInterfaceFactory $messageFactory,
         IdempotencyHandler $idempotencyHandler,
         LoggerInterface $logger,
         protected readonly CheckoutUpdateRequestInterfaceFactory $checkoutUpdateRequestFactory,

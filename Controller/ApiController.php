@@ -23,8 +23,8 @@ use Magento\Framework\DataObject;
 use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
-use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
-use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageErrorInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageErrorInterfaceFactory;
 use Magebit\UniversalCommerce\Exception\UcpException;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\LocalizedException;
@@ -34,11 +34,16 @@ use Psr\Log\LoggerInterface;
 abstract class ApiController implements ActionInterface, CsrfAwareActionInterface
 {
     /**
+     * Envelope status for a transport-tier failure, as opposed to a business outcome reported at 200.
+     */
+    public const STATUS_REQUIRES_ESCALATION = 'requires_escalation';
+
+    /**
      * @param JsonFactory $resultJsonFactory
      * @param RequestInterface $request
      * @param RequestValidator $requestValidator
      * @param RequestClassBuilder $requestClassBuilder
-     * @param MessageInterfaceFactory $messageFactory
+     * @param MessageErrorInterfaceFactory $messageFactory
      * @param IdempotencyHandler $idempotencyHandler
      * @param LoggerInterface $logger
      */
@@ -47,7 +52,7 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         protected readonly RequestInterface $request,
         protected readonly RequestValidator $requestValidator,
         protected readonly RequestClassBuilder $requestClassBuilder,
-        protected readonly MessageInterfaceFactory $messageFactory,
+        protected readonly MessageErrorInterfaceFactory $messageFactory,
         protected readonly IdempotencyHandler $idempotencyHandler,
         protected readonly LoggerInterface $logger
     ) {
@@ -64,31 +69,25 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         try {
             return $callback();
         } catch (UcpException $e) {
-            return $this->makeErrorResponse($e->getType(), [
-                $this->messageFactory->create(['data' => [
-                    'type' => $e->getType(),
-                    'code' => $e->getTypeCode(),
-                    'message' => $e->getMessage(),
-                ]])
-            ], $e->getStatusCode());
+            return $this->makeErrorResponse(
+                $e->getType(),
+                [$this->errorMessage($e->getTypeCode(), $e->getMessage())],
+                $e->getStatusCode()
+            );
         } catch (LocalizedException $e) {
-            return $this->makeErrorResponse('requires_escalation', [
-                $this->messageFactory->create(['data' => [
-                    'type' => 'error',
-                    'code' => 'invalid_request',
-                    'message' => $e->getMessage(),
-                ]])
-            ], 500);
+            return $this->makeErrorResponse(
+                self::STATUS_REQUIRES_ESCALATION,
+                [$this->errorMessage('invalid_request', $e->getMessage())],
+                500
+            );
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
 
-            return $this->makeErrorResponse('requires_escalation', [
-                $this->messageFactory->create(['data' => [
-                    'type' => 'error',
-                    'code' => 'server_error',
-                    'message' => 'An unexpected error occurred.',
-                ]])
-            ], 500);
+            return $this->makeErrorResponse(
+                self::STATUS_REQUIRES_ESCALATION,
+                [$this->errorMessage('server_error', 'An unexpected error occurred.')],
+                500
+            );
         }
     }
 
@@ -128,13 +127,11 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
                 return $idempotencyResponse;
             }
         } catch (LocalizedException $e) {
-            return $this->makeErrorResponse('requires_escalation', [
-                $this->messageFactory->create(['data' => [
-                    'type' => 'error',
-                    'code' => 'invalid_request',
-                    'message' => $e->getMessage(),
-                ]])
-            ], 400);
+            return $this->makeErrorResponse(
+                self::STATUS_REQUIRES_ESCALATION,
+                [$this->errorMessage('invalid_request', $e->getMessage())],
+                400
+            );
         }
 
         return null;
@@ -149,29 +146,54 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
     public function validationResultToResponse(ValidationResult $validationResult): ResultJson
     {
         $messages = [];
-        $errors = $validationResult->getErrors();
 
-        foreach ($errors as $path => $content) {
-            /** @var MessageInterface $message */
-            $message = $this->messageFactory->create(['data' => [
-                'type' => 'error',
-                'code' => 'validation_error',
-                'path' => $path === '' ? null : $path,
-                'content' => $content,
-                'severity' => 'requires_buyer_input'
-            ]]);
-
-            $messages[] = $message;
+        foreach ($validationResult->getErrors() as $path => $content) {
+            $messages[] = $this->errorMessage(
+                'validation_error',
+                (string)$content,
+                MessageErrorInterface::SEVERITY_REQUIRES_BUYER_INPUT,
+                $path === '' ? null : (string)$path
+            );
         }
 
-        return $this->makeErrorResponse('requires_escalation', $messages, 400);
+        return $this->makeErrorResponse(self::STATUS_REQUIRES_ESCALATION, $messages, 400);
+    }
+
+    /**
+     * The spec requires type, code, content and severity on every error, so they are set here rather
+     * than at each construction site.
+     *
+     * @param string $code Error code
+     * @param string $content Human-readable text
+     * @param string $severity One of the spec's severity values
+     * @param string|null $path JSONPath the error applies to
+     * @return MessageErrorInterface
+     */
+    protected function errorMessage(
+        string $code,
+        string $content,
+        string $severity = MessageErrorInterface::SEVERITY_RECOVERABLE,
+        ?string $path = null
+    ): MessageErrorInterface {
+        /** @var MessageErrorInterface $message */
+        $message = $this->messageFactory->create();
+        $message->setType(MessageErrorInterface::TYPE_ERROR)
+            ->setCode($code)
+            ->setContent($content)
+            ->setSeverity($severity);
+
+        if ($path !== null) {
+            $message->setPath($path);
+        }
+
+        return $message;
     }
 
     /**
      * Make error response
      *
      * @param string $status
-     * @param array<MessageInterface> $messages
+     * @param array<MessageErrorInterface> $messages
      * @param int $statusCode
      * @return ResultJson
      */

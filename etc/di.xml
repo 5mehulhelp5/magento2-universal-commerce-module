@@ -59,13 +59,13 @@
     <preference for="Magebit\UcpSpec\Api\Discovery\ProfileSchemaInterface" type="Magebit\UcpSpec\Data\Discovery\ProfileSchema" />
 
     <!-- Schemas -->
-    <preference for="Magebit\UcpSpec\Api\UcpPlatformSchemaInterface" type="Magebit\UcpSpec\Data\UcpPlatformSchema" />
-    <preference for="Magebit\UcpSpec\Api\CapabilityPlatformSchemaInterface" type="Magebit\UcpSpec\Data\CapabilityPlatformSchema" />
+    <preference for="Magebit\UcpSpec\Api\UcpBusinessSchemaInterface" type="Magebit\UcpSpec\Data\UcpBusinessSchema" />
+    <preference for="Magebit\UcpSpec\Api\CapabilityBusinessSchemaInterface" type="Magebit\UcpSpec\Data\CapabilityBusinessSchema" />
     <preference for="Magebit\UcpSpec\Api\CapabilityResponseSchemaInterface" type="Magebit\UcpSpec\Data\CapabilityResponseSchema" />
     <preference for="Magebit\UcpSpec\Api\UcpResponseCheckoutSchemaInterface" type="Magebit\UcpSpec\Data\UcpResponseCheckoutSchema" />
 
     <!-- Services -->
-    <preference for="Magebit\UcpSpec\Api\ServicePlatformSchemaInterface" type="Magebit\UcpSpec\Data\ServicePlatformSchema" />
+    <preference for="Magebit\UcpSpec\Api\ServiceBusinessSchemaInterface" type="Magebit\UcpSpec\Data\ServiceBusinessSchema" />
 
     <!-- Shopping - Checkout -->
     <preference for="Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutResponseInterface" type="Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\CheckoutResponse" />
@@ -90,6 +90,7 @@
     <preference for="Magebit\UcpSpec\Api\Shopping\Types\LineItemResponseInterface" type="Magebit\UcpSpec\Data\Shopping\Types\LineItemResponse" />
     <preference for="Magebit\UcpSpec\Api\Shopping\Types\LinkInterface" type="Magebit\UcpSpec\Data\Shopping\Types\Link" />
     <preference for="Magebit\UcpSpec\Api\Shopping\Types\MessageInterface" type="Magebit\UcpSpec\Data\Shopping\Types\Message" />
+    <preference for="Magebit\UcpSpec\Api\Shopping\Types\MessageErrorInterface" type="Magebit\UcpSpec\Data\Shopping\Types\MessageError" />
     <preference for="Magebit\UcpSpec\Api\Shopping\Types\OrderConfirmationInterface" type="Magebit\UcpSpec\Data\Shopping\Types\OrderConfirmation" />
     <preference for="Magebit\UcpSpec\Api\PaymentHandlerResponseSchemaInterface" type="Magebit\UcpSpec\Data\PaymentHandlerResponseSchema" />
     <preference for="Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterface" type="Magebit\UcpSpec\Data\Shopping\Types\TotalResponse" />

@@ -145,12 +145,6 @@ parameters:
 			path: Model/Service/Shopping/CheckoutDataProcessor.php
 
 		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: Model/Service/Shopping/Converter/QuoteToDiscountResponse.php
-
-		-
 			message: '#^Call to function is_array\(\) with array\<string\> will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1

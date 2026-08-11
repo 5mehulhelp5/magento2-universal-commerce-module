@@ -13,7 +13,7 @@ namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterfaceFactory;
-use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageErrorInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -34,7 +34,7 @@ class Create extends ApiController
         RequestInterface $request,
         RequestValidator $requestValidator,
         RequestClassBuilder $requestClassBuilder,
-        MessageInterfaceFactory $messageFactory,
+        MessageErrorInterfaceFactory $messageFactory,
         IdempotencyHandler $idempotencyHandler,
         LoggerInterface $logger,
         protected readonly CheckoutCreateRequestInterfaceFactory $checkoutCreateRequestFactory,

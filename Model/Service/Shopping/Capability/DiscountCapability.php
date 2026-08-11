@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Capability;
 
-use Magebit\UcpSpec\Data\CapabilityPlatformSchema;
+use Magebit\UcpSpec\Data\CapabilityBusinessSchema;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 
-class DiscountCapability extends CapabilityPlatformSchema
+class DiscountCapability extends CapabilityBusinessSchema
 {
     /**
      * @return string

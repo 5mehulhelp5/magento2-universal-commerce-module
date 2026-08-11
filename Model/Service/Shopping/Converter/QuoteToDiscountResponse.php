@@ -12,53 +12,103 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\Quote;
+use Magebit\UcpSpec\Api\Shopping\DiscountResponseAppliedDiscountInterface;
+use Magebit\UcpSpec\Api\Shopping\DiscountResponseAppliedDiscountInterfaceFactory;
 use Magebit\UcpSpec\Api\Shopping\DiscountResponseDiscountsObjectInterface;
 use Magebit\UcpSpec\Api\Shopping\DiscountResponseDiscountsObjectInterfaceFactory;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address;
 
 class QuoteToDiscountResponse
 {
+    private const DEFAULT_TITLE = 'Discount';
+
     /**
      * @param DiscountResponseDiscountsObjectInterfaceFactory $discountsObjectFactory
+     * @param DiscountResponseAppliedDiscountInterfaceFactory $appliedDiscountFactory
+     * @param PriceConverter $priceConverter
      */
     public function __construct(
         protected readonly DiscountResponseDiscountsObjectInterfaceFactory $discountsObjectFactory,
+        protected readonly DiscountResponseAppliedDiscountInterfaceFactory $appliedDiscountFactory,
+        protected readonly PriceConverter $priceConverter,
     ) {
     }
 
     /**
-     * Convert quote to discount response
-     *
      * @param CartInterface $quote
      * @return DiscountResponseDiscountsObjectInterface|null
      */
     public function convert(CartInterface $quote): ?DiscountResponseDiscountsObjectInterface
     {
         /** @var Quote $quote */
-        $shippingAddress = $quote->getShippingAddress();
-        if (!$shippingAddress) {
+        $couponCode = $quote->getCouponCode() ?: null;
+        $amount = $this->discountedAmount($quote);
+
+        // A code that applied nothing still has to be echoed, so the agent can see it was rejected.
+        if ($couponCode === null && $amount <= 0.0) {
             return null;
         }
 
-        $couponCode = $quote->getCouponCode();
-        $discountAmount = (float) $shippingAddress->getDiscountAmount();
+        /** @var DiscountResponseDiscountsObjectInterface $discounts */
+        $discounts = $this->discountsObjectFactory->create();
+        $discounts->setCodes($couponCode !== null ? [$couponCode] : []);
+        $discounts->setApplied($amount > 0.0 ? [$this->appliedDiscount($quote, $couponCode, $amount)] : []);
 
-        // If no discount and no coupon code, return null
-        if (!$couponCode && $discountAmount <= 0) {
-            return null;
+        return $discounts;
+    }
+
+    /**
+     * Both halves are read as magnitudes: Magento stores item discounts as a subtotal difference and
+     * shipping discounts as a negative amount on the address.
+     *
+     * @param Quote $quote
+     * @return float Positive discount total in major currency units
+     */
+    private function discountedAmount(Quote $quote): float
+    {
+        $items = abs((float)$quote->getSubtotal() - (float)$quote->getSubtotalWithDiscount());
+        $shipping = abs((float)$this->discountAddress($quote)->getShippingDiscountAmount());
+
+        return $items + $shipping;
+    }
+
+    /**
+     * @param Quote $quote
+     * @param string|null $couponCode
+     * @param float $amount Positive discount total in major currency units
+     * @return DiscountResponseAppliedDiscountInterface
+     */
+    private function appliedDiscount(
+        Quote $quote,
+        ?string $couponCode,
+        float $amount
+    ): DiscountResponseAppliedDiscountInterface {
+        $currencyCode = $quote->getCurrency()?->getStoreCurrencyCode() ?? 'USD';
+        $description = $this->discountAddress($quote)->getDiscountDescription();
+
+        /** @var DiscountResponseAppliedDiscountInterface $applied */
+        $applied = $this->appliedDiscountFactory->create();
+        $applied->setTitle((string)($description ?: $couponCode ?: self::DEFAULT_TITLE));
+        $applied->setAmount($this->priceConverter->convert($amount, $currencyCode));
+        $applied->setAutomatic($couponCode === null);
+
+        if ($couponCode !== null) {
+            $applied->setCode($couponCode);
         }
 
-        /** @var DiscountResponseDiscountsObjectInterface $discountsObject */
-        $discountsObject = $this->discountsObjectFactory->create();
+        return $applied;
+    }
 
-        // Set codes array (echo back submitted codes)
-        if ($couponCode) {
-            $discountsObject->setCodes([$couponCode]);
-        } else {
-            $discountsObject->setCodes([]);
-        }
-
-        return $discountsObject;
+    /**
+     * A virtual quote has no shippable address, so its discount lives on the billing one.
+     *
+     * @param Quote $quote
+     * @return Address
+     */
+    private function discountAddress(Quote $quote): Address
+    {
+        return $quote->getIsVirtual() ? $quote->getBillingAddress() : $quote->getShippingAddress();
     }
 }

@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Capability;
 
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
-use Magebit\UcpSpec\Data\CapabilityPlatformSchema;
+use Magebit\UcpSpec\Data\CapabilityBusinessSchema;
 
-class CheckoutCapability extends CapabilityPlatformSchema
+class CheckoutCapability extends CapabilityBusinessSchema
 {
     /**
      * @return string

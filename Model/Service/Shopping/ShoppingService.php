@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
 use Magebit\UniversalCommerce\Api\ServiceInterface;
-use Magebit\UcpSpec\Api\ServicePlatformSchemaInterface;
-use Magebit\UcpSpec\Api\ServicePlatformSchemaInterfaceFactory;
-use Magebit\UcpSpec\Api\CapabilityPlatformSchemaInterface;
-use Magebit\UcpSpec\Api\CapabilityPlatformSchemaInterfaceFactory;
+use Magebit\UcpSpec\Api\ServiceBusinessSchemaInterface;
+use Magebit\UcpSpec\Api\ServiceBusinessSchemaInterfaceFactory;
+use Magebit\UcpSpec\Api\CapabilityBusinessSchemaInterface;
+use Magebit\UcpSpec\Api\CapabilityBusinessSchemaInterfaceFactory;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 use Magebit\UniversalCommerce\Model\Config;
 
@@ -24,39 +24,39 @@ class ShoppingService implements ServiceInterface
     public const SPEC_URL = 'https://ucp.dev/specs/shopping';
 
     /**
-     * @param ServicePlatformSchemaInterfaceFactory $serviceFactory
-     * @param CapabilityPlatformSchemaInterfaceFactory $capabilityFactory
+     * @param ServiceBusinessSchemaInterfaceFactory $serviceFactory
+     * @param CapabilityBusinessSchemaInterfaceFactory $capabilityFactory
      * @param Config $config
-     * @param array<string, CapabilityPlatformSchemaInterface> $capabilities
+     * @param array<string, CapabilityBusinessSchemaInterface> $capabilities
      */
     public function __construct(
-        private readonly ServicePlatformSchemaInterfaceFactory $serviceFactory,
-        private readonly CapabilityPlatformSchemaInterfaceFactory $capabilityFactory,
+        private readonly ServiceBusinessSchemaInterfaceFactory $serviceFactory,
+        private readonly CapabilityBusinessSchemaInterfaceFactory $capabilityFactory,
         private readonly Config $config,
         private readonly array $capabilities = [],
     ) {
     }
 
     /**
-     * @return ServicePlatformSchemaInterface
+     * @return ServiceBusinessSchemaInterface
      */
-    public function getService(): ServicePlatformSchemaInterface
+    public function getService(): ServiceBusinessSchemaInterface
     {
         $baseUrl = $this->config->getApiBaseUrl();
 
         return $this->serviceFactory->create([
             'data' => [
-                ServicePlatformSchemaInterface::KEY_VERSION => UniversalCommerceProtocolInterface::SPEC_VERSION,
-                ServicePlatformSchemaInterface::KEY_SPEC => self::SPEC_URL,
-                ServicePlatformSchemaInterface::KEY_SCHEMA => 'https://ucp.dev/services/shopping/openapi.json',
-                ServicePlatformSchemaInterface::KEY_TRANSPORT => ServicePlatformSchemaInterface::TRANSPORT_REST,
-                ServicePlatformSchemaInterface::KEY_ENDPOINT => $baseUrl . '/ucp/shopping',
+                ServiceBusinessSchemaInterface::KEY_VERSION => UniversalCommerceProtocolInterface::SPEC_VERSION,
+                ServiceBusinessSchemaInterface::KEY_SPEC => self::SPEC_URL,
+                ServiceBusinessSchemaInterface::KEY_SCHEMA => 'https://ucp.dev/services/shopping/openapi.json',
+                ServiceBusinessSchemaInterface::KEY_TRANSPORT => ServiceBusinessSchemaInterface::TRANSPORT_REST,
+                ServiceBusinessSchemaInterface::KEY_ENDPOINT => $baseUrl . '/ucp/shopping',
             ]
         ]);
     }
 
     /**
-     * @return array<string, array<CapabilityPlatformSchemaInterface>>
+     * @return array<string, array<CapabilityBusinessSchemaInterface>>
      */
     public function getCapabilities(): array
     {
@@ -65,11 +65,11 @@ class ShoppingService implements ServiceInterface
         foreach ($this->capabilities as $name => $capability) {
             $capabilitySchema = $this->capabilityFactory->create([
                 'data' => array_filter([
-                    CapabilityPlatformSchemaInterface::KEY_VERSION => $capability->getVersion(),
-                    CapabilityPlatformSchemaInterface::KEY_SPEC => $capability->getSpec(),
-                    CapabilityPlatformSchemaInterface::KEY_SCHEMA => $capability->getSchema(),
-                    CapabilityPlatformSchemaInterface::KEY_EXTENDS => $capability->getExtends(),
-                    CapabilityPlatformSchemaInterface::KEY_CONFIG => $capability->getConfig(),
+                    CapabilityBusinessSchemaInterface::KEY_VERSION => $capability->getVersion(),
+                    CapabilityBusinessSchemaInterface::KEY_SPEC => $capability->getSpec(),
+                    CapabilityBusinessSchemaInterface::KEY_SCHEMA => $capability->getSchema(),
+                    CapabilityBusinessSchemaInterface::KEY_EXTENDS => $capability->getExtends(),
+                    CapabilityBusinessSchemaInterface::KEY_CONFIG => $capability->getConfig(),
                 ])
             ]);
 
