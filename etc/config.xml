@@ -11,6 +11,13 @@
             <checkout>
                 <payment_method>checkmo</payment_method>
             </checkout>
+            <links>
+                <privacy_policy></privacy_policy>
+                <terms_of_service></terms_of_service>
+                <refund_policy></refund_policy>
+                <shipping_policy></shipping_policy>
+                <faq></faq>
+            </links>
         </universal_commerce>
     </default>
 </config>

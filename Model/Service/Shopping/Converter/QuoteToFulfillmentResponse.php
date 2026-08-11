@@ -32,7 +32,13 @@ use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterfaceFactory;
 class QuoteToFulfillmentResponse
 {
     /**
-     * @param FulfillmentFulfillmentInterfaceFactory $fulfillmentFulfillmentFactory
+     * Identifiers used only when the agent submitted none of its own.
+     */
+    private const DEFAULT_METHOD_ID = 'shipping';
+    private const DEFAULT_GROUP_ID = 'package';
+
+    /**
+     * @param FulfillmentResponseInterfaceFactory $fulfillmentResponseFactory
      * @param FulfillmentMethodResponseInterfaceFactory $fulfillmentMethodResponseFactory
      * @param FulfillmentGroupResponseInterfaceFactory $fulfillmentGroupResponseFactory
      * @param FulfillmentOptionResponseInterfaceFactory $fulfillmentOptionResponseFactory
@@ -41,7 +47,7 @@ class QuoteToFulfillmentResponse
      * @param PriceConverter $priceConverter
      */
     public function __construct(
-        protected readonly FulfillmentFulfillmentInterfaceFactory $fulfillmentFulfillmentFactory,
+        protected readonly FulfillmentResponseInterfaceFactory $fulfillmentResponseFactory,
         protected readonly FulfillmentMethodResponseInterfaceFactory $fulfillmentMethodResponseFactory,
         protected readonly FulfillmentGroupResponseInterfaceFactory $fulfillmentGroupResponseFactory,
         protected readonly FulfillmentOptionResponseInterfaceFactory $fulfillmentOptionResponseFactory,
@@ -53,9 +59,10 @@ class QuoteToFulfillmentResponse
 
     /**
      * @param CartInterface $quote
+     * @param array<mixed>|null $submitted Fulfillment tree as the agent submitted it
      * @return FulfillmentResponseInterface|null
      */
-    public function convert(CartInterface $quote): ?FulfillmentResponseInterface
+    public function convert(CartInterface $quote, ?array $submitted = null): ?FulfillmentResponseInterface
     {
         /** @var Quote $quote */
         if ($quote->getIsVirtual()) {
@@ -76,9 +83,9 @@ class QuoteToFulfillmentResponse
         }, $quote->getAllItems());
 
         /** @var FulfillmentResponseInterface $response */
-        $response = $this->fulfillmentFulfillmentFactory->create();
+        $response = $this->fulfillmentResponseFactory->create();
 
-        $methods = $this->getMethods($shippingAddress, $quoteItemIds);
+        $methods = $this->getMethods($shippingAddress, $quoteItemIds, $this->firstOf($submitted, 'methods'));
         $response->setMethods($methods);
         return $response;
     }
@@ -86,9 +93,10 @@ class QuoteToFulfillmentResponse
     /**
      * @param Address $shippingAddress
      * @param array<string> $quoteItemIds
+     * @param array<mixed>|null $submittedMethod Method as the agent submitted it
      * @return FulfillmentMethodResponseInterface[]
      */
-    public function getMethods(Address $shippingAddress, array $quoteItemIds): array
+    public function getMethods(Address $shippingAddress, array $quoteItemIds, ?array $submittedMethod = null): array
     {
         $shippingRates = $shippingAddress->getAllShippingRates();
 
@@ -100,23 +108,26 @@ class QuoteToFulfillmentResponse
             return [];
         }
 
-        // Create one fulfillment method (type: 'shipping')
+        $submittedGroup = $this->firstOf($submittedMethod, 'groups');
+
         /** @var FulfillmentMethodResponseInterface $method */
         $method = $this->fulfillmentMethodResponseFactory->create();
-        $method->setId('shipping');
-        $method->setType(FulfillmentMethodResponseInterface::TYPE_SHIPPING);
+        $method->setId($this->submittedString($submittedMethod, 'id') ?? self::DEFAULT_METHOD_ID);
+        $method->setType(
+            $this->submittedString($submittedMethod, 'type') ?? FulfillmentMethodResponseInterface::TYPE_SHIPPING
+        );
         $method->setLineItemIds($quoteItemIds);
 
-        // Convert shipping address to destination
         $destination = $this->convertAddressToDestination($shippingAddress);
         if ($destination) {
             $method->setDestinations([$destination]);
-            $method->setSelectedDestinationId($destination->getId());
+            $method->setSelectedDestinationId(
+                $this->submittedString($submittedMethod, 'selected_destination_id') ?? $destination->getId()
+            );
         }
 
-        // Create groups with options (shipping rates)
         $group = $this->fulfillmentGroupResponseFactory->create();
-        $group->setId('package');
+        $group->setId($this->submittedString($submittedGroup, 'id') ?? self::DEFAULT_GROUP_ID);
         $group->setLineItemIds($quoteItemIds);
 
         $currencyCode = $shippingAddress->getQuote()->getCurrency()?->getStoreCurrencyCode() ?? 'USD';
@@ -124,16 +135,47 @@ class QuoteToFulfillmentResponse
         if (!empty($options)) {
             $group->setOptions(array_values($options));
 
-            // Set selected_option_id if shipping method is already selected
-            $selectedShippingMethod = $shippingAddress->getShippingMethod();
-            if ($selectedShippingMethod) {
-                $group->setSelectedOptionId($selectedShippingMethod);
+            $selectedOptionId = $this->submittedString($submittedGroup, 'selected_option_id')
+                ?? $shippingAddress->getShippingMethod();
+
+            if ($selectedOptionId) {
+                $group->setSelectedOptionId((string)$selectedOptionId);
             }
         }
 
         $method->setGroups([$group]);
 
         return [$method];
+    }
+
+    /**
+     * @param array<mixed>|null $submitted Fragment of the submitted tree
+     * @param string $key List field to read
+     * @return array<mixed>|null First element of that list, when it is an object
+     */
+    private function firstOf(?array $submitted, string $key): ?array
+    {
+        $list = $submitted[$key] ?? null;
+
+        if (!is_array($list)) {
+            return null;
+        }
+
+        $first = $list[0] ?? null;
+
+        return is_array($first) ? $first : null;
+    }
+
+    /**
+     * @param array<mixed>|null $submitted Fragment of the submitted tree
+     * @param string $key Field to read
+     * @return string|null Non-empty submitted value, or null to fall back
+     */
+    private function submittedString(?array $submitted, string $key): ?string
+    {
+        $value = $submitted[$key] ?? null;
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 
     /**

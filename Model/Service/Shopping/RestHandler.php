@@ -16,6 +16,7 @@ use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterfac
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutResponseInterface;
 use Magebit\UcpSpec\Api\Shopping\PaymentInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentRequestInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magebit\UniversalCommerce\Model\Service\Shopping\CheckoutDataProcessor;
 use Magento\Quote\Api\GuestCartManagementInterface;
@@ -66,7 +67,7 @@ class RestHandler implements RestHandlerInterface
 
         $this->checkoutDataProcessor->processCreateCheckoutRequest($cart, $request, $maskedCartId);
         $this->cartRepository->save($cart);
-        $this->recordCheckoutMeta($maskedCartId, (int) $cart->getId());
+        $this->recordCheckoutMeta($maskedCartId, (int) $cart->getId(), $request->getFulfillment());
 
         return $this->quoteToCheckoutResponse->convert($cart, $maskedCartId);
     }
@@ -116,6 +117,7 @@ class RestHandler implements RestHandlerInterface
         $cart = $this->getCartByMaskedId($checkoutId);
         $this->checkoutDataProcessor->processUpdateCheckoutRequest($cart, $request, $checkoutId);
         $this->cartRepository->save($cart);
+        $this->rememberSubmittedFulfillment($checkoutId, $request->getFulfillment());
 
         return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
     }
@@ -185,14 +187,57 @@ class RestHandler implements RestHandlerInterface
      * @param int $quoteId
      * @return void
      */
-    protected function recordCheckoutMeta(string $checkoutId, int $quoteId): void
-    {
+    protected function recordCheckoutMeta(
+        string $checkoutId,
+        int $quoteId,
+        ?FulfillmentRequestInterface $fulfillment = null
+    ): void {
         /** @var CheckoutMetaInterface $meta */
         $meta = $this->checkoutMetaFactory->create();
         $meta->setCheckoutId($checkoutId);
         $meta->setQuoteId($quoteId);
+        $meta->setSubmittedFulfillment($this->encodeFulfillment($fulfillment));
 
         $this->checkoutMetaRepository->save($meta);
+    }
+
+    /**
+     * The response has to echo the ids the agent chose, so the tree is kept as submitted rather than
+     * rebuilt from the quote.
+     *
+     * @param string $checkoutId
+     * @param FulfillmentRequestInterface|null $fulfillment
+     * @return void
+     */
+    protected function rememberSubmittedFulfillment(string $checkoutId, ?FulfillmentRequestInterface $fulfillment): void
+    {
+        if ($fulfillment === null) {
+            return;
+        }
+
+        try {
+            $meta = $this->checkoutMetaRepository->getByCheckoutId($checkoutId);
+        } catch (NoSuchEntityException $exception) {
+            return;
+        }
+
+        $meta->setSubmittedFulfillment($this->encodeFulfillment($fulfillment));
+        $this->checkoutMetaRepository->save($meta);
+    }
+
+    /**
+     * @param FulfillmentRequestInterface|null $fulfillment
+     * @return string|null
+     */
+    private function encodeFulfillment(?FulfillmentRequestInterface $fulfillment): ?string
+    {
+        if ($fulfillment === null) {
+            return null;
+        }
+
+        $encoded = json_encode($fulfillment);
+
+        return $encoded === false ? null : $encoded;
     }
 
     /**

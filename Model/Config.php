@@ -19,6 +19,23 @@ class Config
     private const XML_PATH_API_BASE_URL = 'universal_commerce/api/base_url';
     private const XML_PATH_IDEMPOTENCY_TTL_HOURS = 'universal_commerce/idempotency/ttl_hours';
     private const XML_PATH_PAYMENT_METHOD = 'universal_commerce/checkout/payment_method';
+    private const XML_PATH_LINKS = 'universal_commerce/links';
+
+    /**
+     * Quote lifetime in days, which is what a checkout session's expiry is derived from.
+     */
+    private const XML_PATH_QUOTE_LIFETIME = 'checkout/cart/delete_quote_after';
+
+    /**
+     * Link types the spec names as well-known, in the order they are published.
+     */
+    private const LINK_TYPES = [
+        'privacy_policy',
+        'terms_of_service',
+        'refund_policy',
+        'shipping_policy',
+        'faq',
+    ];
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -87,5 +104,46 @@ class Config
         );
 
         return is_string($method) && $method !== '' ? $method : 'checkmo';
+    }
+
+    /**
+     * Configured policy URLs, keyed by the spec's link type. Unset ones are omitted rather than
+     * published as empty links.
+     *
+     * @param int|null $storeId
+     * @return array<string, string>
+     */
+    public function getPolicyLinks(?int $storeId = null): array
+    {
+        $links = [];
+
+        foreach (self::LINK_TYPES as $type) {
+            $url = $this->scopeConfig->getValue(
+                self::XML_PATH_LINKS . '/' . $type,
+                ScopeInterface::SCOPE_STORE,
+                $storeId
+            );
+
+            if (is_string($url) && trim($url) !== '') {
+                $links[$type] = trim($url);
+            }
+        }
+
+        return $links;
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return int Days a quote survives, or 0 when quotes do not expire
+     */
+    public function getQuoteLifetimeDays(?int $storeId = null): int
+    {
+        $value = $this->scopeConfig->getValue(
+            self::XML_PATH_QUOTE_LIFETIME,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return is_numeric($value) ? (int)$value : 0;
     }
 }

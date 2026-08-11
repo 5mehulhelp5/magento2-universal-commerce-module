@@ -1,0 +1,39 @@
+{
+    "ucp_idempotency_keys": {
+        "column": {
+            "entity_id": true,
+            "key": true,
+            "request_hash": true,
+            "response_status": true,
+            "response_body": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "UCP_IDEMPOTENCY_KEYS_REQUEST_HASH": true,
+            "UCP_IDEMPOTENCY_KEYS_CREATED_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "UCP_IDEMPOTENCY_KEYS_KEY": true
+        }
+    },
+    "ucp_checkout_meta": {
+        "column": {
+            "entity_id": true,
+            "checkout_id": true,
+            "quote_id": true,
+            "order_id": true,
+            "webhook_url": true,
+            "submitted_fulfillment": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "UCP_CHECKOUT_META_CHECKOUT_ID": true,
+            "UCP_CHECKOUT_META_QUOTE_ID_QUOTE_ENTITY_ID": true,
+            "UCP_CHECKOUT_META_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+        }
+    }
+}

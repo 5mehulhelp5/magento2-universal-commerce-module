@@ -106,6 +106,24 @@ class Model extends AbstractModel implements CheckoutMetaInterface
     /**
      * @inheritDoc
      */
+    public function getSubmittedFulfillment(): ?string
+    {
+        $value = $this->getData(self::SUBMITTED_FULFILLMENT);
+
+        return is_string($value) ? $value : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setSubmittedFulfillment(?string $submittedFulfillment): CheckoutMetaInterface
+    {
+        return $this->setData(self::SUBMITTED_FULFILLMENT, $submittedFulfillment);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getCreatedAt(): ?string
     {
         return $this->getData(self::CREATED_AT);

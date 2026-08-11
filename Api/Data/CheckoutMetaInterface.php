@@ -21,6 +21,7 @@ interface CheckoutMetaInterface
     public const QUOTE_ID = 'quote_id';
     public const ORDER_ID = 'order_id';
     public const WEBHOOK_URL = 'webhook_url';
+    public const SUBMITTED_FULFILLMENT = 'submitted_fulfillment';
     public const CREATED_AT = 'created_at';
     public const UPDATED_AT = 'updated_at';
 
@@ -90,6 +91,19 @@ interface CheckoutMetaInterface
      * @return $this
      */
     public function setWebhookUrl(?string $webhookUrl): self;
+
+    /**
+     * The fulfillment tree exactly as the agent submitted it, as JSON.
+     *
+     * @return string|null
+     */
+    public function getSubmittedFulfillment(): ?string;
+
+    /**
+     * @param string|null $submittedFulfillment
+     * @return $this
+     */
+    public function setSubmittedFulfillment(?string $submittedFulfillment): self;
 
     /**
      * Get created at

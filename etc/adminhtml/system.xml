@@ -24,6 +24,34 @@
                     <validate>validate-zero-or-greater validate-digits</validate>
                 </field>
             </group>
+            <group id="links" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Policy Links</label>
+                <field id="privacy_policy" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Privacy Policy URL</label>
+                    <comment>Absolute URL published as a `privacy_policy` link on every checkout response. Leave empty to omit.</comment>
+                    <validate>validate-url</validate>
+                </field>
+                <field id="terms_of_service" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Terms of Service URL</label>
+                    <comment>Absolute URL published as a `terms_of_service` link on every checkout response. Leave empty to omit.</comment>
+                    <validate>validate-url</validate>
+                </field>
+                <field id="refund_policy" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Refund Policy URL</label>
+                    <comment>Absolute URL published as a `refund_policy` link on every checkout response. Leave empty to omit.</comment>
+                    <validate>validate-url</validate>
+                </field>
+                <field id="shipping_policy" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Shipping Policy URL</label>
+                    <comment>Absolute URL published as a `shipping_policy` link on every checkout response. Leave empty to omit.</comment>
+                    <validate>validate-url</validate>
+                </field>
+                <field id="faq" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>FAQ URL</label>
+                    <comment>Absolute URL published as a `faq` link on every checkout response. Leave empty to omit.</comment>
+                    <validate>validate-url</validate>
+                </field>
+            </group>
         </section>
     </system>
 </config>

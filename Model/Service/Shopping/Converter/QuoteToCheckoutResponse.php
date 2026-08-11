@@ -37,6 +37,7 @@ use Magebit\UniversalCommerce\Api\CheckoutMetaRepositoryInterface;
 use Magebit\UniversalCommerce\Model\Config;
 use Magebit\UcpSpec\Api\Shopping\Types\OrderConfirmationInterface;
 use Magebit\UcpSpec\Api\Shopping\Types\OrderConfirmationInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\LinkInterfaceFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 
@@ -56,6 +57,7 @@ class QuoteToCheckoutResponse
      * @param CheckoutMetaRepositoryInterface $checkoutMetaRepository
      * @param OrderConfirmationInterfaceFactory $orderConfirmationFactory
      * @param OrderRepositoryInterface $orderRepository
+     * @param LinkInterfaceFactory $linkFactory
      * @param Config $config
      */
     public function __construct(
@@ -72,6 +74,7 @@ class QuoteToCheckoutResponse
         protected readonly CheckoutMetaRepositoryInterface $checkoutMetaRepository,
         protected readonly OrderConfirmationInterfaceFactory $orderConfirmationFactory,
         protected readonly OrderRepositoryInterface $orderRepository,
+        protected readonly LinkInterfaceFactory $linkFactory,
         protected readonly Config $config
     ) {
     }
@@ -99,7 +102,7 @@ class QuoteToCheckoutResponse
         $response->setLinks($this->getLinks($quote));
         $response->setPayment($this->getPayment($quote));
 
-        if ($fulfillment = $this->quoteToFulfillmentResponse->convert($quote)) {
+        if ($fulfillment = $this->quoteToFulfillmentResponse->convert($quote, $this->getSubmittedFulfillment($maskedCartId))) {
             $response->setFulfillment($fulfillment);
         }
 
@@ -112,6 +115,12 @@ class QuoteToCheckoutResponse
         if ($order) {
             $response->setOrder($order);
         }
+
+        if ($expiresAt = $this->getExpiresAt($quote)) {
+            $response->setExpiresAt($expiresAt);
+        }
+
+        $response->setContinueUrl($this->getContinueUrl($maskedCartId));
 
         $validationErrors = $order ? [] : ($this->quoteValidator->validate($quote) ?? []);
         $response->setMessages($validationErrors);
@@ -228,7 +237,69 @@ class QuoteToCheckoutResponse
      */
     public function getLinks(CartInterface $quote): array
     {
-        return [];
+        $storeId = (int)$quote->getStoreId();
+        $links = [];
+
+        foreach ($this->config->getPolicyLinks($storeId) as $type => $url) {
+            /** @var LinkInterface $link */
+            $link = $this->linkFactory->create();
+            $links[] = $link->setType($type)->setUrl($url);
+        }
+
+        return $links;
+    }
+
+    /**
+     * @param string $maskedCartId
+     * @return array<mixed>|null Fulfillment tree as the agent submitted it
+     */
+    private function getSubmittedFulfillment(string $maskedCartId): ?array
+    {
+        try {
+            $meta = $this->checkoutMetaRepository->getByCheckoutId($maskedCartId);
+        } catch (NoSuchEntityException $exception) {
+            return null;
+        }
+
+        $encoded = $meta->getSubmittedFulfillment();
+
+        if ($encoded === null) {
+            return null;
+        }
+
+        $decoded = json_decode($encoded, true);
+
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    /**
+     * A checkout session lives as long as its quote, which Magento expires by configured age.
+     *
+     * @param CartInterface $quote
+     * @return string|null RFC 3339 timestamp, or null when quotes do not expire
+     */
+    private function getExpiresAt(CartInterface $quote): ?string
+    {
+        $storeId = (int)$quote->getStoreId();
+        $lifetimeDays = $this->config->getQuoteLifetimeDays($storeId);
+        $updatedAt = $quote->getUpdatedAt();
+
+        if ($lifetimeDays < 1 || !is_string($updatedAt) || $updatedAt === '') {
+            return null;
+        }
+
+        return (new \DateTimeImmutable($updatedAt, new \DateTimeZone('UTC')))
+            ->modify('+' . $lifetimeDays . ' days')
+            ->format(\DateTimeInterface::RFC3339);
+    }
+
+    /**
+     * @param string $maskedCartId
+     * @return string Browser URL that hands the agent's cart back to the buyer
+     */
+    private function getContinueUrl(string $maskedCartId): string
+    {
+        return $this->config->getApiBaseUrl() . '/ucp/checkout/resume/id/' . $maskedCartId;
     }
 
     /**
