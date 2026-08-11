@@ -18,6 +18,13 @@ use JsonSerializable;
 class DataTransferObject extends DataObject implements JsonSerializable
 {
     /**
+     * Keys the spec types as JSON objects; an empty array would encode as `[]`.
+     *
+     * @var string[]
+     */
+    protected array $jsonObjectKeys = [];
+
+    /**
      * @param string $key
      * @return string
      * @throws \InvalidArgumentException
@@ -168,8 +175,16 @@ class DataTransferObject extends DataObject implements JsonSerializable
         $data = $this->toArray();
 
         // Remove null values from serialization
-        return array_filter($data, function ($value) {
+        $data = array_filter($data, function ($value) {
             return $value !== null;
         }, ARRAY_FILTER_USE_BOTH);
+
+        foreach ($this->jsonObjectKeys as $key) {
+            if (isset($data[$key]) && $data[$key] === []) {
+                $data[$key] = new \stdClass();
+            }
+        }
+
+        return $data;
     }
 }

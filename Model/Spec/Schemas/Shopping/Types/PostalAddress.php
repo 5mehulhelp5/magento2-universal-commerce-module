@@ -162,24 +162,6 @@ class PostalAddress extends DataTransferObject implements PostalAddressInterface
     /**
      * @return string|null
      */
-    public function getFullName(): string|null
-    {
-        return $this->getDataStringOrNull(PostalAddressInterface::KEY_FULL_NAME);
-    }
-
-    /**
-     * @param string|null $fullName
-     * @return self
-     */
-    public function setFullName(?string $fullName): self
-    {
-        $this->setData(PostalAddressInterface::KEY_FULL_NAME, $fullName);
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getPhoneNumber(): string|null
     {
         return $this->getDataStringOrNull(PostalAddressInterface::KEY_PHONE_NUMBER);

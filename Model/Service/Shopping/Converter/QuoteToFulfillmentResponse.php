@@ -119,7 +119,8 @@ class QuoteToFulfillmentResponse
         $group->setId('package');
         $group->setLineItemIds($quoteItemIds);
 
-        $options = $this->convertShippingRatesToOptions($shippingRates);
+        $currencyCode = $shippingAddress->getQuote()->getCurrency()?->getStoreCurrencyCode() ?? 'USD';
+        $options = $this->convertShippingRatesToOptions($shippingRates, $currencyCode);
         if (!empty($options)) {
             $group->setOptions(array_values($options));
 
@@ -174,9 +175,6 @@ class QuoteToFulfillmentResponse
         if ($address->getLastname()) {
             $destination->setLastName($address->getLastname());
         }
-        if ($address->getName()) {
-            $destination->setFullName($address->getName());
-        }
         if ($address->getTelephone()) {
             $destination->setPhoneNumber($address->getTelephone());
         }
@@ -186,11 +184,12 @@ class QuoteToFulfillmentResponse
 
     /**
      * @param Rate[] $shippingRates
+     * @param string $currencyCode
      * @return FulfillmentOptionResponseInterface[]
      */
-    private function convertShippingRatesToOptions(array $shippingRates): array
+    private function convertShippingRatesToOptions(array $shippingRates, string $currencyCode): array
     {
-        return array_map(function (Rate $rate) {
+        return array_map(function (Rate $rate) use ($currencyCode) {
             /** @var FulfillmentOptionResponseInterface $option */
             $option = $this->fulfillmentOptionResponseFactory->create();
             $option->setId($rate->getCarrier() . '_' . $rate->getMethod());
@@ -202,7 +201,7 @@ class QuoteToFulfillmentResponse
             $price = (float) $rate->getPrice();
             $total = $this->totalResponseFactory->create();
             $total->setType(TotalResponseInterface::TYPE_FULFILLMENT);
-            $total->setAmount($this->priceConverter->convert($price));
+            $total->setAmount($this->priceConverter->convert($price, $currencyCode));
             $total->setDisplayText($rate->getMethodTitle() ?: $rate->getCarrierTitle());
 
             $option->setTotals([$total]);

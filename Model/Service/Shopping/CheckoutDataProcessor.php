@@ -10,39 +10,55 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
-use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\Quote;
-use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
-use Magento\Catalog\Model\Product;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
-use Magento\Quote\Api\GuestCouponManagementInterface;
-
+use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\App\RequestInterface;
-use Magebit\UniversalCommerce\Model\Service\Shopping\AgentProfileParser;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\GuestCouponManagementInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address;
 
-class CheckoutDataProcessor
+class CheckoutDataProcessor implements QuoteValidatorInterface
 {
+    /**
+     * Quote data key holding the messages raised while processing the request; read back through validate().
+     */
+    public const QUOTE_MESSAGES_KEY = 'ucp_messages';
+
+    public const MESSAGE_TYPE_ERROR = 'error';
+
+    public const CODE_INVALID = 'invalid';
+
+    public const CODE_OUT_OF_STOCK = 'out_of_stock';
+
     /**
      * @param ProductRepositoryInterface $productRepository
      * @param GuestCouponManagementInterface $guestCouponManagement
      * @param AgentProfileParser $agentProfileParser
      * @param Http $httpRequest
+     * @param MessageInterfaceFactory $messageFactory
      */
     public function __construct(
         protected readonly ProductRepositoryInterface $productRepository,
         protected readonly GuestCouponManagementInterface $guestCouponManagement,
         protected readonly AgentProfileParser $agentProfileParser,
         protected readonly Http $httpRequest,
+        protected readonly MessageInterfaceFactory $messageFactory
     ) {
     }
 
@@ -54,8 +70,11 @@ class CheckoutDataProcessor
      * @param string $maskedCartId
      * @return void
      */
-    public function processCreateCheckoutRequest(CartInterface $cart, CheckoutCreateRequestInterface $request, string $maskedCartId): void
-    {
+    public function processCreateCheckoutRequest(
+        CartInterface $cart,
+        CheckoutCreateRequestInterface $request,
+        string $maskedCartId
+    ): void {
         /** @var Quote $cart */
         $this->processLineItems($cart, $request->getLineItems());
 
@@ -69,15 +88,68 @@ class CheckoutDataProcessor
             $this->processFulfillmentInformation($cart, $request->getFulfillment());
         }
 
+        $this->resolveBillingCountry($cart);
+
         if ($request->getDiscounts()) {
             $this->processDiscountInformation($maskedCartId, $cart, $request->getDiscounts());
         }
     }
 
     /**
-     * Process agent profile
+     * Process update checkout request
      *
      * @param CartInterface $cart
+     * @param CheckoutUpdateRequestInterface $request
+     * @param string $maskedCartId
+     * @return void
+     */
+    public function processUpdateCheckoutRequest(
+        CartInterface $cart,
+        CheckoutUpdateRequestInterface $request,
+        string $maskedCartId
+    ): void {
+        /** @var Quote $cart */
+        $this->processLineItems($cart, $request->getLineItems());
+
+        if ($request->getBuyer()) {
+            $this->processBuyerInformation($cart, $request->getBuyer());
+        }
+
+        $this->copyPersonalInformationFromBillingToShipping($cart);
+
+        if ($request->getFulfillment()) {
+            $this->processFulfillmentInformation($cart, $request->getFulfillment());
+        }
+
+        $this->resolveBillingCountry($cart);
+
+        if ($request->getDiscounts()) {
+            $this->processDiscountInformation($maskedCartId, $cart, $request->getDiscounts());
+        }
+    }
+
+    /**
+     * Expose the messages collected while processing the request to the checkout response builder
+     *
+     * @param CartInterface $quote
+     * @return MessageInterface[]|null
+     */
+    public function validate(CartInterface $quote): array|null
+    {
+        /** @var Quote $quote */
+        $messages = $quote->getData(self::QUOTE_MESSAGES_KEY);
+
+        if (!is_array($messages)) {
+            return null;
+        }
+
+        /** @var MessageInterface[] $messages */
+        return $messages;
+    }
+
+    /**
+     * Process agent profile
+     *
      * @return void
      */
     public function processAgentProfile(): void
@@ -118,7 +190,6 @@ class CheckoutDataProcessor
         }
 
         $billingAddress = $cart->getBillingAddress();
-        $billingAddress->setCountryId('US');
 
         if ($buyer->getEmail()) {
             $billingAddress->setEmail($buyer->getEmail());
@@ -138,35 +209,7 @@ class CheckoutDataProcessor
     }
 
     /**
-     * Process update checkout request
-     *
-     * @param CartInterface $cart
-     * @param CheckoutUpdateRequestInterface $request
-     * @param string $maskedCartId
-     * @return void
-     */
-    public function processUpdateCheckoutRequest(CartInterface $cart, CheckoutUpdateRequestInterface $request, string $maskedCartId): void
-    {
-        /** @var Quote $cart */
-        $this->processLineItems($cart, $request->getLineItems());
-
-        if ($request->getBuyer()) {
-            $this->processBuyerInformation($cart, $request->getBuyer());
-        }
-
-        $this->copyPersonalInformationFromBillingToShipping($cart);
-
-        if ($request->getFulfillment()) {
-            $this->processFulfillmentInformation($cart, $request->getFulfillment());
-        }
-
-        if ($request->getDiscounts()) {
-            $this->processDiscountInformation($maskedCartId, $cart, $request->getDiscounts());
-        }
-    }
-
-    /**
-     * Process line items
+     * Process line items, reporting SKUs that cannot be added instead of failing the whole request
      *
      * @param CartInterface $cart
      * @param array<LineItemCreateRequestInterface|LineItemUpdateRequestInterface> $lineItems
@@ -177,15 +220,27 @@ class CheckoutDataProcessor
         /** @var Quote $cart */
         $cart->removeAllItems();
 
-        foreach ($lineItems as $lineItem) {
-            $itemId = $lineItem->getItem()->getId();
-            $quantity = $lineItem->getQuantity();
+        foreach (array_values($lineItems) as $index => $lineItem) {
+            $sku = $lineItem->getItem()->getId();
+            $path = sprintf('$.line_items[%d].item.id', $index);
+            $product = $this->loadProduct($cart, $sku);
 
-            /** @var Product $product */
-            $product = $this->productRepository->get($itemId);
+            if (!$product) {
+                $this->addMessage($cart, self::CODE_INVALID, $path, sprintf('Product "%s" does not exist.', $sku));
+                continue;
+            }
 
-            /** @var Quote $cart */
-            $cart->addProduct($product, $quantity);
+            if (!$product->isSalable()) {
+                $this->addMessage(
+                    $cart,
+                    self::CODE_OUT_OF_STOCK,
+                    $path,
+                    sprintf('Product "%s" is not available for purchase.', $sku)
+                );
+                continue;
+            }
+
+            $this->addProductToCart($cart, $product, $lineItem->getQuantity(), $path);
         }
     }
 
@@ -201,20 +256,21 @@ class CheckoutDataProcessor
         $billingAddress = $cart->getBillingAddress();
         $shippingAddress = $cart->getShippingAddress();
 
-        if ($billingAddress->getFirstName()) {
-            $shippingAddress->setFirstname($billingAddress->getFirstName());
+        if ($billingAddress->getFirstname()) {
+            $shippingAddress->setFirstname($billingAddress->getFirstname());
         }
 
-        if ($billingAddress->getLastName()) {
-            $shippingAddress->setLastname($billingAddress->getLastName());
+        if ($billingAddress->getLastname()) {
+            $shippingAddress->setLastname($billingAddress->getLastname());
         }
 
         if ($billingAddress->getEmail()) {
             $shippingAddress->setEmail($billingAddress->getEmail());
         }
 
-        if ($billingAddress->getPhoneNumber()) {
-            $shippingAddress->setTelephone($billingAddress->getPhoneNumber());
+        // Quote addresses store the phone under `telephone`; getPhoneNumber() resolved to an unset data key.
+        if ($billingAddress->getTelephone()) {
+            $shippingAddress->setTelephone($billingAddress->getTelephone());
         }
     }
 
@@ -228,47 +284,21 @@ class CheckoutDataProcessor
     public function processFulfillmentInformation(CartInterface $cart, FulfillmentRequestInterface $fulfillment): void
     {
         /** @var Quote $cart */
-        $methods = $fulfillment->getMethods();
-        if (!$methods) {
-            return;
-        }
-
-        // Find shipping method
-        $shippingMethod = null;
-        foreach ($methods as $method) {
-            if ($method->getType() === FulfillmentMethodCreateRequestInterface::TYPE_SHIPPING) {
-                $shippingMethod = $method;
-                break;
-            }
-        }
+        $shippingMethod = $this->findShippingMethod($fulfillment->getMethods() ?? []);
 
         if (!$shippingMethod) {
             return;
         }
 
-        $destinations = $shippingMethod->getDestinations() ?? [];
-
-        foreach ($destinations as $destination) {
+        if ($destination = $this->selectDestination($shippingMethod)) {
             $this->addDestinationToCart($cart, $destination);
-            break;
         }
 
-        // Set shipping method from selected option
-        $groups = $shippingMethod->getGroups();
-
-        if (!$groups) {
-            return;
-        }
-
-        foreach ($groups as $group) {
-            $selectedOptionId = $group->getSelectedOptionId();
-
-            if (!$selectedOptionId) {
-                continue;
+        foreach ($shippingMethod->getGroups() ?? [] as $group) {
+            if ($selectedOptionId = $group->getSelectedOptionId()) {
+                $this->setShippingMethodToCart($cart, $selectedOptionId);
+                break;
             }
-
-            $this->setShippingMethodToCart($cart, $selectedOptionId);
-            break;
         }
     }
 
@@ -306,37 +336,10 @@ class CheckoutDataProcessor
     {
         /** @var Quote $cart */
         $shippingAddress = $cart->getShippingAddress();
+        $this->applyAddressFields($shippingAddress, $destination);
 
-        if ($destination->getStreetAddress()) {
-            $shippingAddress->setStreet($destination->getStreetAddress());
-        }
-        if ($destination->getAddressLocality()) {
-            $shippingAddress->setCity($destination->getAddressLocality());
-        }
-
-        if ($destination->getAddressRegion()) {
-            $shippingAddress->setRegion($destination->getAddressRegion());
-        }
-
-        if ($destination->getAddressCountry()) {
-            $shippingAddress->setCountryId($destination->getAddressCountry());
-        }
-
-        if ($destination->getPostalCode()) {
-            $shippingAddress->setPostcode($destination->getPostalCode());
-        }
-
-        if ($destination->getFirstName()) {
-            $shippingAddress->setFirstname($destination->getFirstName());
-        }
-
-        if ($destination->getLastName()) {
-            $shippingAddress->setLastname($destination->getLastName());
-        }
-
-        if ($destination->getPhoneNumber()) {
-            $shippingAddress->setTelephone($destination->getPhoneNumber());
-        }
+        // Rates cached against the previous destination are stale once the address moves.
+        $shippingAddress->setCollectShippingRates(true);
     }
 
     /**
@@ -347,8 +350,11 @@ class CheckoutDataProcessor
      * @param DiscountDiscountsObjectInterface $discounts
      * @return void
      */
-    public function processDiscountInformation(string $maskedCartId, CartInterface $cart, DiscountDiscountsObjectInterface $discounts): void
-    {
+    public function processDiscountInformation(
+        string $maskedCartId,
+        CartInterface $cart,
+        DiscountDiscountsObjectInterface $discounts
+    ): void {
         /** @var Quote $cart */
         $codes = $discounts->getCodes();
 
@@ -357,7 +363,7 @@ class CheckoutDataProcessor
             try {
                 $this->guestCouponManagement->remove($maskedCartId);
             } catch (\Exception $e) {
-                // Ignore if no coupon to remove
+                unset($e);
             }
             return;
         }
@@ -371,8 +377,8 @@ class CheckoutDataProcessor
             $this->guestCouponManagement->set($maskedCartId, $couponCode);
             $cart->collectTotals();
         } catch (\Exception $e) {
-            // Coupon validation errors will be handled by quote validator
-            // and returned via messages array
+            // Coupon validation errors are reported by the quote validator instead.
+            unset($e);
         }
     }
 
@@ -386,38 +392,186 @@ class CheckoutDataProcessor
     public function processBillingAddress(CartInterface $cart, PostalAddressInterface $address): void
     {
         /** @var Quote $cart */
+        $this->applyAddressFields($cart->getBillingAddress(), $address);
+    }
+
+    /**
+     * Give billing the country submitted for fulfillment, the only address a checkout request carries
+     *
+     * @param CartInterface $cart
+     * @return void
+     */
+    public function resolveBillingCountry(CartInterface $cart): void
+    {
+        /** @var Quote $cart */
         $billingAddress = $cart->getBillingAddress();
 
-        if ($address->getStreetAddress()) {
-            $billingAddress->setStreet($address->getStreetAddress());
+        if ($billingAddress->getCountryId()) {
+            return;
         }
 
-        if ($address->getAddressLocality()) {
-            $billingAddress->setCity($address->getAddressLocality());
+        // Deliberately left unset when nothing was submitted, so the address validator reports the
+        // missing country rather than the quote quietly pricing itself against an invented one.
+        if ($shippingCountry = $cart->getShippingAddress()->getCountryId()) {
+            $billingAddress->setCountryId($shippingCountry);
+        }
+    }
+
+    /**
+     * Copy the UCP postal fields onto a quote address
+     *
+     * @param Address $address
+     * @param FulfillmentDestinationRequestInterface|PostalAddressInterface $source
+     * @return void
+     */
+    private function applyAddressFields(
+        Address $address,
+        FulfillmentDestinationRequestInterface|PostalAddressInterface $source
+    ): void {
+        $street = array_values(array_filter([$source->getStreetAddress(), $source->getExtendedAddress()]));
+
+        if ($street) {
+            $address->setStreet($street);
         }
 
-        if ($address->getAddressRegion()) {
-            $billingAddress->setRegion($address->getAddressRegion());
+        if ($source->getAddressLocality()) {
+            $address->setCity($source->getAddressLocality());
         }
 
-        if ($address->getAddressCountry()) {
-            $billingAddress->setCountryId($address->getAddressCountry());
+        if ($source->getAddressRegion()) {
+            $address->setRegion($source->getAddressRegion());
         }
 
-        if ($address->getPostalCode()) {
-            $billingAddress->setPostcode($address->getPostalCode());
+        if ($source->getAddressCountry()) {
+            $address->setCountryId($source->getAddressCountry());
         }
 
-        if ($address->getFirstName()) {
-            $billingAddress->setFirstname($address->getFirstName());
+        if ($source->getPostalCode()) {
+            $address->setPostcode($source->getPostalCode());
         }
 
-        if ($address->getLastName()) {
-            $billingAddress->setLastname($address->getLastName());
+        if ($source->getFirstName()) {
+            $address->setFirstname($source->getFirstName());
         }
 
-        if ($address->getPhoneNumber()) {
-            $billingAddress->setTelephone($address->getPhoneNumber());
+        if ($source->getLastName()) {
+            $address->setLastname($source->getLastName());
         }
+
+        if ($source->getPhoneNumber()) {
+            $address->setTelephone($source->getPhoneNumber());
+        }
+    }
+
+    /**
+     * @param array<FulfillmentMethodCreateRequestInterface> $methods
+     * @return FulfillmentMethodCreateRequestInterface|null
+     */
+    private function findShippingMethod(array $methods): ?FulfillmentMethodCreateRequestInterface
+    {
+        foreach ($methods as $method) {
+            try {
+                $type = $method->getType();
+            } catch (\InvalidArgumentException $e) {
+                // Update payloads may omit `type`; such a method cannot be routed to shipping.
+                unset($e);
+                continue;
+            }
+
+            if ($type === FulfillmentMethodCreateRequestInterface::TYPE_SHIPPING) {
+                return $method;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve the destination the agent selected, falling back to the first one offered
+     *
+     * @param FulfillmentMethodCreateRequestInterface $method
+     * @return FulfillmentDestinationRequestInterface|null
+     */
+    private function selectDestination(
+        FulfillmentMethodCreateRequestInterface $method
+    ): ?FulfillmentDestinationRequestInterface {
+        $destinations = array_values($method->getDestinations() ?? []);
+
+        if (!$destinations) {
+            return null;
+        }
+
+        $selectedId = $method->getSelectedDestinationId();
+
+        foreach ($destinations as $destination) {
+            if ($selectedId !== null && $destination->getId() === $selectedId) {
+                return $destination;
+            }
+        }
+
+        return $destinations[0];
+    }
+
+    /**
+     * @param Quote $cart
+     * @param string $sku
+     * @return Product|null
+     */
+    private function loadProduct(Quote $cart, string $sku): ?Product
+    {
+        try {
+            /** @var Product $product */
+            $product = $this->productRepository->get($sku, false, (int) $cart->getStoreId());
+        } catch (NoSuchEntityException $e) {
+            unset($e);
+            return null;
+        }
+
+        return $product;
+    }
+
+    /**
+     * @param Quote $cart
+     * @param Product $product
+     * @param int $quantity
+     * @param string $path
+     * @return void
+     */
+    private function addProductToCart(Quote $cart, Product $product, int $quantity, string $path): void
+    {
+        try {
+            $result = $cart->addProduct($product, $quantity);
+        } catch (LocalizedException $e) {
+            $this->addMessage($cart, self::CODE_INVALID, $path, $e->getMessage());
+            return;
+        }
+
+        // Quote::addProduct hands back a string instead of an item when the product cannot be configured.
+        if (is_string($result)) {
+            $this->addMessage($cart, self::CODE_INVALID, $path, $result);
+        }
+    }
+
+    /**
+     * @param Quote $cart
+     * @param string $code
+     * @param string $path
+     * @param string $content
+     * @return void
+     */
+    private function addMessage(Quote $cart, string $code, string $path, string $content): void
+    {
+        $messages = $cart->getData(self::QUOTE_MESSAGES_KEY);
+        $messages = is_array($messages) ? $messages : [];
+
+        $messages[] = $this->messageFactory->create(['data' => [
+            MessageInterface::KEY_TYPE => self::MESSAGE_TYPE_ERROR,
+            MessageInterface::KEY_CODE => $code,
+            MessageInterface::KEY_PATH => $path,
+            MessageInterface::KEY_CONTENT => $content,
+            MessageInterface::KEY_SEVERITY => MessageInterface::SEVERITY_RECOVERABLE,
+        ]]);
+
+        $cart->setData(self::QUOTE_MESSAGES_KEY, $messages);
     }
 }

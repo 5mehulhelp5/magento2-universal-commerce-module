@@ -128,12 +128,4 @@ class CapabilityPlatformSchema extends DataTransferObject implements CapabilityP
         $this->setData(CapabilityPlatformSchemaInterface::KEY_EXTENDS, $extends);
         return $this;
     }
-
-    /**
-     * @return array<mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->toArray();
-    }
 }
