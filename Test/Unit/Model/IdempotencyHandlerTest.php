@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Test\Unit\Model;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface;
 use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterfaceFactory;
 use Magebit\UniversalCommerce\Api\IdempotencyKeyRepositoryInterface;

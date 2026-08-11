@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformSchemaInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PlatformSchemaInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\OrderPlatformSchemaInterface;
+use Magebit\UcpSpec\Api\Shopping\OrderPlatformSchemaInterfaceFactory;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use Psr\Log\LoggerInterface;
@@ -33,14 +33,14 @@ class AgentProfileParser
     private const MAX_DATA_URI_BYTES = 262144;
 
     /**
-     * @param PlatformSchemaInterfaceFactory $platformSchemaFactory
+     * @param OrderPlatformSchemaInterfaceFactory $platformSchemaFactory
      * @param CurlFactory $curlFactory
      * @param CacheInterface $cache
      * @param LoggerInterface $logger
      * @param ProfileUrlValidator $urlValidator
      */
     public function __construct(
-        private readonly PlatformSchemaInterfaceFactory $platformSchemaFactory,
+        private readonly OrderPlatformSchemaInterfaceFactory $platformSchemaFactory,
         private readonly CurlFactory $curlFactory,
         private readonly CacheInterface $cache,
         private readonly LoggerInterface $logger,
@@ -52,9 +52,9 @@ class AgentProfileParser
      * Parse UCP agent profile from header
      *
      * @param string|null $ucpAgentHeader
-     * @return PlatformSchemaInterface
+     * @return OrderPlatformSchemaInterface
      */
-    public function parse(?string $ucpAgentHeader = null): PlatformSchemaInterface
+    public function parse(?string $ucpAgentHeader = null): OrderPlatformSchemaInterface
     {
         $platformConfig = $this->platformSchemaFactory->create();
 

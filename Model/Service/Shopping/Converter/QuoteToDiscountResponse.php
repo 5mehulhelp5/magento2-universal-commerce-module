@@ -14,16 +14,16 @@ namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\DiscountResponseDiscountsObjectInterface;
+use Magebit\UcpSpec\Api\Shopping\DiscountResponseDiscountsObjectInterfaceFactory;
 
 class QuoteToDiscountResponse
 {
     /**
-     * @param DiscountDiscountsObjectInterfaceFactory $discountsObjectFactory
+     * @param DiscountResponseDiscountsObjectInterfaceFactory $discountsObjectFactory
      */
     public function __construct(
-        protected readonly DiscountDiscountsObjectInterfaceFactory $discountsObjectFactory,
+        protected readonly DiscountResponseDiscountsObjectInterfaceFactory $discountsObjectFactory,
     ) {
     }
 
@@ -31,9 +31,9 @@ class QuoteToDiscountResponse
      * Convert quote to discount response
      *
      * @param CartInterface $quote
-     * @return DiscountDiscountsObjectInterface|null
+     * @return DiscountResponseDiscountsObjectInterface|null
      */
-    public function convert(CartInterface $quote): ?DiscountDiscountsObjectInterface
+    public function convert(CartInterface $quote): ?DiscountResponseDiscountsObjectInterface
     {
         /** @var Quote $quote */
         $shippingAddress = $quote->getShippingAddress();
@@ -49,7 +49,7 @@ class QuoteToDiscountResponse
             return null;
         }
 
-        /** @var DiscountDiscountsObjectInterface $discountsObject */
+        /** @var DiscountResponseDiscountsObjectInterface $discountsObject */
         $discountsObject = $this->discountsObjectFactory->create();
 
         // Set codes array (echo back submitted codes)

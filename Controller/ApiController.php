@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller;
 
+use JsonSerializable;
 use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
@@ -22,8 +23,8 @@ use Magento\Framework\DataObject;
 use Magebit\UniversalCommerce\Model\Validation\RequestValidator;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Exception\UcpException;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\LocalizedException;
@@ -185,11 +186,11 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
     /**
      * Make JSON response
      *
-     * @param array<mixed>|DataObject $data
+     * @param array<mixed>|DataObject|JsonSerializable $data
      * @param int $statusCode
      * @return ResultJson
      */
-    public function makeJsonResponse(array|DataObject $data, int $statusCode = 200): ResultJson
+    public function makeJsonResponse(array|DataObject|JsonSerializable $data, int $statusCode = 200): ResultJson
     {
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData($data);

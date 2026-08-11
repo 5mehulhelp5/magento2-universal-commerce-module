@@ -12,21 +12,21 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LinkInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutResponseInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\LineItemResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\BuyerInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\LinkInterface;
+use Magebit\UcpSpec\Api\Shopping\PaymentInterface;
+use Magebit\UcpSpec\Api\Shopping\PaymentInterfaceFactory;
+use Magebit\UcpSpec\Api\UcpResponseCheckoutSchemaInterface;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 use Magebit\UniversalCommerce\Model\Discovery\ServiceRegistry;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\UcpResponseCheckoutSchemaInterfaceFactory;
+use Magebit\UcpSpec\Api\UcpResponseCheckoutSchemaInterfaceFactory;
 use Magento\Quote\Model\Quote;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResponse;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToBuyerResponse;
@@ -35,15 +35,15 @@ use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToFulfillmen
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToDiscountResponse;
 use Magebit\UniversalCommerce\Api\CheckoutMetaRepositoryInterface;
 use Magebit\UniversalCommerce\Model\Config;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\OrderConfirmationInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\OrderConfirmationInterfaceFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class QuoteToCheckoutResponse
 {
     /**
-     * @param FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory
+     * @param CheckoutResponseInterfaceFactory $checkoutResponseFactory
      * @param QuoteItemToLineItemResponse $quoteItemToLineItemResponse
      * @param UcpResponseCheckoutSchemaInterfaceFactory $ucpResponseFactory
      * @param PaymentInterfaceFactory $paymentFactory
@@ -59,7 +59,7 @@ class QuoteToCheckoutResponse
      * @param Config $config
      */
     public function __construct(
-        protected readonly FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory,
+        protected readonly CheckoutResponseInterfaceFactory $checkoutResponseFactory,
         protected readonly QuoteItemToLineItemResponse $quoteItemToLineItemResponse,
         protected readonly UcpResponseCheckoutSchemaInterfaceFactory $ucpResponseFactory,
         protected readonly PaymentInterfaceFactory $paymentFactory,
@@ -79,11 +79,11 @@ class QuoteToCheckoutResponse
     /**
      * @param CartInterface $quote
      * @param string $maskedCartId
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      */
-    public function convert(CartInterface $quote, string $maskedCartId): FulfillmentCheckoutInterface
+    public function convert(CartInterface $quote, string $maskedCartId): CheckoutResponseInterface
     {
-        /** @var FulfillmentCheckoutInterface $response */
+        /** @var CheckoutResponseInterface $response */
         $response = $this->checkoutResponseFactory->create();
         $response->setId($maskedCartId);
 
@@ -189,18 +189,18 @@ class QuoteToCheckoutResponse
     {
         // Placing an order deactivates the quote, so order state must win over quote state.
         if ($hasOrder) {
-            return FulfillmentCheckoutInterface::STATUS_COMPLETED;
+            return CheckoutResponseInterface::STATUS_COMPLETED;
         }
 
         if (!$quote->getIsActive()) {
-            return FulfillmentCheckoutInterface::STATUS_CANCELED;
+            return CheckoutResponseInterface::STATUS_CANCELED;
         }
 
         if (!empty($validationErrors)) {
-            return FulfillmentCheckoutInterface::STATUS_INCOMPLETE;
+            return CheckoutResponseInterface::STATUS_INCOMPLETE;
         }
 
-        return FulfillmentCheckoutInterface::STATUS_READY_FOR_COMPLETE;
+        return CheckoutResponseInterface::STATUS_READY_FOR_COMPLETE;
     }
 
     /**

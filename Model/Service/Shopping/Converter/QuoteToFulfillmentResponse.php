@@ -14,20 +14,20 @@ namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentFulfillmentInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentFulfillmentInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentResponseInterfaceFactory;
 use Magento\Quote\Model\Quote\Address\Rate;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentMethodResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentMethodResponseInterfaceFactory;
 use Magento\Quote\Model\Quote\Address;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentGroupResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentGroupResponseInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentOptionResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentOptionResponseInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationResponseInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentGroupResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentGroupResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentOptionResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentOptionResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentDestinationResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentDestinationResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterfaceFactory;
 
 class QuoteToFulfillmentResponse
 {
@@ -53,9 +53,9 @@ class QuoteToFulfillmentResponse
 
     /**
      * @param CartInterface $quote
-     * @return FulfillmentFulfillmentInterface|null
+     * @return FulfillmentResponseInterface|null
      */
-    public function convert(CartInterface $quote): ?FulfillmentFulfillmentInterface
+    public function convert(CartInterface $quote): ?FulfillmentResponseInterface
     {
         /** @var Quote $quote */
         if ($quote->getIsVirtual()) {
@@ -75,7 +75,7 @@ class QuoteToFulfillmentResponse
             return (string) $quoteItem->getId();
         }, $quote->getAllItems());
 
-        /** @var FulfillmentFulfillmentInterface $response */
+        /** @var FulfillmentResponseInterface $response */
         $response = $this->fulfillmentFulfillmentFactory->create();
 
         $methods = $this->getMethods($shippingAddress, $quoteItemIds);

@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
 use Magebit\UniversalCommerce\Api\ServiceInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterfaceFactory;
+use Magebit\UcpSpec\Api\ServicePlatformSchemaInterface;
+use Magebit\UcpSpec\Api\ServicePlatformSchemaInterfaceFactory;
+use Magebit\UcpSpec\Api\CapabilityPlatformSchemaInterface;
+use Magebit\UcpSpec\Api\CapabilityPlatformSchemaInterfaceFactory;
 use Magebit\UniversalCommerce\Api\UniversalCommerceProtocolInterface;
 use Magebit\UniversalCommerce\Model\Config;
 

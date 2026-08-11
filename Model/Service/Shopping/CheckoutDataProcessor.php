@@ -10,16 +10,16 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\PostalAddressInterface;
+use Magebit\UcpSpec\Api\Shopping\DiscountResponseDiscountsObjectInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\BuyerInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentDestinationRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentMethodCreateRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\LineItemCreateRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\LineItemUpdateRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\PostalAddressInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
@@ -347,13 +347,13 @@ class CheckoutDataProcessor implements QuoteValidatorInterface
      *
      * @param string $maskedCartId
      * @param CartInterface $cart
-     * @param DiscountDiscountsObjectInterface $discounts
+     * @param DiscountResponseDiscountsObjectInterface $discounts
      * @return void
      */
     public function processDiscountInformation(
         string $maskedCartId,
         CartInterface $cart,
-        DiscountDiscountsObjectInterface $discounts
+        DiscountResponseDiscountsObjectInterface $discounts
     ): void {
         /** @var Quote $cart */
         $codes = $discounts->getCodes();

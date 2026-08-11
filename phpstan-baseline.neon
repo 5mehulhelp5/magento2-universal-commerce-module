@@ -145,18 +145,6 @@ parameters:
 			path: Model/Service/Shopping/CheckoutDataProcessor.php
 
 		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\Converter\\QuoteToBuyerResponse\:\:convert\(\) should return Magebit\\UcpSpec\\MutableApi\\Schemas\\Shopping\\Types\\BuyerInterface\|null but returns Magebit\\AgenticCommerce\\Model\\Data\\Buyer\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Service/Shopping/Converter/QuoteToBuyerResponse.php
-
-		-
-			message: '#^Call to an undefined method Magebit\\UcpSpec\\MutableApi\\Schemas\\Shopping\\FulfillmentCheckoutInterface\:\:setDiscounts\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: Model/Service/Shopping/Converter/QuoteToCheckoutResponse.php
-
-		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
 			count: 1
@@ -185,72 +173,6 @@ parameters:
 			identifier: booleanNot.alwaysFalse
 			count: 1
 			path: Model/Service/Shopping/Converter/QuoteToFulfillmentResponse.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\DiscountDiscountsObject\:\:getCodes\(\) should return array\<string\>\|null but returns array\<mixed, mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/Shopping/Types/DiscountDiscountsObject.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentAvailableMethodResponse\:\:getLineItemIds\(\) should return array\<string\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/Shopping/Types/FulfillmentAvailableMethodResponse.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentGroupResponse\:\:getLineItemIds\(\) should return array\<string\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/Shopping/Types/FulfillmentGroupResponse.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentMethodCreateRequest\:\:getLineItemIds\(\) should return array\<string\>\|null but returns array\<mixed, mixed\>\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/Shopping/Types/FulfillmentMethodCreateRequest.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentMethodResponse\:\:getLineItemIds\(\) should return array\<string\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/Shopping/Types/FulfillmentMethodResponse.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpPlatformSchema\:\:getCapabilities\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityPlatformSchemaInterface\>\>\|null but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityPlatformSchemaInterface\>\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/UcpPlatformSchema.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpPlatformSchema\:\:getPaymentHandlers\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerPlatformSchemaInterface\>\> but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerPlatformSchemaInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/UcpPlatformSchema.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpPlatformSchema\:\:getServices\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServicePlatformSchemaInterface\>\> but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServicePlatformSchemaInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/UcpPlatformSchema.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpResponseCheckoutSchema\:\:getCapabilities\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityResponseSchemaInterface\>\>\|null but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityResponseSchemaInterface\>\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/UcpResponseCheckoutSchema.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpResponseCheckoutSchema\:\:getPaymentHandlers\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerResponseSchemaInterface\>\> but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerResponseSchemaInterface\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/UcpResponseCheckoutSchema.php
-
-		-
-			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpResponseCheckoutSchema\:\:getServices\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServiceResponseSchemaInterface\>\>\|null but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServiceResponseSchemaInterface\>\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Model/Spec/Schemas/UcpResponseCheckoutSchema.php
 
 		-
 			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, string given\.$#'

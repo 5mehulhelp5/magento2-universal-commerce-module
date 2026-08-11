@@ -10,7 +10,7 @@
 
 namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
 use Magento\Quote\Api\Data\CartInterface;
 
 interface QuoteValidatorInterface

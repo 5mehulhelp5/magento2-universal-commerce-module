@@ -12,8 +12,9 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use JsonSerializable;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterface;
 use Magebit\UniversalCommerce\Api\Data\IdempotencyKeyInterfaceFactory;
 use Magebit\UniversalCommerce\Api\IdempotencyKeyRepositoryInterface;
@@ -101,11 +102,11 @@ class IdempotencyHandler
 
     /**
      * @param Http $request
-     * @param DataTransferObject $response
+     * @param JsonSerializable $response
      * @param int $status
      * @return IdempotencyKeyInterface|null
      */
-    public function storeResponse(Http $request, DataTransferObject $response, int $status): ?IdempotencyKeyInterface
+    public function storeResponse(Http $request, JsonSerializable $response, int $status): ?IdempotencyKeyInterface
     {
         $key = $this->getKey($request);
 

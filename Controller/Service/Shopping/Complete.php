@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCompleteRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCompleteRequestInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\CheckoutCompleteRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\CheckoutCompleteRequestInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -24,7 +24,7 @@ use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
 use Psr\Log\LoggerInterface;
-use Magebit\UniversalCommerce\Model\DataTransferObject;
+use JsonSerializable;
 use Magento\Framework\Exception\LocalizedException;
 
 class Complete extends ApiController
@@ -88,7 +88,7 @@ class Complete extends ApiController
         return $this->errorBoundary(function () use ($checkoutId, $paymentData) {
             $completeCheckoutResponse = $this->restHandler->completeCheckout($checkoutId, $paymentData);
 
-            if ($completeCheckoutResponse instanceof DataTransferObject) {
+            if ($completeCheckoutResponse instanceof JsonSerializable) {
                 $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $completeCheckoutResponse, 201);
 
                 return $this->makeJsonResponse($completeCheckoutResponse);

@@ -14,8 +14,8 @@ namespace Magebit\UniversalCommerce\Model\Service\Shopping;
 use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\PaymentInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magebit\UniversalCommerce\Model\Service\Shopping\CheckoutDataProcessor;
 use Magento\Quote\Api\GuestCartManagementInterface;
@@ -57,9 +57,9 @@ class RestHandler implements RestHandlerInterface
 
     /**
      * @param CheckoutCreateRequestInterface $request
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      */
-    public function createCheckout(CheckoutCreateRequestInterface $request): FulfillmentCheckoutInterface
+    public function createCheckout(CheckoutCreateRequestInterface $request): CheckoutResponseInterface
     {
         $maskedCartId = $this->guestCartManagement->createEmptyCart();
         $cart = $this->guestCartRepository->get($maskedCartId);
@@ -73,10 +73,10 @@ class RestHandler implements RestHandlerInterface
 
     /**
      * @param string $checkoutId
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      * @throws LocalizedException
      */
-    public function getCheckout(string $checkoutId): FulfillmentCheckoutInterface
+    public function getCheckout(string $checkoutId): CheckoutResponseInterface
     {
         $cart = $this->getCartByMaskedId($checkoutId);
         return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
@@ -84,10 +84,10 @@ class RestHandler implements RestHandlerInterface
 
     /**
      * @param string $checkoutId
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      * @throws LocalizedException
      */
-    public function cancelCheckout(string $checkoutId): FulfillmentCheckoutInterface
+    public function cancelCheckout(string $checkoutId): CheckoutResponseInterface
     {
         $cart = $this->getCartByMaskedId($checkoutId);
 
@@ -108,10 +108,10 @@ class RestHandler implements RestHandlerInterface
     /**
      * @param string $checkoutId
      * @param CheckoutUpdateRequestInterface $request
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      * @throws LocalizedException
      */
-    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): FulfillmentCheckoutInterface
+    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): CheckoutResponseInterface
     {
         $cart = $this->getCartByMaskedId($checkoutId);
         $this->checkoutDataProcessor->processUpdateCheckoutRequest($cart, $request, $checkoutId);
@@ -123,10 +123,10 @@ class RestHandler implements RestHandlerInterface
     /**
      * @param string $checkoutId
      * @param PaymentInterface $paymentData
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      * @throws LocalizedException
      */
-    public function completeCheckout(string $checkoutId, PaymentInterface $paymentData): FulfillmentCheckoutInterface
+    public function completeCheckout(string $checkoutId, PaymentInterface $paymentData): CheckoutResponseInterface
     {
         $cart = $this->getCartByMaskedId($checkoutId);
         $billingAddress = null;

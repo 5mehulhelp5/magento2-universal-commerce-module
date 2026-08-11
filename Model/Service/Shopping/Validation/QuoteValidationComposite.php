@@ -12,7 +12,7 @@ namespace Magebit\UniversalCommerce\Model\Service\Shopping\Validation;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
 use Magento\Quote\Api\Data\CartInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
 
 class QuoteValidationComposite implements QuoteValidatorInterface
 {

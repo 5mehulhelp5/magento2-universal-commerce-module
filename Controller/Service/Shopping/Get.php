@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -22,7 +22,7 @@ use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
 use Psr\Log\LoggerInterface;
-use Magebit\UniversalCommerce\Model\DataTransferObject;
+use JsonSerializable;
 use Magento\Framework\Exception\LocalizedException;
 
 class Get extends ApiController
@@ -73,7 +73,7 @@ class Get extends ApiController
         return $this->errorBoundary(function () use ($checkoutId) {
             $checkoutResponse = $this->restHandler->getCheckout($checkoutId);
 
-            if ($checkoutResponse instanceof DataTransferObject) {
+            if ($checkoutResponse instanceof JsonSerializable) {
                 $this->idempotencyHandler->storeResponse($this->getHttpRequest(), $checkoutResponse, 200);
 
                 return $this->makeJsonResponse($checkoutResponse);

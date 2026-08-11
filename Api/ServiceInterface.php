@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Api;
 
-use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\CapabilityPlatformSchemaInterface;
+use Magebit\UcpSpec\Api\ServicePlatformSchemaInterface;
+use Magebit\UcpSpec\Api\CapabilityPlatformSchemaInterface;
 
 interface ServiceInterface
 {

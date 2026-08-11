@@ -12,9 +12,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
-use Magebit\AgenticCommerce\Model\Data\Buyer;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\BuyerInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\BuyerInterfaceFactory;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 
@@ -35,36 +34,35 @@ class QuoteToBuyerResponse
     public function convert(CartInterface $quote): ?BuyerInterface
     {
         /** @var Quote $quote */
+        $billingAddress = $quote->getBillingAddress();
+
+        $firstName = $quote->getCustomerFirstname() ?: $billingAddress->getFirstname();
+        $lastName = $quote->getCustomerLastname() ?: $billingAddress->getLastname();
+        $email = $quote->getCustomerEmail() ?: $billingAddress->getEmail();
+        $phoneNumber = $billingAddress->getTelephone();
+
+        // An all-empty buyer is omitted rather than sent as an empty object.
+        if (!$firstName && !$lastName && !$email && !$phoneNumber) {
+            return null;
+        }
+
         /** @var BuyerInterface $buyer */
         $buyer = $this->buyerInterfaceFactory->create();
 
-        $billingAddress = $quote->getBillingAddress();
-
-        if ($quote->getCustomerFirstname()) {
-            $buyer->setFirstName($quote->getCustomerFirstname());
-        } elseif ($billingAddress->getFirstname()) {
-            $buyer->setFirstName($billingAddress->getFirstname());
+        if ($firstName) {
+            $buyer->setFirstName($firstName);
         }
 
-        if ($quote->getCustomerLastname()) {
-            $buyer->setLastName($quote->getCustomerLastname());
-        } elseif ($billingAddress->getLastname()) {
-            $buyer->setLastName($billingAddress->getLastname());
+        if ($lastName) {
+            $buyer->setLastName($lastName);
         }
 
-        if ($quote->getCustomerEmail()) {
-            $buyer->setEmail($quote->getCustomerEmail());
-        } elseif ($billingAddress->getEmail()) {
-            $buyer->setEmail($billingAddress->getEmail());
+        if ($email) {
+            $buyer->setEmail($email);
         }
 
-        if ($quote->getBillingAddress()->getTelephone()) {
-            $buyer->setPhoneNumber($quote->getBillingAddress()->getTelephone());
-        }
-
-        /** @var Buyer $buyer */
-        if ($buyer->isEmpty()) {
-            return null;
+        if ($phoneNumber) {
+            $buyer->setPhoneNumber($phoneNumber);
         }
 
         return $buyer;

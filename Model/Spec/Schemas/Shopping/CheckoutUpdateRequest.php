@@ -1,125 +1,39 @@
 <?php
 
 /**
- * @author Magebit <info@magebit.com>
- * @copyright Copyright (c) Magebit, Ltd. (https://magebit.com)
- * @license https://magebit.com/code-license
+ * This file is part of the Magebit_UniversalCommerce package.
+ *
+ * @copyright Copyright (c) 2026 Magebit, Ltd. (https://magebit.com/)
+ * @author    Magebit <info@magebit.com>
+ * @license   MIT
  */
 
 declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping;
 
-use Magebit\UniversalCommerce\Model\DataTransferObject;
+use Magebit\UcpSpec\Api\Shopping\DiscountResponseCheckoutInterface;
+use Magebit\UcpSpec\Api\Shopping\DiscountResponseDiscountsObjectInterface;
+use Magebit\UcpSpec\Api\Shopping\FulfillmentUpdateRequestCheckoutInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentRequestInterface;
+use Magebit\UcpSpec\Data\Shopping\CheckoutUpdateRequest as GeneratedCheckoutUpdateRequest;
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutUpdateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemUpdateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\BuyerInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ContextInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\DiscountDiscountsObjectInterface;
 
-class CheckoutUpdateRequest extends DataTransferObject implements CheckoutUpdateRequestInterface
+/**
+ * The base checkout request plus the fulfillment and discount extensions, which the spec ships as
+ * separate schemas and therefore never composes into one type of its own.
+ */
+class CheckoutUpdateRequest extends GeneratedCheckoutUpdateRequest implements CheckoutUpdateRequestInterface
 {
-    /**
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->getDataString(CheckoutUpdateRequestInterface::KEY_ID);
-    }
-
-    /**
-     * @param string $id
-     * @return self
-     */
-    public function setId(string $id): self
-    {
-        $this->setData(CheckoutUpdateRequestInterface::KEY_ID, $id);
-        return $this;
-    }
-
-    /**
-     * @return LineItemUpdateRequestInterface[]
-     */
-    public function getLineItems(): array
-    {
-        return $this->getDataArrayOfType(
-            CheckoutUpdateRequestInterface::KEY_LINE_ITEMS,
-            LineItemUpdateRequestInterface::class
-        );
-    }
-
-    /**
-     * @param LineItemUpdateRequestInterface[] $lineItems
-     * @return self
-     */
-    public function setLineItems(array $lineItems): self
-    {
-        $this->setData(CheckoutUpdateRequestInterface::KEY_LINE_ITEMS, $lineItems);
-        return $this;
-    }
-
-    /**
-     * @return BuyerInterface|null
-     */
-    public function getBuyer(): BuyerInterface|null
-    {
-        return $this->getDataOfTypeOrNull(CheckoutUpdateRequestInterface::KEY_BUYER, BuyerInterface::class);
-    }
-
-    /**
-     * @param BuyerInterface|null $buyer
-     * @return self
-     */
-    public function setBuyer(?BuyerInterface $buyer): self
-    {
-        $this->setData(CheckoutUpdateRequestInterface::KEY_BUYER, $buyer);
-        return $this;
-    }
-
-    /**
-     * @return ContextInterface|null
-     */
-    public function getContext(): ContextInterface|null
-    {
-        return $this->getDataOfTypeOrNull(CheckoutUpdateRequestInterface::KEY_CONTEXT, ContextInterface::class);
-    }
-
-    /**
-     * @param ContextInterface|null $context
-     * @return self
-     */
-    public function setContext(?ContextInterface $context): self
-    {
-        $this->setData(CheckoutUpdateRequestInterface::KEY_CONTEXT, $context);
-        return $this;
-    }
-
-    /**
-     * @return PaymentInterface|null
-     */
-    public function getPayment(): PaymentInterface|null
-    {
-        return $this->getDataOfTypeOrNull(CheckoutUpdateRequestInterface::KEY_PAYMENT, PaymentInterface::class);
-    }
-
-    /**
-     * @param PaymentInterface|null $payment
-     * @return self
-     */
-    public function setPayment(?PaymentInterface $payment): self
-    {
-        $this->setData(CheckoutUpdateRequestInterface::KEY_PAYMENT, $payment);
-        return $this;
-    }
-
     /**
      * @return FulfillmentRequestInterface|null
      */
     public function getFulfillment(): ?FulfillmentRequestInterface
     {
-        return $this->getDataOfTypeOrNull('fulfillment', FulfillmentRequestInterface::class);
+        return $this->instanceOrNull(
+            FulfillmentUpdateRequestCheckoutInterface::KEY_FULFILLMENT,
+            FulfillmentRequestInterface::class
+        );
     }
 
     /**
@@ -128,25 +42,26 @@ class CheckoutUpdateRequest extends DataTransferObject implements CheckoutUpdate
      */
     public function setFulfillment(?FulfillmentRequestInterface $fulfillment): self
     {
-        $this->setData('fulfillment', $fulfillment);
-        return $this;
+        return $this->set(FulfillmentUpdateRequestCheckoutInterface::KEY_FULFILLMENT, $fulfillment);
     }
 
     /**
-     * @return DiscountDiscountsObjectInterface|null
+     * @return DiscountResponseDiscountsObjectInterface|null
      */
-    public function getDiscounts(): ?DiscountDiscountsObjectInterface
+    public function getDiscounts(): ?DiscountResponseDiscountsObjectInterface
     {
-        return $this->getDataOfTypeOrNull('discounts', DiscountDiscountsObjectInterface::class);
+        return $this->instanceOrNull(
+            DiscountResponseCheckoutInterface::KEY_DISCOUNTS,
+            DiscountResponseDiscountsObjectInterface::class
+        );
     }
 
     /**
-     * @param DiscountDiscountsObjectInterface|null $discounts
+     * @param DiscountResponseDiscountsObjectInterface|null $discounts
      * @return self
      */
-    public function setDiscounts(?DiscountDiscountsObjectInterface $discounts): self
+    public function setDiscounts(?DiscountResponseDiscountsObjectInterface $discounts): self
     {
-        $this->setData('discounts', $discounts);
-        return $this;
+        return $this->set(DiscountResponseCheckoutInterface::KEY_DISCOUNTS, $discounts);
     }
 }

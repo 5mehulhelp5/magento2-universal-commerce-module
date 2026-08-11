@@ -12,40 +12,40 @@ declare(strict_types=1);
 namespace Magebit\UniversalCommerce\Api\Service\Shopping;
 
 use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\PaymentInterface;
 
 interface RestHandlerInterface
 {
     /**
      * @param CheckoutCreateRequestInterface $request
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      */
-    public function createCheckout(CheckoutCreateRequestInterface $request): FulfillmentCheckoutInterface;
+    public function createCheckout(CheckoutCreateRequestInterface $request): CheckoutResponseInterface;
 
     /**
      * @param string $checkoutId
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      */
-    public function getCheckout(string $checkoutId): FulfillmentCheckoutInterface;
+    public function getCheckout(string $checkoutId): CheckoutResponseInterface;
 
     /**
      * @param string $checkoutId
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      */
-    public function cancelCheckout(string $checkoutId): FulfillmentCheckoutInterface;
+    public function cancelCheckout(string $checkoutId): CheckoutResponseInterface;
 
     /**
      * @param string $checkoutId
      * @param CheckoutUpdateRequestInterface $request
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      */
-    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): FulfillmentCheckoutInterface;
+    public function updateCheckout(string $checkoutId, CheckoutUpdateRequestInterface $request): CheckoutResponseInterface;
 
     /**
      * @param string $checkoutId
      * @param PaymentInterface $paymentData
-     * @return FulfillmentCheckoutInterface
+     * @return CheckoutResponseInterface
      */
-    public function completeCheckout(string $checkoutId, PaymentInterface $paymentData): FulfillmentCheckoutInterface;
+    public function completeCheckout(string $checkoutId, PaymentInterface $paymentData): CheckoutResponseInterface;
 }

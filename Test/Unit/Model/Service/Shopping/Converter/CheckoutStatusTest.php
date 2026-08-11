@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Test\Unit\Model\Service\Shopping\Converter;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\FulfillmentCheckoutInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
+use Magebit\UniversalCommerce\Api\Service\Shopping\CheckoutResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToCheckoutResponse;
 use Magento\Quote\Api\Data\CartInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -44,7 +44,7 @@ class CheckoutStatusTest extends TestCase
     public function testOrderWinsOverInactiveQuote(): void
     {
         $this->assertSame(
-            FulfillmentCheckoutInterface::STATUS_COMPLETED,
+            CheckoutResponseInterface::STATUS_COMPLETED,
             $this->converter->getStatus($this->quote(false), [], true)
         );
     }
@@ -55,7 +55,7 @@ class CheckoutStatusTest extends TestCase
     public function testOrderWinsOverValidationErrors(): void
     {
         $this->assertSame(
-            FulfillmentCheckoutInterface::STATUS_COMPLETED,
+            CheckoutResponseInterface::STATUS_COMPLETED,
             $this->converter->getStatus($this->quote(true), [$this->message()], true)
         );
     }
@@ -66,7 +66,7 @@ class CheckoutStatusTest extends TestCase
     public function testInactiveQuoteWithoutOrderIsCanceled(): void
     {
         $this->assertSame(
-            FulfillmentCheckoutInterface::STATUS_CANCELED,
+            CheckoutResponseInterface::STATUS_CANCELED,
             $this->converter->getStatus($this->quote(false), [], false)
         );
     }
@@ -77,7 +77,7 @@ class CheckoutStatusTest extends TestCase
     public function testValidationErrorsMakeItIncomplete(): void
     {
         $this->assertSame(
-            FulfillmentCheckoutInterface::STATUS_INCOMPLETE,
+            CheckoutResponseInterface::STATUS_INCOMPLETE,
             $this->converter->getStatus($this->quote(true), [$this->message()], false)
         );
     }
@@ -88,7 +88,7 @@ class CheckoutStatusTest extends TestCase
     public function testCleanActiveQuoteIsReadyForComplete(): void
     {
         $this->assertSame(
-            FulfillmentCheckoutInterface::STATUS_READY_FOR_COMPLETE,
+            CheckoutResponseInterface::STATUS_READY_FOR_COMPLETE,
             $this->converter->getStatus($this->quote(true), [], false)
         );
     }
@@ -99,7 +99,7 @@ class CheckoutStatusTest extends TestCase
     public function testOrderDefaultsToAbsent(): void
     {
         $this->assertSame(
-            FulfillmentCheckoutInterface::STATUS_CANCELED,
+            CheckoutResponseInterface::STATUS_CANCELED,
             $this->converter->getStatus($this->quote(false), [])
         );
     }

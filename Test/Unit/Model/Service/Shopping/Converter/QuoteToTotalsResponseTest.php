@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Test\Unit\Model\Service\Shopping\Converter;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterfaceFactory;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\PriceConverter;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToTotalsResponse;
-use Magebit\UniversalCommerce\Model\Spec\Schemas\Shopping\Types\TotalResponse;
+use Magebit\UcpSpec\Data\Shopping\Types\TotalResponse;
 use Magebit\UniversalCommerce\Test\Unit\Model\Stub\TotalRow;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address;

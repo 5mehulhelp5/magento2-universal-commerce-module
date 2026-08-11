@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Model\Service\Shopping\Converter;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemResponseInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemResponseInterfaceFactory;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\TotalResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\LineItemResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\ItemResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\LineItemResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\ItemResponseInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\TotalResponseInterfaceFactory;
 use Magento\Quote\Api\Data\CartItemInterface;
 use Magento\Catalog\Helper\Image as ImageHelper;
 use Magento\Quote\Model\Quote\Item as QuoteItem;

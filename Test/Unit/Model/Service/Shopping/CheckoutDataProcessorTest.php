@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Test\Unit\Model\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentDestinationRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentGroupCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentMethodCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\FulfillmentRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\ItemCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\LineItemCreateRequestInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentDestinationRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentGroupCreateRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentMethodCreateRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\FulfillmentRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\ItemCreateRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\LineItemCreateRequestInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterface;
+use Magebit\UcpSpec\Api\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Model\Service\Shopping\AgentProfileParser;
 use Magebit\UniversalCommerce\Model\Service\Shopping\CheckoutDataProcessor;
 use Magento\Catalog\Api\ProductRepositoryInterface;
