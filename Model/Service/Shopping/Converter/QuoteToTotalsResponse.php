@@ -44,6 +44,7 @@ class QuoteToTotalsResponse
     {
         /** @var Quote $cart */
         $totals = [];
+        $currencyCode = $cart->getCurrency()?->getStoreCurrencyCode() ?? 'USD';
 
         foreach ($cart->getTotals() as $cartTotal) {
             /** @var TotalResponseInterface $total */
@@ -51,7 +52,7 @@ class QuoteToTotalsResponse
 
             $total->setType($this->getType($cartTotal->getCode()));
             $total->setDisplayText((string) $cartTotal->getTitle());
-            $total->setAmount($this->priceConverter->convert((float) $cartTotal->getValue()));
+            $total->setAmount($this->priceConverter->convert((float) $cartTotal->getValue(), $currencyCode));
 
             $totals[] = $total;
         }

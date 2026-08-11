@@ -1,0 +1,271 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Instanceof between Magento\\Framework\\App\\Request\\Http and Magento\\Framework\\App\\Request\\Http will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: Controller/ApiController.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 3
+			path: Model/CheckoutMeta/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\CheckoutMeta\\Model\:\:getCheckoutId\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/CheckoutMeta/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\CheckoutMeta\\Model\:\:getCreatedAt\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/CheckoutMeta/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\CheckoutMeta\\Model\:\:getUpdatedAt\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/CheckoutMeta/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\CheckoutMeta\\Model\:\:getWebhookUrl\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/CheckoutMeta/Model.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: Model/IdempotencyHandler.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 2
+			path: Model/IdempotencyKey/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\IdempotencyKey\\Model\:\:getCreatedAt\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/IdempotencyKey/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\IdempotencyKey\\Model\:\:getKey\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/IdempotencyKey/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\IdempotencyKey\\Model\:\:getRequestHash\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/IdempotencyKey/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\IdempotencyKey\\Model\:\:getResponseBody\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/IdempotencyKey/Model.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\IdempotencyKey\\Model\:\:getUpdatedAt\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/IdempotencyKey/Model.php
+
+		-
+			message: '#^Parameter \#2 \$data of method Magebit\\UniversalCommerce\\Model\\RequestClassBuilder\:\:populateWithArray\(\) expects array\<mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Model/RequestClassBuilder.php
+
+		-
+			message: '#^Cannot access offset ''capabilities'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Cannot access offset ''webhook_url'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Constant Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\AgentProfileParser\:\:CACHE_LIFETIME is unused\.$#'
+			identifier: classConstant.unused
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Constant Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\AgentProfileParser\:\:CACHE_TAG is unused\.$#'
+			identifier: classConstant.unused
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\AgentProfileParser\:\:extractWebhookUrl\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\AgentProfileParser\:\:fetchHttpProfile\(\) should return array\<string, mixed\>\|null but returns array\<mixed, mixed\>\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\AgentProfileParser\:\:fetchValidated\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\AgentProfileParser\:\:parseDataUri\(\) should return array\<string, mixed\>\|null but returns array\<mixed, mixed\>\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: Model/Service/Shopping/AgentProfileParser.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: Model/Service/Shopping/CheckoutDataProcessor.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Service\\Shopping\\Converter\\QuoteToBuyerResponse\:\:convert\(\) should return Magebit\\UcpSpec\\MutableApi\\Schemas\\Shopping\\Types\\BuyerInterface\|null but returns Magebit\\AgenticCommerce\\Model\\Data\\Buyer\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Service/Shopping/Converter/QuoteToBuyerResponse.php
+
+		-
+			message: '#^Call to an undefined method Magebit\\UcpSpec\\MutableApi\\Schemas\\Shopping\\FulfillmentCheckoutInterface\:\:setDiscounts\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Model/Service/Shopping/Converter/QuoteToCheckoutResponse.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: Model/Service/Shopping/Converter/QuoteToDiscountResponse.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<string\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: Model/Service/Shopping/Converter/QuoteToFulfillmentResponse.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: Model/Service/Shopping/Converter/QuoteToFulfillmentResponse.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: Model/Service/Shopping/Converter/QuoteToFulfillmentResponse.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: Model/Service/Shopping/Converter/QuoteToFulfillmentResponse.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\DiscountDiscountsObject\:\:getCodes\(\) should return array\<string\>\|null but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/Shopping/Types/DiscountDiscountsObject.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentAvailableMethodResponse\:\:getLineItemIds\(\) should return array\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/Shopping/Types/FulfillmentAvailableMethodResponse.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentGroupResponse\:\:getLineItemIds\(\) should return array\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/Shopping/Types/FulfillmentGroupResponse.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentMethodCreateRequest\:\:getLineItemIds\(\) should return array\<string\>\|null but returns array\<mixed, mixed\>\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/Shopping/Types/FulfillmentMethodCreateRequest.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\Shopping\\Types\\FulfillmentMethodResponse\:\:getLineItemIds\(\) should return array\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/Shopping/Types/FulfillmentMethodResponse.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpPlatformSchema\:\:getCapabilities\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityPlatformSchemaInterface\>\>\|null but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityPlatformSchemaInterface\>\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/UcpPlatformSchema.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpPlatformSchema\:\:getPaymentHandlers\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerPlatformSchemaInterface\>\> but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerPlatformSchemaInterface\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/UcpPlatformSchema.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpPlatformSchema\:\:getServices\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServicePlatformSchemaInterface\>\> but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServicePlatformSchemaInterface\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/UcpPlatformSchema.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpResponseCheckoutSchema\:\:getCapabilities\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityResponseSchemaInterface\>\>\|null but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\CapabilityResponseSchemaInterface\>\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/UcpResponseCheckoutSchema.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpResponseCheckoutSchema\:\:getPaymentHandlers\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerResponseSchemaInterface\>\> but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\PaymentHandlerResponseSchemaInterface\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/UcpResponseCheckoutSchema.php
+
+		-
+			message: '#^Method Magebit\\UniversalCommerce\\Model\\Spec\\Schemas\\UcpResponseCheckoutSchema\:\:getServices\(\) should return array\<string, array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServiceResponseSchemaInterface\>\>\|null but returns array\<Magebit\\UcpSpec\\MutableApi\\Schemas\\ServiceResponseSchemaInterface\>\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Model/Spec/Schemas/UcpResponseCheckoutSchema.php
+
+		-
+			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Model/Validation/RequestValidator.php
+
+		-
+			message: '#^Parameter \#1 \$string of function strtolower expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Model/Validation/RequestValidator.php

@@ -147,12 +147,4 @@ class ServicePlatformSchema extends DataTransferObject implements ServicePlatfor
         $this->setData(ServicePlatformSchemaInterface::KEY_ENDPOINT, $endpoint);
         return $this;
     }
-
-    /**
-     * @return array<mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->toArray();
-    }
 }

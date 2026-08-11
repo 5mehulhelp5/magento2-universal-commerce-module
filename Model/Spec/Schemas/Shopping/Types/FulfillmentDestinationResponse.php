@@ -162,24 +162,6 @@ class FulfillmentDestinationResponse extends DataTransferObject implements Fulfi
     /**
      * @return string|null
      */
-    public function getFullName(): string|null
-    {
-        return $this->getDataStringOrNull(FulfillmentDestinationResponseInterface::KEY_FULL_NAME);
-    }
-
-    /**
-     * @param string|null $fullName
-     * @return self
-     */
-    public function setFullName(?string $fullName): self
-    {
-        $this->setData(FulfillmentDestinationResponseInterface::KEY_FULL_NAME, $fullName);
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getPhoneNumber(): string|null
     {
         return $this->getDataStringOrNull(FulfillmentDestinationResponseInterface::KEY_PHONE_NUMBER);

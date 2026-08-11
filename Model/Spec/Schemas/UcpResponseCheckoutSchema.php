@@ -20,6 +20,13 @@ use Magebit\UcpSpec\MutableApi\Schemas\PaymentHandlerResponseSchemaInterface;
 
 class UcpResponseCheckoutSchema extends DataTransferObject implements UcpResponseCheckoutSchemaInterface
 {
+    /** @var string[] */
+    protected array $jsonObjectKeys = [
+        UcpResponseCheckoutSchemaInterface::KEY_SERVICES,
+        UcpResponseCheckoutSchemaInterface::KEY_CAPABILITIES,
+        UcpResponseCheckoutSchemaInterface::KEY_PAYMENT_HANDLERS,
+    ];
+
     /**
      * @return string
      */

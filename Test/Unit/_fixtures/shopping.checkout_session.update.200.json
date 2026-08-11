@@ -1,0 +1,145 @@
+{
+    "id": "checkout_session_placeholder_0001",
+    "line_items": [
+        {
+            "id": "1001",
+            "quantity": 2,
+            "item": {
+                "id": "24-MB04",
+                "title": "Strive Shoulder Pack",
+                "price": 3200,
+                "image_url": "https://merchant.example/media/catalog/product/cache/IMAGECACHEHASH/m/b/mb04-black-0.jpg"
+            },
+            "totals": [
+                {
+                    "type": "subtotal",
+                    "amount": 6400,
+                    "display_text": "Subtotal"
+                },
+                {
+                    "type": "total",
+                    "amount": 6400,
+                    "display_text": "Total"
+                }
+            ]
+        }
+    ],
+    "buyer": {
+        "first_name": "Ada",
+        "last_name": "Lovelace",
+        "email": "ada@example.com",
+        "phone_number": "+15555550123"
+    },
+    "ucp": {
+        "version": "2026-01-23",
+        "capabilities": {
+            "dev.ucp.shopping.checkout": [
+                {
+                    "version": "2026-01-23",
+                    "spec": "https://ucp.dev/specs/shopping/checkout",
+                    "schema": "https://ucp.dev/schemas/shopping/checkout.json"
+                }
+            ],
+            "dev.ucp.shopping.discount": [
+                {
+                    "version": "2026-01-23",
+                    "spec": "https://ucp.dev/specification/discount",
+                    "schema": "https://ucp.dev/schemas/shopping/discount.json",
+                    "extends": "dev.ucp.shopping.checkout"
+                }
+            ]
+        },
+        "payment_handlers": {}
+    },
+    "currency": "USD",
+    "totals": [
+        {
+            "type": "subtotal",
+            "display_text": "Subtotal",
+            "amount": 6400
+        },
+        {
+            "type": "fulfillment",
+            "display_text": "Shipping & Handling (Flat Rate - Fixed)",
+            "amount": 1000
+        },
+        {
+            "type": "tax",
+            "display_text": "Tax",
+            "amount": 0
+        },
+        {
+            "type": "total",
+            "display_text": "Grand Total",
+            "amount": 7400
+        }
+    ],
+    "links": [],
+    "payment": {
+        "instruments": []
+    },
+    "fulfillment": {
+        "methods": [
+            {
+                "id": "shipping",
+                "type": "shipping",
+                "line_item_ids": [
+                    "52"
+                ],
+                "destinations": [
+                    {
+                        "id": "1002",
+                        "street_address": "1 Main St",
+                        "address_locality": "Austin",
+                        "address_region": "Texas",
+                        "address_country": "US",
+                        "postal_code": "78701",
+                        "first_name": "Ada",
+                        "last_name": "Lovelace",
+                        "phone_number": "+15555550123"
+                    }
+                ],
+                "selected_destination_id": "74",
+                "groups": [
+                    {
+                        "id": "package",
+                        "line_item_ids": [
+                            "52"
+                        ],
+                        "options": [
+                            {
+                                "id": "flatrate_flatrate",
+                                "title": "Fixed",
+                                "description": "Flat Rate",
+                                "carrier": "Flat Rate",
+                                "totals": [
+                                    {
+                                        "type": "fulfillment",
+                                        "amount": 1000,
+                                        "display_text": "Fixed"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "tablerate_bestway",
+                                "title": "Table Rate",
+                                "description": "Best Way",
+                                "carrier": "Best Way",
+                                "totals": [
+                                    {
+                                        "type": "fulfillment",
+                                        "amount": 1500,
+                                        "display_text": "Table Rate"
+                                    }
+                                ]
+                            }
+                        ],
+                        "selected_option_id": "flatrate_flatrate"
+                    }
+                ]
+            }
+        ]
+    },
+    "messages": [],
+    "status": "ready_for_complete"
+}

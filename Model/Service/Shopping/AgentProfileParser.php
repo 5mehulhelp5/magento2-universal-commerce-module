@@ -28,18 +28,23 @@ class AgentProfileParser
     private const CACHE_LIFETIME = 3600; // 1 hour
     private const CACHE_TAG = 'ucp_agent_profile';
     private const HTTP_TIMEOUT = 5;
+    private const MAX_REDIRECTS = 3;
+    private const MAX_BODY_BYTES = 262144;
+    private const MAX_DATA_URI_BYTES = 262144;
 
     /**
      * @param PlatformSchemaInterfaceFactory $platformSchemaFactory
      * @param CurlFactory $curlFactory
      * @param CacheInterface $cache
      * @param LoggerInterface $logger
+     * @param ProfileUrlValidator $urlValidator
      */
     public function __construct(
         private readonly PlatformSchemaInterfaceFactory $platformSchemaFactory,
         private readonly CurlFactory $curlFactory,
         private readonly CacheInterface $cache,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly ProfileUrlValidator $urlValidator
     ) {
     }
 
@@ -130,6 +135,10 @@ class AgentProfileParser
             return null;
         }
 
+        if (strlen($parts[1]) > self::MAX_DATA_URI_BYTES) {
+            return null;
+        }
+
         $jsonStr = base64_decode($parts[1], true);
         if ($jsonStr === false) {
             return null;
@@ -156,17 +165,9 @@ class AgentProfileParser
             return is_array($data) ? $data : null;
         }
 
-        // Fetch from URL
-        $curl = $this->curlFactory->create();
-        $curl->setTimeout(self::HTTP_TIMEOUT);
-        // @phpstan-ignore argument.type
-        $curl->setOption(CURLOPT_FOLLOWLOCATION, true);
-        $curl->get($url);
+        $response = $this->fetchValidated($url);
 
-        $httpCode = $curl->getStatus();
-        $response = $curl->getBody();
-
-        if (!$response || $httpCode !== 200) {
+        if ($response === null) {
             return null;
         }
 
@@ -184,6 +185,63 @@ class AgentProfileParser
         );
 
         return $data;
+    }
+
+    /**
+     * Follow redirects by hand so every hop is re-validated, not just the first.
+     *
+     * @param string $url
+     * @return string|null
+     */
+    private function fetchValidated(string $url): ?string
+    {
+        for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
+            $addresses = $this->urlValidator->assertFetchable($url);
+
+            $curl = $this->curlFactory->create();
+            $curl->setTimeout(self::HTTP_TIMEOUT);
+            // @phpstan-ignore argument.type
+            $curl->setOption(CURLOPT_FOLLOWLOCATION, false);
+            // @phpstan-ignore argument.type
+            $curl->setOption(CURLOPT_RESOLVE, $this->pinResolution($url, $addresses));
+            $curl->get($url);
+
+            $status = $curl->getStatus();
+
+            if ($status === 200) {
+                $body = $curl->getBody();
+
+                return strlen($body) > self::MAX_BODY_BYTES ? null : $body;
+            }
+
+            if (!in_array($status, [301, 302, 303, 307, 308], true)) {
+                return null;
+            }
+
+            $location = $curl->getHeaders()['location'] ?? $curl->getHeaders()['Location'] ?? null;
+
+            if (!is_string($location) || $location === '') {
+                return null;
+            }
+
+            $url = $location;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $url
+     * @param string[] $addresses
+     * @return string[]
+     */
+    private function pinResolution(string $url, array $addresses): array
+    {
+        $parts = parse_url($url);
+        $host = $parts['host'] ?? '';
+        $port = $parts['port'] ?? 443;
+
+        return [sprintf('%s:%d:%s', $host, $port, implode(',', $addresses))];
     }
 
     /**

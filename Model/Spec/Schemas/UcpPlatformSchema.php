@@ -19,6 +19,13 @@ use Magebit\UcpSpec\MutableApi\Schemas\ServicePlatformSchemaInterface;
 
 class UcpPlatformSchema extends DataTransferObject implements UcpPlatformSchemaInterface
 {
+    /** @var string[] */
+    protected array $jsonObjectKeys = [
+        UcpPlatformSchemaInterface::KEY_SERVICES,
+        UcpPlatformSchemaInterface::KEY_CAPABILITIES,
+        UcpPlatformSchemaInterface::KEY_PAYMENT_HANDLERS,
+    ];
+
     /**
      * @return string
      */
@@ -89,13 +96,5 @@ class UcpPlatformSchema extends DataTransferObject implements UcpPlatformSchemaI
     {
         $this->setData(UcpPlatformSchemaInterface::KEY_PAYMENT_HANDLERS, $paymentHandlers);
         return $this;
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->toArray();
     }
 }
