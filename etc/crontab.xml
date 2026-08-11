@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * This file is part of the Magebit_UniversalCommerce package.
+ *
+ * @copyright Copyright (c) 2026 Magebit, Ltd. (https://magebit.com/)
+ * @author    Magebit <info@magebit.com>
+ * @license   MIT
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="universal_commerce_idempotency_cleanup" instance="Magebit\UniversalCommerce\Model\IdempotencyKey\Cleanup" method="execute">
+            <schedule>17 * * * *</schedule>
+        </job>
+    </group>
+</config>

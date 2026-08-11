@@ -37,12 +37,6 @@ parameters:
 			path: Model/CheckoutMeta/Model.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: Model/IdempotencyHandler.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
 			count: 2

@@ -16,6 +16,14 @@
                     <validate>validate-url</validate>
                 </field>
             </group>
+            <group id="idempotency" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Idempotency</label>
+                <field id="ttl_hours" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Stored Response TTL (hours)</label>
+                    <comment>How long replayable responses are kept before the cleanup cron removes them. Set to 0 to disable cleanup.</comment>
+                    <validate>validate-zero-or-greater validate-digits</validate>
+                </field>
+            </group>
         </section>
     </system>
 </config>

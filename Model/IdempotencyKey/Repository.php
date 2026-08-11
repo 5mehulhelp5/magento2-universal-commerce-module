@@ -93,6 +93,30 @@ class Repository implements IdempotencyKeyRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function claim(string $key, string $requestHash): bool
+    {
+        return $this->resourceModel->claim($key, $requestHash);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reclaimAbandoned(string $key, string $requestHash, string $abandonedBefore): bool
+    {
+        return $this->resourceModel->reclaimAbandoned($key, $requestHash, $abandonedBefore);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteExpired(string $expiredBefore): int
+    {
+        return $this->resourceModel->deleteExpired($expiredBefore);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function delete(IdempotencyKeyInterface $idempotencyKey): bool
     {
         try {
