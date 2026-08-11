@@ -117,8 +117,14 @@ class RestHandler implements RestHandlerInterface
     public function completeCheckout(string $checkoutId, PaymentInterface $paymentData): FulfillmentCheckoutInterface
     {
         $cart = $this->getCartByMaskedId($checkoutId);
-        $payment = $paymentData->getPaymentData();
-        $billingAddress = $payment->getBillingAddress();
+        $billingAddress = null;
+
+        foreach ($paymentData->getInstruments() ?? [] as $instrument) {
+            if ($instrument->getBillingAddress() !== null) {
+                $billingAddress = $instrument->getBillingAddress();
+                break;
+            }
+        }
 
         if ($billingAddress) {
             $this->checkoutDataProcessor->processBillingAddress($cart, $billingAddress);

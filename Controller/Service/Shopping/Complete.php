@@ -23,6 +23,7 @@ use Magebit\UniversalCommerce\Api\Service\Shopping\RestHandlerInterface;
 use Magebit\UniversalCommerce\Model\Validation\ValidationResult;
 use Magebit\UniversalCommerce\Model\RequestClassBuilder;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
+use Psr\Log\LoggerInterface;
 use Magebit\UniversalCommerce\Model\DataTransferObject;
 use Magento\Framework\Exception\LocalizedException;
 
@@ -35,6 +36,7 @@ class Complete extends ApiController
         RequestClassBuilder $requestClassBuilder,
         MessageInterfaceFactory $messageFactory,
         IdempotencyHandler $idempotencyHandler,
+        LoggerInterface $logger,
         protected readonly RestHandlerInterface $restHandler,
         protected readonly PaymentInterfaceFactory $paymentFactory
     ) {
@@ -44,7 +46,8 @@ class Complete extends ApiController
             $requestValidator,
             $requestClassBuilder,
             $messageFactory,
-            $idempotencyHandler
+            $idempotencyHandler,
+            $logger
         );
     }
 
