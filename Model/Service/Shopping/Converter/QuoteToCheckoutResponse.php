@@ -33,6 +33,12 @@ use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToBuyerRespo
 use Magebit\UniversalCommerce\Api\Service\Shopping\QuoteValidatorInterface;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToFulfillmentResponse;
 use Magebit\UniversalCommerce\Model\Service\Shopping\Converter\QuoteToDiscountResponse;
+use Magebit\UniversalCommerce\Api\CheckoutMetaRepositoryInterface;
+use Magebit\UniversalCommerce\Model\Config;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\OrderConfirmationInterfaceFactory;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class QuoteToCheckoutResponse
 {
@@ -47,6 +53,10 @@ class QuoteToCheckoutResponse
      * @param QuoteValidatorInterface $quoteValidator
      * @param QuoteToFulfillmentResponse $quoteToFulfillmentResponse
      * @param QuoteToDiscountResponse $quoteToDiscountResponse
+     * @param CheckoutMetaRepositoryInterface $checkoutMetaRepository
+     * @param OrderConfirmationInterfaceFactory $orderConfirmationFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param Config $config
      */
     public function __construct(
         protected readonly FulfillmentCheckoutInterfaceFactory $checkoutResponseFactory,
@@ -58,7 +68,11 @@ class QuoteToCheckoutResponse
         protected readonly QuoteToBuyerResponse $quoteToBuyerResponse,
         protected readonly QuoteValidatorInterface $quoteValidator,
         protected readonly QuoteToFulfillmentResponse $quoteToFulfillmentResponse,
-        protected readonly QuoteToDiscountResponse $quoteToDiscountResponse
+        protected readonly QuoteToDiscountResponse $quoteToDiscountResponse,
+        protected readonly CheckoutMetaRepositoryInterface $checkoutMetaRepository,
+        protected readonly OrderConfirmationInterfaceFactory $orderConfirmationFactory,
+        protected readonly OrderRepositoryInterface $orderRepository,
+        protected readonly Config $config
     ) {
     }
 
@@ -93,9 +107,15 @@ class QuoteToCheckoutResponse
             $response->setDiscounts($discounts);
         }
 
-        $validationErrors = $this->quoteValidator->validate($quote) ?? [];
+        $order = $this->getOrder($maskedCartId);
+
+        if ($order) {
+            $response->setOrder($order);
+        }
+
+        $validationErrors = $order ? [] : ($this->quoteValidator->validate($quote) ?? []);
         $response->setMessages($validationErrors);
-        $response->setStatus($this->getStatus($quote, $validationErrors));
+        $response->setStatus($this->getStatus($quote, $validationErrors, $order !== null));
 
         return $response;
     }
@@ -162,10 +182,16 @@ class QuoteToCheckoutResponse
     /**
      * @param CartInterface $quote
      * @param MessageInterface[] $validationErrors
+     * @param bool $hasOrder
      * @return string
      */
-    public function getStatus(CartInterface $quote, array $validationErrors): string
+    public function getStatus(CartInterface $quote, array $validationErrors, bool $hasOrder = false): string
     {
+        // Placing an order deactivates the quote, so order state must win over quote state.
+        if ($hasOrder) {
+            return FulfillmentCheckoutInterface::STATUS_COMPLETED;
+        }
+
         if (!$quote->getIsActive()) {
             return FulfillmentCheckoutInterface::STATUS_CANCELED;
         }
@@ -203,5 +229,38 @@ class QuoteToCheckoutResponse
     public function getLinks(CartInterface $quote): array
     {
         return [];
+    }
+
+    /**
+     * @param string $checkoutId
+     * @return OrderConfirmationInterface|null
+     */
+    protected function getOrder(string $checkoutId): ?OrderConfirmationInterface
+    {
+        try {
+            $orderId = $this->checkoutMetaRepository->getByCheckoutId($checkoutId)->getOrderId();
+        } catch (NoSuchEntityException $exception) {
+            return null;
+        }
+
+        if (!$orderId) {
+            return null;
+        }
+
+        try {
+            $order = $this->orderRepository->get($orderId);
+        } catch (NoSuchEntityException $exception) {
+            return null;
+        }
+
+        /** @var OrderConfirmationInterface $confirmation */
+        $confirmation = $this->orderConfirmationFactory->create();
+        $confirmation->setId((string) $order->getIncrementId());
+        $confirmation->setPermalinkUrl(
+            $this->config->getApiBaseUrl((int) $order->getStoreId())
+            . '/sales/order/view/order_id/' . $orderId
+        );
+
+        return $confirmation;
     }
 }

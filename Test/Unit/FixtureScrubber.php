@@ -42,6 +42,8 @@ class FixtureScrubber
      *
      * @var array<int, array{0: string, 1: string}>
      */
+    private const ENTITY_ID = '1000';
+
     private const PATTERNS = [
         // Media cache hash: rotates whenever image config changes.
         ['~/media/catalog/product/cache/[0-9a-f]{32}/~', '/media/catalog/product/cache/' . self::CACHE_HASH . '/'],
@@ -49,6 +51,8 @@ class FixtureScrubber
         ['~/static/version\d+/~', '/static/' . self::STATIC_VERSION . '/'],
         // ISO-8601 / RFC 3339 timestamps.
         ['~\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?~', self::TIMESTAMP],
+        // Local entity ids embedded in permalink paths.
+        ['~/(order_id|quote_id|customer_id)/\d+~', '/$1/' . self::ENTITY_ID],
     ];
 
     /**

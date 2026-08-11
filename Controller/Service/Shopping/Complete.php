@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Magebit\UniversalCommerce\Controller\Service\Shopping;
 
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterface;
-use Magebit\UcpSpec\MutableApi\Schemas\Shopping\PaymentInterfaceFactory;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCompleteRequestInterface;
+use Magebit\UcpSpec\MutableApi\Schemas\Shopping\CheckoutCompleteRequestInterfaceFactory;
 use Magebit\UcpSpec\MutableApi\Schemas\Shopping\Types\MessageInterfaceFactory;
 use Magebit\UniversalCommerce\Controller\ApiController;
 use Magento\Framework\Controller\Result\Json as ResultJson;
@@ -38,7 +38,7 @@ class Complete extends ApiController
         IdempotencyHandler $idempotencyHandler,
         LoggerInterface $logger,
         protected readonly RestHandlerInterface $restHandler,
-        protected readonly PaymentInterfaceFactory $paymentFactory
+        protected readonly CheckoutCompleteRequestInterfaceFactory $completeRequestFactory
     ) {
         parent::__construct(
             $resultJsonFactory,
@@ -69,14 +69,17 @@ class Complete extends ApiController
             ], 400);
         }
 
-        $paymentData = $this->getAndValidateRequest(
-            PaymentInterface::class,
-            $this->paymentFactory->create(...)
+        // The body is {"payment": {...}} — the payment object is nested, not the root.
+        $completeRequest = $this->getAndValidateRequest(
+            CheckoutCompleteRequestInterface::class,
+            $this->completeRequestFactory->create(...)
         );
 
-        if ($paymentData instanceof ValidationResult) {
-            return $this->validationResultToResponse($paymentData);
+        if ($completeRequest instanceof ValidationResult) {
+            return $this->validationResultToResponse($completeRequest);
         }
+
+        $paymentData = $completeRequest->getPayment();
 
         if ($idempotencyResponse = $this->handleIdempotency()) {
             return $idempotencyResponse;

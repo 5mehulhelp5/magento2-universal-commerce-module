@@ -18,6 +18,7 @@ class Config
 {
     private const XML_PATH_API_BASE_URL = 'universal_commerce/api/base_url';
     private const XML_PATH_IDEMPOTENCY_TTL_HOURS = 'universal_commerce/idempotency/ttl_hours';
+    private const XML_PATH_PAYMENT_METHOD = 'universal_commerce/checkout/payment_method';
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -66,5 +67,25 @@ class Config
         );
 
         return is_numeric($value) ? (int) $value : 0;
+    }
+
+    /**
+     * Magento payment method applied when an agent completes a checkout.
+     *
+     * UCP payment handlers are not mapped to Magento methods yet, but an order
+     * cannot be placed without one.
+     *
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getPaymentMethod(?int $storeId = null): string
+    {
+        $method = $this->scopeConfig->getValue(
+            self::XML_PATH_PAYMENT_METHOD,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return is_string($method) && $method !== '' ? $method : 'checkmo';
     }
 }

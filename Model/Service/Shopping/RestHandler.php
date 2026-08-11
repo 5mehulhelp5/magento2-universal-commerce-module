@@ -25,6 +25,11 @@ use Magebit\UniversalCommerce\Exception\UcpException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magebit\UniversalCommerce\Api\CheckoutMetaRepositoryInterface;
+use Magebit\UniversalCommerce\Api\Data\CheckoutMetaInterface;
+use Magebit\UniversalCommerce\Api\Data\CheckoutMetaInterfaceFactory;
+use Magebit\UniversalCommerce\Model\Config;
+use Magento\Quote\Model\Quote;
 
 class RestHandler implements RestHandlerInterface
 {
@@ -34,13 +39,19 @@ class RestHandler implements RestHandlerInterface
      * @param GuestCartRepositoryInterface $guestCartRepository
      * @param QuoteToCheckoutResponse $quoteToCheckoutResponse
      * @param CartRepositoryInterface $cartRepository
+     * @param CheckoutMetaRepositoryInterface $checkoutMetaRepository
+     * @param CheckoutMetaInterfaceFactory $checkoutMetaFactory
+     * @param Config $config
      */
     public function __construct(
         protected readonly CheckoutDataProcessor $checkoutDataProcessor,
         protected readonly GuestCartManagementInterface $guestCartManagement,
         protected readonly GuestCartRepositoryInterface $guestCartRepository,
         protected readonly QuoteToCheckoutResponse $quoteToCheckoutResponse,
-        protected readonly CartRepositoryInterface $cartRepository
+        protected readonly CartRepositoryInterface $cartRepository,
+        protected readonly CheckoutMetaRepositoryInterface $checkoutMetaRepository,
+        protected readonly CheckoutMetaInterfaceFactory $checkoutMetaFactory,
+        protected readonly Config $config
     ) {
     }
 
@@ -55,6 +66,7 @@ class RestHandler implements RestHandlerInterface
 
         $this->checkoutDataProcessor->processCreateCheckoutRequest($cart, $request, $maskedCartId);
         $this->cartRepository->save($cart);
+        $this->recordCheckoutMeta($maskedCartId, (int) $cart->getId());
 
         return $this->quoteToCheckoutResponse->convert($cart, $maskedCartId);
     }
@@ -130,13 +142,17 @@ class RestHandler implements RestHandlerInterface
             $this->checkoutDataProcessor->processBillingAddress($cart, $billingAddress);
         }
 
+        /** @var Quote $cart */
+        $cart->getPayment()->setMethod($this->config->getPaymentMethod((int) $cart->getStoreId()));
         $this->cartRepository->save($cart);
 
         try {
-            $orderId = $this->guestCartManagement->placeOrder($checkoutId);
+            $orderId = (int) $this->guestCartManagement->placeOrder($checkoutId);
         } catch (LocalizedException $e) {
             throw new LocalizedException(__('Failed to place order: %1', $e->getMessage()));
         }
+
+        $this->linkOrder($checkoutId, $orderId);
 
         return $this->quoteToCheckoutResponse->convert($cart, $checkoutId);
     }
@@ -162,5 +178,39 @@ class RestHandler implements RestHandlerInterface
         }
 
         return $cart;
+    }
+
+    /**
+     * @param string $checkoutId
+     * @param int $quoteId
+     * @return void
+     */
+    protected function recordCheckoutMeta(string $checkoutId, int $quoteId): void
+    {
+        /** @var CheckoutMetaInterface $meta */
+        $meta = $this->checkoutMetaFactory->create();
+        $meta->setCheckoutId($checkoutId);
+        $meta->setQuoteId($quoteId);
+
+        $this->checkoutMetaRepository->save($meta);
+    }
+
+    /**
+     * @param string $checkoutId
+     * @param int $orderId
+     * @return void
+     */
+    protected function linkOrder(string $checkoutId, int $orderId): void
+    {
+        try {
+            $meta = $this->checkoutMetaRepository->getByCheckoutId($checkoutId);
+        } catch (NoSuchEntityException $exception) {
+            /** @var CheckoutMetaInterface $meta */
+            $meta = $this->checkoutMetaFactory->create();
+            $meta->setCheckoutId($checkoutId);
+        }
+
+        $meta->setOrderId($orderId);
+        $this->checkoutMetaRepository->save($meta);
     }
 }
