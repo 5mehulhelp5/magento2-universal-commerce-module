@@ -28,6 +28,7 @@ use Magebit\UniversalCommerce\Exception\UcpException;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\LocalizedException;
 use Magebit\UniversalCommerce\Model\IdempotencyHandler;
+use Psr\Log\LoggerInterface;
 
 abstract class ApiController implements ActionInterface, CsrfAwareActionInterface
 {
@@ -38,6 +39,7 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
      * @param RequestClassBuilder $requestClassBuilder
      * @param MessageInterfaceFactory $messageFactory
      * @param IdempotencyHandler $idempotencyHandler
+     * @param LoggerInterface $logger
      */
     public function __construct(
         protected readonly JsonFactory $resultJsonFactory,
@@ -45,7 +47,8 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
         protected readonly RequestValidator $requestValidator,
         protected readonly RequestClassBuilder $requestClassBuilder,
         protected readonly MessageInterfaceFactory $messageFactory,
-        protected readonly IdempotencyHandler $idempotencyHandler
+        protected readonly IdempotencyHandler $idempotencyHandler,
+        protected readonly LoggerInterface $logger
     ) {
     }
 
@@ -75,12 +78,14 @@ abstract class ApiController implements ActionInterface, CsrfAwareActionInterfac
                     'message' => $e->getMessage(),
                 ]])
             ], 500);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+
             return $this->makeErrorResponse('requires_escalation', [
                 $this->messageFactory->create(['data' => [
                     'type' => 'error',
                     'code' => 'server_error',
-                    'message' => $e->getMessage(),
+                    'message' => 'An unexpected error occurred.',
                 ]])
             ], 500);
         }
