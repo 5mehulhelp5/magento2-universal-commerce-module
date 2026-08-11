@@ -23,6 +23,20 @@ use Magento\Quote\Model\Quote;
 class QuoteToTotalsResponse
 {
     /**
+     * Emission order, matching how the spec describes the total as
+     * subtotal - discount + fulfillment + tax + fee.
+     */
+    private const TYPE_ORDER = [
+        TotalResponseInterface::TYPE_ITEMS_DISCOUNT,
+        TotalResponseInterface::TYPE_SUBTOTAL,
+        TotalResponseInterface::TYPE_DISCOUNT,
+        TotalResponseInterface::TYPE_FULFILLMENT,
+        TotalResponseInterface::TYPE_TAX,
+        TotalResponseInterface::TYPE_FEE,
+        TotalResponseInterface::TYPE_TOTAL,
+    ];
+
+    /**
      * @param TotalResponseInterfaceFactory $totalResponseFactory
      * @param PriceConverter $priceConverter
      * @param array<string, string> $typeMapping
@@ -43,16 +57,37 @@ class QuoteToTotalsResponse
     public function convert(CartInterface $cart): array
     {
         /** @var Quote $cart */
-        $totals = [];
         $currencyCode = $cart->getCurrency()?->getStoreCurrencyCode() ?? 'USD';
+        $amounts = [];
+        $labels = [];
 
         foreach ($cart->getTotals() as $cartTotal) {
+            $type = $this->mapType((string) $cartTotal->getCode());
+
+            if ($type === null) {
+                continue;
+            }
+
+            // The spec requires amount >= 0, so a Magento discount's negative value
+            // is emitted as its magnitude and subtracted by the consumer.
+            $amounts[$type] = ($amounts[$type] ?? 0.0) + abs((float) $cartTotal->getValue());
+            $labels[$type] ??= (string) $cartTotal->getTitle();
+        }
+
+        $amounts = $this->withRequiredTotals($cart, $amounts);
+
+        $totals = [];
+
+        foreach (self::TYPE_ORDER as $type) {
+            if (!array_key_exists($type, $amounts)) {
+                continue;
+            }
+
             /** @var TotalResponseInterface $total */
             $total = $this->totalResponseFactory->create();
-
-            $total->setType($this->getType($cartTotal->getCode()));
-            $total->setDisplayText((string) $cartTotal->getTitle());
-            $total->setAmount($this->priceConverter->convert((float) $cartTotal->getValue(), $currencyCode));
+            $total->setType($type);
+            $total->setDisplayText($labels[$type] ?? $this->fallbackLabel($type));
+            $total->setAmount($this->priceConverter->convert($amounts[$type], $currencyCode));
 
             $totals[] = $total;
         }
@@ -61,13 +96,47 @@ class QuoteToTotalsResponse
     }
 
     /**
-     * Map Magento total code to UCP type
+     * Subtotal and total are required on every checkout response, so fall back to the
+     * quote's own figures when Magento did not emit a matching total row.
+     *
+     * @param Quote $cart
+     * @param array<string, float> $amounts
+     * @return array<string, float>
+     */
+    private function withRequiredTotals(Quote $cart, array $amounts): array
+    {
+        if (!isset($amounts[TotalResponseInterface::TYPE_SUBTOTAL])) {
+            $address = $cart->getIsVirtual() ? $cart->getBillingAddress() : $cart->getShippingAddress();
+            $subtotal = $address->getSubtotal() ?? $cart->getSubtotal();
+            $amounts[TotalResponseInterface::TYPE_SUBTOTAL] = abs((float) $subtotal);
+        }
+
+        if (!isset($amounts[TotalResponseInterface::TYPE_TOTAL])) {
+            $amounts[TotalResponseInterface::TYPE_TOTAL] = abs((float) $cart->getGrandTotal());
+        }
+
+        return $amounts;
+    }
+
+    /**
+     * Map a Magento total code to a UCP type, or null when it has no spec equivalent.
      *
      * @param string $magentoCode
+     * @return string|null
+     */
+    private function mapType(string $magentoCode): ?string
+    {
+        $type = $this->typeMapping[$magentoCode] ?? null;
+
+        return in_array($type, self::TYPE_ORDER, true) ? $type : null;
+    }
+
+    /**
+     * @param string $type
      * @return string
      */
-    private function getType(string $magentoCode): string
+    private function fallbackLabel(string $type): string
     {
-        return $this->typeMapping[$magentoCode] ?? $magentoCode;
+        return ucfirst(str_replace('_', ' ', $type));
     }
 }

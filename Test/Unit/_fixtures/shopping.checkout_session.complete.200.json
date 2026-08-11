@@ -84,7 +84,7 @@
                 "id": "shipping",
                 "type": "shipping",
                 "line_item_ids": [
-                    "78"
+                    "86"
                 ],
                 "destinations": [
                     {
@@ -99,12 +99,12 @@
                         "phone_number": "+15555550123"
                     }
                 ],
-                "selected_destination_id": "112",
+                "selected_destination_id": "122",
                 "groups": [
                     {
                         "id": "package",
                         "line_item_ids": [
-                            "78"
+                            "86"
                         ],
                         "options": [
                             {
