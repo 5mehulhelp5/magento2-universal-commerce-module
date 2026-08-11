@@ -13,7 +13,7 @@
         <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
         <column xsi:type="varchar" name="key" nullable="false" length="255" comment="Idempotency Key"/>
         <column xsi:type="varchar" name="request_hash" nullable="false" length="255" comment="Request Hash"/>
-        <column xsi:type="int" name="response_status" nullable="false" unsigned="true" comment="Response Status"/>
+        <column xsi:type="int" name="response_status" nullable="true" unsigned="true" comment="Response Status (NULL while the claim is in flight)"/>
         <column xsi:type="text" name="response_body" nullable="true" comment="Response Body"/>
         <column xsi:type="datetime" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
         <column xsi:type="datetime" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
@@ -25,6 +25,9 @@
         </constraint>
         <index referenceId="UCP_IDEMPOTENCY_KEYS_REQUEST_HASH_IDX" indexType="btree">
             <column name="request_hash"/>
+        </index>
+        <index referenceId="UCP_IDEMPOTENCY_KEYS_CREATED_AT_IDX" indexType="btree">
+            <column name="created_at"/>
         </index>
     </table>
 

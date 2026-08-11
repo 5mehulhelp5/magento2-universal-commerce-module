@@ -17,6 +17,7 @@ use Magento\Store\Model\StoreManagerInterface;
 class Config
 {
     private const XML_PATH_API_BASE_URL = 'universal_commerce/api/base_url';
+    private const XML_PATH_IDEMPOTENCY_TTL_HOURS = 'universal_commerce/idempotency/ttl_hours';
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -48,5 +49,22 @@ class Config
         }
 
         return rtrim($this->storeManager->getStore($storeId)->getBaseUrl(), '/');
+    }
+
+    /**
+     * How long stored idempotent responses are retained; 0 disables cleanup.
+     *
+     * @param int|null $storeId
+     * @return int
+     */
+    public function getIdempotencyTtlHours(?int $storeId = null): int
+    {
+        $value = $this->scopeConfig->getValue(
+            self::XML_PATH_IDEMPOTENCY_TTL_HOURS,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return is_numeric($value) ? (int) $value : 0;
     }
 }

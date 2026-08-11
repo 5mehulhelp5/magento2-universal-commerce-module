@@ -5,6 +5,9 @@
             <api>
                 <base_url></base_url>
             </api>
+            <idempotency>
+                <ttl_hours>24</ttl_hours>
+            </idempotency>
         </universal_commerce>
     </default>
 </config>

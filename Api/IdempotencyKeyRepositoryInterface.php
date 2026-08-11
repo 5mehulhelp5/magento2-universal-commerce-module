@@ -51,6 +51,33 @@ interface IdempotencyKeyRepositoryInterface
     public function getByKey(string $key): IdempotencyKeyInterface;
 
     /**
+     * Atomically claim a key so that only one concurrent caller executes the operation.
+     *
+     * @param string $key
+     * @param string $requestHash
+     * @return bool True when this caller won the claim.
+     */
+    public function claim(string $key, string $requestHash): bool;
+
+    /**
+     * Take over a claim whose owner died before storing a response.
+     *
+     * @param string $key
+     * @param string $requestHash
+     * @param string $abandonedBefore UTC datetime; claims created before it are considered abandoned.
+     * @return bool True when this caller took the claim over.
+     */
+    public function reclaimAbandoned(string $key, string $requestHash, string $abandonedBefore): bool;
+
+    /**
+     * Delete records created before the given point in time.
+     *
+     * @param string $expiredBefore UTC datetime.
+     * @return int Number of deleted rows.
+     */
+    public function deleteExpired(string $expiredBefore): int;
+
+    /**
      * Delete idempotency key record
      *
      * @param IdempotencyKeyInterface $idempotencyKey
